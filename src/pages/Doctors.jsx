@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import Layout from '../components/Layout';
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
@@ -21,18 +22,7 @@ const Doctors = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-600">ClinicHub Admin</h1>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="text-blue-600 hover:underline text-sm"
-        >
-          ← Dashboard
-        </button>
-      </div>
-
+    <Layout>
       <div className="p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-700">Shifokorlar</h2>
@@ -83,7 +73,7 @@ const Doctors = () => {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

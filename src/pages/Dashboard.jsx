@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -26,23 +27,8 @@ const Dashboard = () => {
       });
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-600">ClinicHub Admin</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm"
-        >
-          Chiqish
-        </button>
-      </div>
-
+    <Layout>
       <div className="p-8">
         <h2 className="text-2xl font-bold text-gray-700 mb-6">Dashboard</h2>
 
@@ -91,7 +77,7 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
