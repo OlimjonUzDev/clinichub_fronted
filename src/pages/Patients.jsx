@@ -1,71 +1,81 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Eye, Pencil } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
+import Layout from '../components/Layout';
+import PageHeader from '../components/PageHeader';
+import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 
-const Patients = () => {
+const PAGE_SIZE = 10;
+
+export default function Patients() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
-  const navigate = useNavigate();
+  const { t } = useLang();
 
   useEffect(() => {
-    api.get('/patients/patient/', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => {
-        setPatients(res.data);
-        setLoading(false);
-      })
+    api.get('/patients/patient/', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => { setPatients(res.data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-600">ClinicHub Admin</h1>
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="text-blue-600 hover:underline text-sm"
-        >
-          ← Dashboard
-        </button>
-      </div>
-
-      <div className="p-8">
-        <h2 className="text-2xl font-bold text-gray-700 mb-6">Bemorlar</h2>
-
-        {loading ? (
-          <p className="text-gray-500">Yuklanmoqda...</p>
-        ) : patients.length === 0 ? (
-          <p className="text-gray-500">Bemorlar yo'q</p>
-        ) : (
-          <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">#</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">User</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Tug'ilgan sana</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Manzil</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {patients.map((patient, index) => (
-                  <tr key={patient.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-500">{index + 1}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{patient.user}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{patient.birth_date}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{patient.address || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+  const filtered = patients.filter(p =>
+    (p.user || '').toString().toLowerCase().includes(search.toLowerCase()) ||
+    (p.email || '').toLowerCase().includes(search.toLowerCase())
   );
-};
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-export default Patients;
+  return (
+    <Layout>
+      <div className="p-8">
+        <PageHeader
+          breadcrumbs={[{ label: t('menu.patients_encounters') }, { label: t('menu.patients') }]}
+          title={t('patients.title')}
+          createPath="/patients/create"
+          createLabel={t('common.create')}
+        />
+
+        <div className="mb-4">
+          <SearchBar value={search} onChange={setSearch} placeholder={t('patients.search')} />
+        </div>
+
+        <Table
+          columns={[
+            t('patients.id'), t('patients.name'), t('patients.email'),
+            t('patients.phone'), t('patients.national_id'), t('patients.actions')
+          ]}
+          loading={loading}
+        >
+          {paginated.length === 0 && !loading
+            ? <EmptyState message={t('patients.no_data')} />
+            : paginated.map((p) => (
+              <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-5 py-4 text-sm text-gray-500">{p.id}</td>
+                <td className="px-5 py-4 text-sm font-medium text-gray-800">{p.user || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.email || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.phone || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '–'}</td>
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-1.5">
+                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                      <Eye size={13} />
+                    </button>
+                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
+                      <Pencil size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          }
+        </Table>
+
+        <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+      </div>
+    </Layout>
+  );
+}
