@@ -1,209 +1,160 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Upload } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import PageHeader from '../components/PageHeader';
 
-const DoctorCreate = () => {
+const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
+const selectCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition appearance-none";
+
+const Field = ({ label, required, children }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      {required && <span className="text-red-500 mr-0.5">*</span>}
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+export default function DoctorCreate() {
   const [specialities, setSpecialities] = useState([]);
   const [rankTypes, setRankTypes] = useState([]);
   const [clinics, setClinics] = useState([]);
-  const [users, setUsers] = useState([]);
   const [form, setForm] = useState({
-    user: '',
-    speciality: '',
-    rank_type: '',
-    clinic: '',
-    telegram_username: '',
-    bio: '',
-    experience_years: 0,
+    user: '', speciality: '', rank_type: '', clinic: '',
+    telegram_username: '', bio: '', experience_years: 0,
+    gender: '', status: 'active',
   });
+  const [loading, setLoading] = useState(false);
   const { token } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${token}` };
-    api.get('/catalog/speciality/', { headers }).then(res => setSpecialities(res.data));
-    api.get('/catalog/ranktyp/', { headers }).then(res => setRankTypes(res.data));
-    api.get('/clinics/clinics/', { headers }).then(res => setClinics(res.data));
-    api.get('/auth/users/', { headers }).then(res => setUsers(res.data));
+    const h = { Authorization: `Bearer ${token}` };
+    api.get('/catalog/speciality/', { headers: h }).then(r => setSpecialities(r.data)).catch(() => {});
+    api.get('/catalog/ranktyp/', { headers: h }).then(r => setRankTypes(r.data)).catch(() => {});
+    api.get('/clinics/clinics/', { headers: h }).then(r => setClinics(r.data)).catch(() => {});
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await api.post('/doctors/doctor/', form, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/doctors/doctor/', form, { headers: { Authorization: `Bearer ${token}` } });
       navigate('/doctors');
-    } catch (err) {
-      alert('Xatolik yuz berdi!');
+    } catch {
+      alert(t('doctor_create.error'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Layout>
-      <div className="p-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <span>Shifokorlar</span>
-          <span>/</span>
-          <span className="text-gray-600">Qo'shish</span>
-        </div>
+      <div className="p-8 max-w-4xl">
+        <PageHeader
+          breadcrumbs={[
+            { label: t('menu.doctors_staff'), path: '/doctors' },
+            { label: t('menu.doctors'), path: '/doctors' },
+            { label: t('common.create') },
+          ]}
+          title={t('doctor_create.title')}
+        />
 
-        {/* Title */}
-        <div className="flex items-center gap-3 mb-8">
-          <button
-            onClick={() => navigate('/doctors')}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            ←
-          </button>
-          <h2 className="text-2xl font-bold text-gray-800">Yangi shifokor qo'shish</h2>
-        </div>
+        <div className="bg-white rounded-xl border border-gray-100 p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-        {/* Form */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 max-w-3xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
+            <Field label={t('doctor_create.name_en')} required>
+              <input name="name_en" onChange={handleChange} className={inputCls} />
+            </Field>
 
-            {/* Foydalanuvchi */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                * Foydalanuvchi
-              </label>
-              <select
-                name="user"
-                onChange={handleChange}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              >
-                <option value="">Tanlang</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.username}</option>
-                ))}
+            <Field label={t('doctor_create.name_ar')} required>
+              <input name="name_ar" onChange={handleChange} className={inputCls} />
+            </Field>
+
+            <Field label={t('doctor_create.email')} required>
+              <input type="email" name="email" onChange={handleChange} className={inputCls} />
+            </Field>
+
+            <Field label={t('doctor_create.contact')} required>
+              <input name="contact_info" onChange={handleChange} className={inputCls} />
+            </Field>
+
+            <Field label={t('doctor_create.gender')} required>
+              <select name="gender" onChange={handleChange} className={selectCls}>
+                <option value="">{t('doctor_create.select')}</option>
+                <option value="Male">{t('doctor_create.male')}</option>
+                <option value="Female">{t('doctor_create.female')}</option>
               </select>
-            </div>
+            </Field>
 
-            {/* Mutaxassislik va Daraja */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  * Mutaxassislik
-                </label>
-                <select
-                  name="speciality"
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                >
-                  <option value="">Tanlang</option>
-                  {specialities.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  * Daraja
-                </label>
-                <select
-                  name="rank_type"
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                >
-                  <option value="">Tanlang</option>
-                  {rankTypes.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Klinika */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                * Klinika
-              </label>
-              <select
-                name="clinic"
-                onChange={handleChange}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              >
-                <option value="">Tanlang</option>
-                {clinics.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
+            <Field label={t('doctor_create.clinic')} required>
+              <select name="clinic" onChange={handleChange} className={selectCls}>
+                <option value="">{t('doctor_create.select')}</option>
+                {clinics.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-            </div>
+            </Field>
 
-            {/* Telegram va Tajriba */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Telegram username
-                </label>
-                <input
-                  type="text"
-                  name="telegram_username"
-                  onChange={handleChange}
-                  placeholder="@username"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                />
+            <Field label={t('doctor_create.rank')} required>
+              <select name="rank_type" onChange={handleChange} className={selectCls}>
+                <option value="">{t('doctor_create.select')}</option>
+                {rankTypes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+            </Field>
+
+            <Field label={t('doctor_create.speciality')}>
+              <select name="speciality" onChange={handleChange} className={selectCls}>
+                <option value="">{t('doctor_create.select')}</option>
+                {specialities.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </Field>
+
+            <Field label={t('doctor_create.subspecialties')}>
+              <input name="subspecialties" onChange={handleChange} className={inputCls} />
+            </Field>
+
+            <Field label={t('doctor_create.desc_en')} required>
+              <textarea name="bio" onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
+            </Field>
+
+            <Field label={t('doctor_create.desc_ar')} required>
+              <textarea name="bio_ar" onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
+            </Field>
+
+            <Field label={t('doctor_create.avatar')}>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-10 flex flex-col items-center text-gray-400 cursor-pointer hover:border-indigo-300 hover:text-indigo-400 transition">
+                <Upload size={28} strokeWidth={1.5} />
+                <p className="mt-2 text-sm font-medium">{t('doctor_create.avatar_hint')}</p>
+                <p className="text-xs mt-1 text-center">{t('doctor_create.avatar_sub')}</p>
               </div>
+            </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tajriba (yil)
-                </label>
-                <input
-                  type="number"
-                  name="experience_years"
-                  onChange={handleChange}
-                  defaultValue={0}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                />
-              </div>
-            </div>
+            <Field label={t('doctor_create.status')}>
+              <select name="status" value={form.status} onChange={handleChange} className={selectCls}>
+                <option value="active">{t('doctor_create.active')}</option>
+                <option value="inactive">{t('doctor_create.inactive')}</option>
+              </select>
+            </Field>
 
-            {/* Bio */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bio
-              </label>
-              <textarea
-                name="bio"
-                onChange={handleChange}
-                placeholder="Shifokor haqida qisqacha ma'lumot..."
-                rows={4}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              />
-            </div>
-
-            {/* Tugmalar */}
-            <div className="flex gap-4 pt-2">
+            <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 font-medium text-sm transition"
+                disabled={loading}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60"
               >
-                Saqlash
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/doctors')}
-                className="border border-gray-200 text-gray-600 px-8 py-3 rounded-xl hover:bg-gray-50 font-medium text-sm transition"
-              >
-                Bekor qilish
+                {loading ? t('doctor_create.saving') : t('doctor_create.save')}
               </button>
             </div>
-
           </form>
         </div>
       </div>
     </Layout>
   );
-};
-
-export default DoctorCreate;
+}
