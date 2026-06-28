@@ -24,8 +24,9 @@ export default function Patients() {
   }, []);
 
   const filtered = patients.filter(p =>
-    (p.user || '').toString().toLowerCase().includes(search.toLowerCase()) ||
-    (p.email || '').toLowerCase().includes(search.toLowerCase())
+    (p.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.name_ru || '').toLowerCase().includes(search.toLowerCase()) ||
+    (p.phone_number || '').includes(search)
   );
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -55,10 +56,13 @@ export default function Patients() {
             : paginated.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-4 text-sm text-gray-500">{p.id}</td>
-                <td className="px-5 py-4 text-sm font-medium text-gray-800">{p.user || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{p.email || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{p.phone || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '–'}</td>
+                <td className="px-5 py-4">
+                  <div className="text-sm font-medium text-gray-800">{p.name_uz || '—'}</div>
+                  <div className="text-xs text-gray-400">{p.name_ru || ''}</div>
+                </td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.user?.email || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.phone_number || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.address || '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
                     <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">

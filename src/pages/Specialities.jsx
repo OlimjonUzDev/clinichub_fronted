@@ -18,18 +18,18 @@ export default function Specialities() {
   const { t } = useLang();
 
   useEffect(() => {
-    api.get('/catalog/speciality/', { headers: { Authorization: `Bearer ${token}` } })
+    api.get('/catalog/specialities/', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => { setItems(res.data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
-  const filtered = items.filter(i => (i.name || '').toLowerCase().includes(search.toLowerCase()));
+  const filtered = items.filter(i => (i.name_uz || '').toLowerCase().includes(search.toLowerCase()) || (i.name_ru || '').toLowerCase().includes(search.toLowerCase()));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (id) => {
     if (!confirm(t('common.delete') + '?')) return;
     try {
-      await api.delete(`/catalog/speciality/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/catalog/specialities/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setItems(prev => prev.filter(i => i.id !== id));
     } catch { alert(t('doctors.delete_error')); }
   };
@@ -55,8 +55,8 @@ export default function Specialities() {
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 text-sm text-gray-500 w-20">{item.id}</td>
                 <td className="px-5 py-4">
-                  <div className="text-sm font-medium text-gray-800">{item.name}</div>
-                  {item.name_ar && <div className="text-xs text-gray-400">{item.name_ar}</div>}
+                  <div className="text-sm font-medium text-gray-800">{item.name_uz}</div>
+                  {item.name_ru && <div className="text-xs text-gray-400">{item.name_ru}</div>}
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">

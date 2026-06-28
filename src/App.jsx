@@ -6,6 +6,7 @@ import Doctors from './pages/Doctors';
 import DoctorCreate from './pages/DoctorCreate';
 import Patients from './pages/Patients';
 import Specialities from './pages/Specialities';
+import SpecialityCreate from './pages/SpecialityCreate';
 import Clinics from './pages/Clinics';
 import GettingStarted from './pages/GettingStarted';
 import Placeholder from './pages/Placeholder';
@@ -27,7 +28,8 @@ function App() {
         {/* Doctors & Staff */}
         <Route path="/doctors"            element={<Protected><Doctors /></Protected>} />
         <Route path="/doctors/create"     element={<Protected><DoctorCreate /></Protected>} />
-        <Route path="/specialities"       element={<Protected><Specialities /></Protected>} />
+        <Route path="/specialities"        element={<Protected><Specialities /></Protected>} />
+        <Route path="/specialities/create" element={<Protected><SpecialityCreate /></Protected>} />
         <Route path="/ratings"            element={<Protected><Placeholder title="Ratings" /></Protected>} />
 
         {/* Clinics & Centers */}

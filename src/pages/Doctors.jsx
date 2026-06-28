@@ -26,8 +26,8 @@ export default function Doctors() {
   }, []);
 
   const filtered = doctors.filter(d =>
-    (d.user || '').toString().toLowerCase().includes(search.toLowerCase()) ||
-    (d.speciality || '').toString().toLowerCase().includes(search.toLowerCase())
+    (d.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+    (d.name_ru || '').toLowerCase().includes(search.toLowerCase())
   );
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -55,9 +55,9 @@ export default function Doctors() {
 
         <Table
           columns={[
-            t('doctors.id'), t('doctors.name'), t('doctors.email'),
+            t('doctors.id'), t('doctors.name'), t('doctors.speciality'),
             t('doctors.gender'), t('doctors.clinic_type'), t('doctors.rank'),
-            t('doctors.status'), t('doctors.actions'),
+            t('doctors.experience'), t('doctors.actions'),
           ]}
           loading={loading}
         >
@@ -67,14 +67,14 @@ export default function Doctors() {
               <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-4 text-sm text-gray-500">{doc.id}</td>
                 <td className="px-5 py-4">
-                  <div className="text-sm font-medium text-gray-800">{doc.user}</div>
-                  <div className="text-xs text-gray-400">{doc.user}</div>
+                  <div className="text-sm font-medium text-gray-800">{doc.name_uz || '—'}</div>
+                  <div className="text-xs text-gray-400">{doc.name_ru || ''}</div>
                 </td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.email || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{doc.speciality?.name_uz || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{doc.gender || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.clinic || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.rank_type || '—'}</td>
-                <td className="px-5 py-4"><StatusBadge status={doc.status || 'active'} /></td>
+                <td className="px-5 py-4 text-sm text-gray-500">{doc.clinic?.phone_number || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{doc.rank_type?.name_uz || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{doc.experience_years ?? '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
                     <button onClick={() => navigate(`/doctors/${doc.id}`)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">

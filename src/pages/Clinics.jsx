@@ -25,7 +25,10 @@ export default function Clinics() {
   }, []);
 
   const filtered = items.filter(i => {
-    const matchSearch = (i.name || '').toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      (i.clinic_type?.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+      (i.medical_center?.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+      (i.phone_number || '').includes(search);
     const matchStatus = !statusFilter || (i.status || '').toLowerCase() === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -68,13 +71,13 @@ export default function Clinics() {
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 text-sm text-gray-500 w-16">{item.id}</td>
                 <td className="px-5 py-4">
-                  <div className="text-sm font-medium text-gray-800">{item.clinic_type || item.name}</div>
-                  {item.name_ar && <div className="text-xs text-gray-400">{item.name_ar}</div>}
+                  <div className="text-sm font-medium text-gray-800">{item.clinic_type?.name_uz || '—'}</div>
+                  {item.clinic_type?.name_ru && <div className="text-xs text-gray-400">{item.clinic_type.name_ru}</div>}
                 </td>
                 <td className="px-5 py-4">
-                  <div className="text-sm text-gray-700">{item.medical_center || item.name}</div>
+                  <div className="text-sm text-gray-700">{item.medical_center?.name_uz || '—'}</div>
                 </td>
-                <td className="px-5 py-4 text-sm text-gray-500">{item.contact || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{item.phone_number || '—'}</td>
                 <td className="px-5 py-4"><StatusBadge status={item.status || 'active'} /></td>
                 <td className="px-5 py-4 text-sm text-gray-500">{item.doctors_count ?? '—'}</td>
                 <td className="px-5 py-4">
