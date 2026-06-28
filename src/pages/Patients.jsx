@@ -62,7 +62,7 @@ export default function Patients() {
                 </td>
                 <td className="px-5 py-4 text-sm text-gray-500">{p.user?.email || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{p.phone_number || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{p.address || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
                     <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">

@@ -53,13 +53,11 @@ export default function DoctorCreate() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log('Changed:', name, value);
     setForm(prev => ({ ...prev, [name]: name === 'experience_years' ? Number(value) : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form data:', form);
     setLoading(true);
     try {
       await api.post('/doctors/doctor/', form, { headers: { Authorization: `Bearer ${token}` } });

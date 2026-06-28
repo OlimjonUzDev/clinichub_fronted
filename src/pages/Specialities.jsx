@@ -23,7 +23,10 @@ export default function Specialities() {
       .catch(() => setLoading(false));
   }, []);
 
-  const filtered = items.filter(i => (i.name_uz || '').toLowerCase().includes(search.toLowerCase()) || (i.name_ru || '').toLowerCase().includes(search.toLowerCase()));
+  const filtered = items.filter(i =>
+    (i.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+    (i.name_ru || '').toLowerCase().includes(search.toLowerCase())
+  );
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (id) => {
