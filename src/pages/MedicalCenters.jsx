@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, Pencil } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -10,13 +11,13 @@ import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../compon
 const PAGE_SIZE = 10;
 
 export default function MedicalCenters() {
-  const [items, setItems]         = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [search, setSearch]       = useState('');
-  const [statusFilter, setStatus] = useState('');
-  const [page, setPage]           = useState(1);
+  const [items, setItems]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch]   = useState('');
+  const [page, setPage]       = useState(1);
   const { token }   = useAuth();
   const { t, lang } = useLang();
+  const navigate    = useNavigate();
 
   useEffect(() => {
     api.get('/clinics/medicalcenter/', { headers: { Authorization: `Bearer ${token}` } })
@@ -26,25 +27,14 @@ export default function MedicalCenters() {
 
   const filtered = items.filter(i => {
     const name = lang === 'ru' ? (i.name_ru || i.name_uz) : i.name_uz;
-    const matchSearch =
+    return (
       (name || '').toLowerCase().includes(search.toLowerCase()) ||
       (i.contact || '').includes(search) ||
-      (i.email || '').toLowerCase().includes(search.toLowerCase());
-    const matchStatus = !statusFilter || i.status === statusFilter;
-    return matchSearch && matchStatus;
+      (i.address || '').toLowerCase().includes(search.toLowerCase())
+    );
   });
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  const handleDelete = async (id) => {
-    if (!confirm(t('mc.delete_confirm'))) return;
-    try {
-      await api.delete(`/clinics/medicalcenter/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setItems(prev => prev.filter(i => i.id !== id));
-    } catch { alert(t('mc.delete_error')); }
-  };
 
   return (
     <Layout>
@@ -55,31 +45,20 @@ export default function MedicalCenters() {
             { label: t('menu.medical_centers') },
           ]}
           title={t('mc.title')}
-          createPath="/medical-centers/create"
-          createLabel={t('common.create')}
         />
 
-        <div className="flex gap-3 mb-4">
+        <div className="mb-4">
           <SearchBar
             value={search}
             onChange={v => { setSearch(v); setPage(1); }}
             placeholder={t('mc.search')}
           />
-          <select
-            value={statusFilter}
-            onChange={e => { setStatus(e.target.value); setPage(1); }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
-          >
-            <option value="">{t('clinics.status_all')}</option>
-            <option value="active">{t('common.active')}</option>
-            <option value="inactive">{t('common.inactive')}</option>
-          </select>
         </div>
 
         <Table
           columns={[
-            t('mc.id'), t('mc.name'), t('mc.contact'),
-            t('mc.email'), t('mc.address'), t('mc.status'), t('mc.actions'),
+            t('mc.id'), t('mc.name'), t('mc.address'),
+            t('mc.contact'), t('mc.status'), t('mc.actions'),
           ]}
           loading={loading}
         >
@@ -95,27 +74,27 @@ export default function MedicalCenters() {
                     <div className="text-sm font-medium text-gray-800">{name || '—'}</div>
                     {subname && <div className="text-xs text-gray-400">{subname}</div>}
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{item.contact || '—'}</td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{item.email || '—'}</td>
                   <td className="px-5 py-4 text-sm text-gray-500 max-w-xs">
                     <span className="line-clamp-1">{item.address || '—'}</span>
                   </td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{item.contact || '—'}</td>
                   <td className="px-5 py-4">
                     <StatusBadge status={item.status || 'active'} />
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                      <button
+                        title={t('common.view')}
+                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                      >
                         <Eye size={13} />
                       </button>
-                      <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
-                        <Pencil size={13} />
-                      </button>
                       <button
-                        onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition"
+                        title={t('common.edit')}
+                        onClick={() => navigate(`/medical-centers/create?edit=${item.id}`)}
+                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
                       >
-                        <Trash2 size={13} />
+                        <Pencil size={13} />
                       </button>
                     </div>
                   </td>
