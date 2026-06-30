@@ -1,0 +1,115 @@
+import { useEffect, useState } from 'react';
+import { Eye } from 'lucide-react';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
+import Layout from '../components/Layout';
+import PageHeader from '../components/PageHeader';
+import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+
+const PAGE_SIZE = 10;
+
+export default function Payouts() {
+  const [items, setItems]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [search, setSearch]       = useState('');
+  const [statusFilter, setStatus] = useState('');
+  const [page, setPage]           = useState(1);
+  const { token }   = useAuth();
+  const { t, lang } = useLang();
+
+  useEffect(() => {
+    api.get('/billing/doctorpayout/', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => { setItems(res.data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = items.filter(i => {
+    const doctorName = lang === 'ru'
+      ? (i.doctor?.name_ru || i.doctor?.name_uz || '')
+      : (i.doctor?.name_uz || '');
+    const matchSearch = doctorName.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = !statusFilter || i.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const fmtDate = (dt) => dt
+    ? new Date(dt).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', {
+        year: 'numeric', month: 'short', day: 'numeric',
+      })
+    : '—';
+
+  return (
+    <Layout>
+      <div className="p-8">
+        <PageHeader
+          breadcrumbs={[{ label: t('menu.financial') }, { label: t('menu.doctor_payouts') }]}
+          title={t('payouts.title')}
+        />
+
+        <div className="flex gap-3 mb-4">
+          <SearchBar
+            value={search}
+            onChange={v => { setSearch(v); setPage(1); }}
+            placeholder={t('payouts.search')}
+          />
+          <select
+            value={statusFilter}
+            onChange={e => { setStatus(e.target.value); setPage(1); }}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+          >
+            <option value="">{t('payouts.all_statuses')}</option>
+            <option value="pending">{t('payouts.pending')}</option>
+            <option value="paid">{t('payouts.paid')}</option>
+          </select>
+        </div>
+
+        <Table
+          columns={[
+            t('payouts.id'), t('payouts.doctor'), t('payouts.period'),
+            t('payouts.amount'), t('payouts.status'), t('payouts.paid_at'), t('payouts.actions'),
+          ]}
+          loading={loading}
+        >
+          {paginated.length === 0 && !loading
+            ? <EmptyState message={t('payouts.no_data')} />
+            : paginated.map(item => {
+              const doctorName = lang === 'ru'
+                ? (item.doctor?.name_ru || item.doctor?.name_uz || '—')
+                : (item.doctor?.name_uz || '—');
+
+              return (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-4 text-sm text-gray-500">{item.id}</td>
+                  <td className="px-5 py-4">
+                    <div className="text-sm font-medium text-gray-800">{doctorName}</div>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    {fmtDate(item.period_from)} — {fmtDate(item.period_to)}
+                  </td>
+                  <td className="px-5 py-4 text-sm font-semibold text-gray-800">
+                    {Number(item.amount).toLocaleString()} UZS
+                  </td>
+                  <td className="px-5 py-4">
+                    <StatusBadge status={item.status} />
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-400">
+                    {item.paid_at ? fmtDate(item.paid_at) : '—'}
+                  </td>
+                  <td className="px-5 py-4">
+                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                      <Eye size={13} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </Table>
+
+        <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+      </div>
+    </Layout>
+  );
+}

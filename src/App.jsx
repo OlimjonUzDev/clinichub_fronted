@@ -8,7 +8,17 @@ import Patients from './pages/Patients';
 import Specialities from './pages/Specialities';
 import SpecialityCreate from './pages/SpecialityCreate';
 import Clinics from './pages/Clinics';
+import ClinicCreate from './pages/ClinicCreate';
+import MedicalCenters from './pages/MedicalCenters';
+import MedicalCenterCreate from './pages/MedicalCenterCreate';
 import GettingStarted from './pages/GettingStarted';
+import Ratings from './pages/Ratings';
+import Appointments from './pages/Appointments';
+import RankTypes from './pages/RankTypes';
+import RankPrices from './pages/RankPrices';
+import Invoices from './pages/Invoices';
+import Payouts from './pages/Payouts';
+import Users from './pages/Users';
 import Placeholder from './pages/Placeholder';
 
 const Protected = ({ children }) => {
@@ -30,28 +40,34 @@ function App() {
         <Route path="/doctors/create"     element={<Protected><DoctorCreate /></Protected>} />
         <Route path="/specialities"        element={<Protected><Specialities /></Protected>} />
         <Route path="/specialities/create" element={<Protected><SpecialityCreate /></Protected>} />
-        <Route path="/ratings"            element={<Protected><Placeholder title="Ratings" /></Protected>} />
+        <Route path="/ratings"            element={<Protected><Ratings /></Protected>} />
 
         {/* Clinics & Centers */}
         <Route path="/clinics"            element={<Protected><Clinics /></Protected>} />
-        <Route path="/medical-centers"    element={<Protected><Placeholder title="Medical Centers" /></Protected>} />
+        <Route path="/clinics/create"     element={<Protected><ClinicCreate /></Protected>} />
+        <Route path="/medical-centers"        element={<Protected><MedicalCenters /></Protected>} />
+        <Route path="/medical-centers/create" element={<Protected><MedicalCenterCreate /></Protected>} />
 
         {/* Patients & Encounters */}
         <Route path="/patients"           element={<Protected><Patients /></Protected>} />
-        <Route path="/appointments"       element={<Protected><Placeholder title="Appointments" /></Protected>} />
+        <Route path="/appointments"       element={<Protected><Appointments /></Protected>} />
 
         {/* Pricing & Ranks */}
-        <Route path="/rank-types"         element={<Protected><Placeholder title="Rank Types" /></Protected>} />
-        <Route path="/rank-prices"        element={<Protected><Placeholder title="Rank Prices" /></Protected>} />
+        <Route path="/rank-types"         element={<Protected><RankTypes /></Protected>} />
+        <Route path="/rank-prices"        element={<Protected><RankPrices /></Protected>} />
 
-        {/* Other */}
-        <Route path="/invoices"           element={<Protected><Placeholder title="Invoices" /></Protected>} />
+        {/* Financial */}
+        <Route path="/invoices"           element={<Protected><Invoices /></Protected>} />
         <Route path="/insurance"          element={<Protected><Placeholder title="Insurance Claims" /></Protected>} />
-        <Route path="/payouts"            element={<Protected><Placeholder title="Doctor Payouts" /></Protected>} />
+        <Route path="/payouts"            element={<Protected><Payouts /></Protected>} />
         <Route path="/doctor-settings"    element={<Protected><Placeholder title="Doctors Settings" /></Protected>} />
+
+        {/* Marketing */}
         <Route path="/coupons"            element={<Protected><Placeholder title="Coupons" /></Protected>} />
         <Route path="/banners"            element={<Protected><Placeholder title="Banners" /></Protected>} />
-        <Route path="/users"              element={<Protected><Placeholder title="Users" /></Protected>} />
+
+        {/* Admin */}
+        <Route path="/users"              element={<Protected><Users /></Protected>} />
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
