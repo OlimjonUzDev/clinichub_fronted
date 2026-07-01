@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import RankTypeEditModal from '../components/RankTypeEditModal';
 
 const PAGE_SIZE = 10;
 
@@ -15,9 +15,9 @@ export default function RankTypes() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [page, setPage]       = useState(1);
+  const [editItem, setEditItem] = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
-  const navigate    = useNavigate();
 
   useEffect(() => {
     api.get('/catalog/ranktyp/', { headers: { Authorization: `Bearer ${token}` } })
@@ -81,7 +81,7 @@ export default function RankTypes() {
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => navigate(`/rank-types/${item.id}/edit`)}
+                      onClick={() => setEditItem(item)}
                       className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
                     >
                       <Pencil size={13} />
@@ -100,6 +100,17 @@ export default function RankTypes() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {editItem && (
+          <RankTypeEditModal
+            item={editItem}
+            onClose={() => setEditItem(null)}
+            onSaved={(updated) => {
+              setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+              setEditItem(null);
+            }}
+          />
+        )}
       </div>
     </Layout>
   );

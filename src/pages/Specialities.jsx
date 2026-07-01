@@ -6,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import SpecialityEditModal from '../components/SpecialityEditModal';
 
 const PAGE_SIZE = 10;
 
@@ -14,6 +15,7 @@ export default function Specialities() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [editItem, setEditItem] = useState(null);
   const { token } = useAuth();
   const { t } = useLang();
 
@@ -48,7 +50,7 @@ export default function Specialities() {
         />
 
         <div className="mb-4">
-          <SearchBar value={search} onChange={setSearch} placeholder={t('specialities.search')} />
+          <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder={t('specialities.search')} />
         </div>
 
         <Table columns={[t('specialities.id'), t('specialities.name'), t('specialities.actions')]} loading={loading}>
@@ -63,7 +65,10 @@ export default function Specialities() {
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
+                    <button
+                      onClick={() => setEditItem(item)}
+                      className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
+                    >
                       <Pencil size={13} />
                     </button>
                     <button onClick={() => handleDelete(item.id)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
@@ -77,6 +82,17 @@ export default function Specialities() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {editItem && (
+          <SpecialityEditModal
+            item={editItem}
+            onClose={() => setEditItem(null)}
+            onSaved={(updated) => {
+              setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+              setEditItem(null);
+            }}
+          />
+        )}
       </div>
     </Layout>
   );

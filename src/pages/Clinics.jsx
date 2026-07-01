@@ -6,6 +6,8 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import ClinicEditModal from '../components/ClinicEditModal';
+import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 10;
 
@@ -15,8 +17,18 @@ export default function Clinics() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [editItem, setEditItem] = useState(null);
+  const [viewItem, setViewItem] = useState(null);
   const { token } = useAuth();
   const { t } = useLang();
+
+  const handleDelete = async (id) => {
+    if (!confirm(t('clinics.delete_confirm'))) return;
+    try {
+      await api.delete(`/clinics/clinics/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      setItems(prev => prev.filter(i => i.id !== id));
+    } catch { alert(t('clinics.delete_error')); }
+  };
 
   useEffect(() => {
     api.get('/clinics/clinics/', { headers: { Authorization: `Bearer ${token}` } })
@@ -45,10 +57,10 @@ export default function Clinics() {
         />
 
         <div className="flex gap-3 mb-4">
-          <SearchBar value={search} onChange={setSearch} placeholder={t('clinics.search')} />
+          <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder={t('clinics.search')} />
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
           >
             <option value="">{t('clinics.status_all')}</option>
@@ -82,13 +94,13 @@ export default function Clinics() {
                 <td className="px-5 py-4 text-sm text-gray-500">{item.doctors_count ?? '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                    <button onClick={() => setViewItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
                       <Eye size={13} />
                     </button>
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
+                    <button onClick={() => setEditItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
                       <Pencil size={13} />
                     </button>
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
+                    <button onClick={() => handleDelete(item.id)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -99,6 +111,32 @@ export default function Clinics() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {viewItem && (
+          <DetailModal
+            title={t('clinics.view_title')}
+            onClose={() => setViewItem(null)}
+            rows={[
+              { label: t('clinics.id'), value: viewItem.id },
+              { label: t('clinics.clinic_type'), value: viewItem.clinic_type?.name_uz },
+              { label: t('clinics.medical_center'), value: viewItem.medical_center?.name_uz },
+              { label: t('clinics.contact'), value: viewItem.phone_number },
+              { label: t('clinics.status'), value: viewItem.status },
+              { label: t('clinics.doctors'), value: viewItem.doctors_count },
+            ]}
+          />
+        )}
+
+        {editItem && (
+          <ClinicEditModal
+            item={editItem}
+            onClose={() => setEditItem(null)}
+            onSaved={(updated) => {
+              setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
+              setEditItem(null);
+            }}
+          />
+        )}
       </div>
     </Layout>
   );

@@ -84,6 +84,11 @@ const translations = {
     'doctors.no_data': 'Shifokorlar yo\'q',
     'doctors.delete_confirm': 'Bu shifokorni o\'chirishni tasdiqlaysizmi?',
     'doctors.delete_error': 'O\'chirish mumkin emas',
+    'doctors.deactivate': 'Faolsizlantirish',
+    'doctors.activate': 'Faollashtirish',
+    'doctors.deactivate_confirm': 'Bu shifokorni faolsizlantirishni tasdiqlaysizmi?',
+    'doctors.activate_confirm': 'Bu shifokorni faollashtirishni tasdiqlaysizmi?',
+    'doctors.status_error': 'Holatni o\'zgartirib bo\'lmadi',
 
     // Doctor Create
     'doctor_create.title': 'Shifokor Yaratish',
@@ -106,6 +111,24 @@ const translations = {
     'doctor_create.male': 'Erkak',
     'doctor_create.female': 'Ayol',
 
+    // Doctor View
+    'doctor_view.title': 'Shifokor profili',
+    'doctor_view.back': 'Orqaga',
+    'doctor_view.not_found': 'Shifokor topilmadi',
+
+    // Doctor Edit
+    'doctor_edit.title': 'Shifokorni tahrirlash',
+    'doctor_edit.saving': 'Saqlanmoqda...',
+    'doctor_edit.error': 'Xatolik yuz berdi!',
+
+    // Doctor Schedule
+    'doctor_schedule.title': 'Ish vaqtini belgilash',
+    'doctor_schedule.error': 'Ish vaqtini saqlab bo\'lmadi',
+
+    // Speciality Edit
+    'specialities.edit_title': 'Mutaxassislikni tahrirlash',
+    'specialities.edit_error': 'Saqlab bo\'lmadi',
+
     // Patients
     'patients.title': 'Bemorlar',
     'patients.id': 'ID',
@@ -116,6 +139,15 @@ const translations = {
     'patients.actions': 'Amallar',
     'patients.search': 'Qidirish...',
     'patients.no_data': 'Bemorlar yo\'q',
+    'patients.view_title': 'Bemor ma\'lumotlari',
+    'patients.edit_title': 'Bemorni tahrirlash',
+    'patients.edit_error': 'Saqlab bo\'lmadi',
+
+    // Patient Create
+    'patient_create.title': 'Bemor Yaratish',
+    'patient_create.birth_date': 'Tug\'ilgan sana',
+    'patient_create.address': 'Manzil',
+    'patient_create.error': 'Xatolik yuz berdi!',
 
     // Specialities
     'specialities.title': 'Mutaxassisliklar',
@@ -136,11 +168,13 @@ const translations = {
     'mc.actions':        'Amallar',
     'mc.search':         'Nomi, telefon yoki manzil...',
     'mc.no_data':        'Tibbiy markazlar yo\'q',
+    'mc.view_title':     'Tibbiy markaz ma\'lumotlari',
     'mc.delete_confirm': 'Bu tibbiy markazni o\'chirishni tasdiqlaysizmi?',
     'mc.delete_error':   'O\'chirish mumkin emas',
 
     // Medical Center Create
     'mc_create.title':               'Tibbiy Markaz Yaratish',
+    'mc_create.edit_title':          'Tibbiy Markazni Tahrirlash',
     'mc_create.name_uz':             'Nomi (UZ)',
     'mc_create.name_ru':             'Nomi (RU)',
     'mc_create.contact':             'Telefon Raqami',
@@ -165,6 +199,8 @@ const translations = {
 
     // Ratings
     'ratings.title': 'Reytinglar',
+    'ratings.id': 'ID',
+    'ratings.encounter_id': 'Uchrashuv ID',
     'ratings.appt_id': 'Uchrashuv ID',
     'ratings.doctor': 'Shifokor',
     'ratings.score': 'Baho',
@@ -192,6 +228,11 @@ const translations = {
     'clinics.active': 'Faol',
     'clinics.inactive': 'Faol emas',
     'clinics.no_data': 'Klinikalar yo\'q',
+    'clinics.delete_confirm': 'Bu klinikani o\'chirishni tasdiqlaysizmi?',
+    'clinics.delete_error': 'O\'chirish mumkin emas',
+    'clinics.edit_title': 'Klinikani tahrirlash',
+    'clinics.edit_error': 'Saqlab bo\'lmadi',
+    'clinics.view_title': 'Klinika ma\'lumotlari',
 
     // Getting Started
     'gs.title': 'Boshlash',
@@ -269,6 +310,9 @@ const translations = {
     'appt.cancelled':    'Bekor qilingan',
     'appt.delete_confirm': 'Bu uchrashuvni o\'chirishni tasdiqlaysizmi?',
     'appt.delete_error':   'O\'chirish mumkin emas',
+    'appt.view_title':     'Uchrashuv ma\'lumotlari',
+    'appt.end_time':       'Tugash vaqti',
+    'appt.notes':          'Izohlar',
 
     // Rank Types
     'rank_types.title':          'Daraja Turlari',
@@ -281,6 +325,12 @@ const translations = {
     'rank_types.no_data':        'Daraja turlari yo\'q',
     'rank_types.delete_confirm': 'Bu daraja turini o\'chirishni tasdiqlaysizmi?',
     'rank_types.delete_error':   'O\'chirish mumkin emas',
+    'rank_types.edit_title':     'Daraja turini tahrirlash',
+    'rank_types.edit_error':     'Saqlab bo\'lmadi',
+
+    // Rank Type Create
+    'rank_type_create.title':    'Daraja Turi Yaratish',
+    'rank_type_create.error':    'Xatolik yuz berdi!',
 
     // Rank Prices
     'rank_prices.title':          'Daraja Narxlari',
@@ -297,6 +347,13 @@ const translations = {
     'rank_prices.all':            'Barchasi',
     'rank_prices.delete_confirm': 'Bu narxni o\'chirishni tasdiqlaysizmi?',
     'rank_prices.delete_error':   'O\'chirish mumkin emas',
+    'rank_prices.edit_title':     'Daraja narxini tahrirlash',
+    'rank_prices.edit_error':     'Saqlab bo\'lmadi',
+
+    // Rank Price Create
+    'rank_price_create.title':    'Daraja Narxi Yaratish',
+    'rank_price_create.currency': 'Valyuta',
+    'rank_price_create.error':    'Xatolik yuz berdi!',
 
     // Invoices
     'invoices.title':          'Hisob-fakturalar',
@@ -316,6 +373,7 @@ const translations = {
     'invoices.total_amount':   'Jami summa',
     'invoices.paid_amount':    'To\'langan',
     'invoices.pending_amount': 'Kutilmoqda',
+    'invoices.view_title':     'Hisob-faktura ma\'lumotlari',
 
     // Payouts
     'payouts.title':        'Shifokor To\'lovlari',
@@ -331,6 +389,7 @@ const translations = {
     'payouts.all_statuses': 'Barcha holatlar',
     'payouts.pending':      'Kutilmoqda',
     'payouts.paid':         'To\'langan',
+    'payouts.view_title':   'To\'lov ma\'lumotlari',
 
     // Users
     'users.title':       'Foydalanuvchilar',
@@ -347,6 +406,7 @@ const translations = {
     'users.role_admin':  'Admin',
     'users.role_doctor': 'Shifokor',
     'users.role_patient':'Bemor',
+    'users.view_title':  'Foydalanuvchi ma\'lumotlari',
 
     // Common
     'common.loading': 'Yuklanmoqda...',
@@ -358,6 +418,7 @@ const translations = {
     'common.delete': 'O\'chirish',
     'common.edit': 'Tahrirlash',
     'common.view': 'Ko\'rish',
+    'common.close': 'Yopish',
     'common.active': 'Faol',
     'common.inactive': 'Faol emas',
     'common.required': 'majburiy',
@@ -450,6 +511,11 @@ const translations = {
     'doctors.no_data': 'Врачи не найдены',
     'doctors.delete_confirm': 'Вы уверены, что хотите удалить этого врача?',
     'doctors.delete_error': 'Невозможно удалить',
+    'doctors.deactivate': 'Деактивировать',
+    'doctors.activate': 'Активировать',
+    'doctors.deactivate_confirm': 'Вы уверены, что хотите деактивировать этого врача?',
+    'doctors.activate_confirm': 'Вы уверены, что хотите активировать этого врача?',
+    'doctors.status_error': 'Не удалось изменить статус',
 
     // Doctor Create
     'doctor_create.title': 'Создать врача',
@@ -472,6 +538,24 @@ const translations = {
     'doctor_create.male': 'Мужской',
     'doctor_create.female': 'Женский',
 
+    // Doctor View
+    'doctor_view.title': 'Профиль врача',
+    'doctor_view.back': 'Назад',
+    'doctor_view.not_found': 'Врач не найден',
+
+    // Doctor Edit
+    'doctor_edit.title': 'Редактировать врача',
+    'doctor_edit.saving': 'Сохранение...',
+    'doctor_edit.error': 'Произошла ошибка!',
+
+    // Doctor Schedule
+    'doctor_schedule.title': 'Настроить рабочее время',
+    'doctor_schedule.error': 'Не удалось сохранить расписание',
+
+    // Speciality Edit
+    'specialities.edit_title': 'Редактировать специальность',
+    'specialities.edit_error': 'Не удалось сохранить',
+
     // Patients
     'patients.title': 'Пациенты',
     'patients.id': 'ID',
@@ -482,6 +566,15 @@ const translations = {
     'patients.actions': 'Действия',
     'patients.search': 'Поиск...',
     'patients.no_data': 'Пациенты не найдены',
+    'patients.view_title': 'Информация о пациенте',
+    'patients.edit_title': 'Редактировать пациента',
+    'patients.edit_error': 'Не удалось сохранить',
+
+    // Patient Create
+    'patient_create.title': 'Создать пациента',
+    'patient_create.birth_date': 'Дата рождения',
+    'patient_create.address': 'Адрес',
+    'patient_create.error': 'Произошла ошибка!',
 
     // Specialities
     'specialities.title': 'Специальности',
@@ -502,11 +595,13 @@ const translations = {
     'mc.actions':        'Действия',
     'mc.search':         'Название, телефон или адрес...',
     'mc.no_data':        'Медицинские центры не найдены',
+    'mc.view_title':     'Информация о медицинском центре',
     'mc.delete_confirm': 'Вы уверены, что хотите удалить этот медицинский центр?',
     'mc.delete_error':   'Невозможно удалить',
 
     // Medical Center Create
     'mc_create.title':               'Создать медицинский центр',
+    'mc_create.edit_title':          'Редактировать медицинский центр',
     'mc_create.name_uz':             'Название (УЗ)',
     'mc_create.name_ru':             'Название (РУ)',
     'mc_create.contact':             'Номер телефона',
@@ -531,6 +626,8 @@ const translations = {
 
     // Ratings
     'ratings.title': 'Рейтинги',
+    'ratings.id': 'ID',
+    'ratings.encounter_id': 'ID записи',
     'ratings.appt_id': 'ID записи',
     'ratings.doctor': 'Врач',
     'ratings.score': 'Оценка',
@@ -558,6 +655,11 @@ const translations = {
     'clinics.active': 'Активный',
     'clinics.inactive': 'Неактивный',
     'clinics.no_data': 'Клиники не найдены',
+    'clinics.delete_confirm': 'Вы уверены, что хотите удалить эту клинику?',
+    'clinics.delete_error': 'Невозможно удалить',
+    'clinics.edit_title': 'Редактировать клинику',
+    'clinics.edit_error': 'Не удалось сохранить',
+    'clinics.view_title': 'Информация о клинике',
 
     // Getting Started
     'gs.title': 'Начало работы',
@@ -635,6 +737,9 @@ const translations = {
     'appt.cancelled':    'Отменена',
     'appt.delete_confirm': 'Вы уверены, что хотите удалить эту запись?',
     'appt.delete_error':   'Невозможно удалить',
+    'appt.view_title':     'Информация о приёме',
+    'appt.end_time':       'Время окончания',
+    'appt.notes':          'Примечания',
 
     // Rank Types
     'rank_types.title':          'Типы рангов',
@@ -647,6 +752,12 @@ const translations = {
     'rank_types.no_data':        'Типы рангов не найдены',
     'rank_types.delete_confirm': 'Вы уверены, что хотите удалить этот тип ранга?',
     'rank_types.delete_error':   'Невозможно удалить',
+    'rank_types.edit_title':     'Редактировать тип ранга',
+    'rank_types.edit_error':     'Не удалось сохранить',
+
+    // Rank Type Create
+    'rank_type_create.title':    'Создать тип ранга',
+    'rank_type_create.error':    'Произошла ошибка!',
 
     // Rank Prices
     'rank_prices.title':          'Цены рангов',
@@ -663,6 +774,13 @@ const translations = {
     'rank_prices.all':            'Все',
     'rank_prices.delete_confirm': 'Вы уверены, что хотите удалить эту цену?',
     'rank_prices.delete_error':   'Невозможно удалить',
+    'rank_prices.edit_title':     'Редактировать цену',
+    'rank_prices.edit_error':     'Не удалось сохранить',
+
+    // Rank Price Create
+    'rank_price_create.title':    'Создать цену',
+    'rank_price_create.currency': 'Валюта',
+    'rank_price_create.error':    'Произошла ошибка!',
 
     // Invoices
     'invoices.title':          'Счета',
@@ -682,6 +800,7 @@ const translations = {
     'invoices.total_amount':   'Общая сумма',
     'invoices.paid_amount':    'Оплачено',
     'invoices.pending_amount': 'Ожидается',
+    'invoices.view_title':     'Информация о счёте',
 
     // Payouts
     'payouts.title':        'Выплаты врачам',
@@ -697,6 +816,7 @@ const translations = {
     'payouts.all_statuses': 'Все статусы',
     'payouts.pending':      'Ожидание',
     'payouts.paid':         'Выплачено',
+    'payouts.view_title':   'Информация о выплате',
 
     // Users
     'users.title':        'Пользователи',
@@ -713,6 +833,7 @@ const translations = {
     'users.role_admin':   'Администратор',
     'users.role_doctor':  'Врач',
     'users.role_patient': 'Пациент',
+    'users.view_title':   'Информация о пользователе',
 
     // Common
     'common.loading': 'Загрузка...',
@@ -724,6 +845,7 @@ const translations = {
     'common.delete': 'Удалить',
     'common.edit': 'Редактировать',
     'common.view': 'Просмотр',
+    'common.close': 'Закрыть',
     'common.active': 'Активный',
     'common.inactive': 'Неактивный',
     'common.required': 'обязательно',

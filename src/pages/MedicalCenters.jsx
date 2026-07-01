@@ -7,6 +7,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 10;
 
@@ -15,6 +16,7 @@ export default function MedicalCenters() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [page, setPage]       = useState(1);
+  const [viewItem, setViewItem] = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
   const navigate    = useNavigate();
@@ -85,6 +87,7 @@ export default function MedicalCenters() {
                     <div className="flex items-center gap-1.5">
                       <button
                         title={t('common.view')}
+                        onClick={() => setViewItem(item)}
                         className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
                       >
                         <Eye size={13} />
@@ -105,6 +108,22 @@ export default function MedicalCenters() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {viewItem && (
+          <DetailModal
+            title={t('mc.view_title')}
+            onClose={() => setViewItem(null)}
+            rows={[
+              { label: t('mc.id'), value: viewItem.id },
+              { label: t('mc.name'), value: viewItem.name_uz },
+              { label: t('mc.name') + ' (RU)', value: viewItem.name_ru },
+              { label: t('mc.address'), value: viewItem.address, full: true },
+              { label: t('mc.contact'), value: viewItem.contact },
+              { label: t('mc.email'), value: viewItem.email },
+              { label: t('mc.status'), value: viewItem.status },
+            ]}
+          />
+        )}
       </div>
     </Layout>
   );

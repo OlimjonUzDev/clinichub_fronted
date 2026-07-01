@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -21,6 +21,8 @@ const Field = ({ label, required, children }) => (
 );
 
 export default function MedicalCenterCreate() {
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const [form, setForm] = useState({
     name_uz: '',
     name_ru: '',
@@ -31,10 +33,31 @@ export default function MedicalCenterCreate() {
     website: '',
     status:  'active',
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [fetching, setFetching] = useState(!!editId);
   const { token } = useAuth();
   const { t }     = useLang();
   const navigate  = useNavigate();
+
+  useEffect(() => {
+    if (!editId) return;
+    api.get(`/clinics/medicalcenter/${editId}/`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        const d = res.data;
+        setForm({
+          name_uz: d.name_uz || '',
+          name_ru: d.name_ru || '',
+          contact: d.contact || '',
+          email:   d.email || '',
+          address: d.address || '',
+          logo:    d.logo || '',
+          website: d.website || '',
+          status:  d.status || 'active',
+        });
+        setFetching(false);
+      })
+      .catch(() => setFetching(false));
+  }, [editId]);
 
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -43,9 +66,15 @@ export default function MedicalCenterCreate() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/clinics/medicalcenter/', form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (editId) {
+        await api.put(`/clinics/medicalcenter/${editId}/`, form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await api.post('/clinics/medicalcenter/', form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
       navigate('/medical-centers');
     } catch {
       alert(t('mc_create.error'));
@@ -61,11 +90,16 @@ export default function MedicalCenterCreate() {
           breadcrumbs={[
             { label: t('menu.clinics_centers') },
             { label: t('menu.medical_centers'), path: '/medical-centers' },
-            { label: t('common.create') },
+            { label: editId ? t('common.edit') : t('common.create') },
           ]}
-          title={t('mc_create.title')}
+          title={editId ? t('mc_create.edit_title') : t('mc_create.title')}
         />
 
+        {fetching ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-400">
+            {t('common.loading')}
+          </div>
+        ) : (
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
 
@@ -172,6 +206,7 @@ export default function MedicalCenterCreate() {
 
           </form>
         </div>
+        )}
       </div>
     </Layout>
   );

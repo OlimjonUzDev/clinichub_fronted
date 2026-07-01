@@ -6,6 +6,8 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import DetailModal from '../components/DetailModal';
+import PatientEditModal from '../components/PatientEditModal';
 
 const PAGE_SIZE = 10;
 
@@ -14,6 +16,8 @@ export default function Patients() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [viewItem, setViewItem] = useState(null);
+  const [editItem, setEditItem] = useState(null);
   const { token } = useAuth();
   const { t } = useLang();
 
@@ -41,7 +45,7 @@ export default function Patients() {
         />
 
         <div className="mb-4">
-          <SearchBar value={search} onChange={setSearch} placeholder={t('patients.search')} />
+          <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder={t('patients.search')} />
         </div>
 
         <Table
@@ -65,10 +69,10 @@ export default function Patients() {
                 <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                    <button onClick={() => setViewItem(p)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
                       <Eye size={13} />
                     </button>
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
+                    <button onClick={() => setEditItem(p)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
                       <Pencil size={13} />
                     </button>
                   </div>
@@ -79,6 +83,34 @@ export default function Patients() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {viewItem && (
+          <DetailModal
+            title={t('patients.view_title')}
+            onClose={() => setViewItem(null)}
+            rows={[
+              { label: t('patients.id'), value: viewItem.id },
+              { label: t('patients.name'), value: viewItem.name_uz },
+              { label: t('patients.name') + ' (RU)', value: viewItem.name_ru },
+              { label: t('doctors.gender'), value: viewItem.gender },
+              { label: t('patient_create.birth_date'), value: viewItem.birth_date },
+              { label: t('patients.phone'), value: viewItem.phone_number },
+              { label: t('patients.national_id'), value: viewItem.national_id },
+              { label: t('patient_create.address'), value: viewItem.address, full: true },
+            ]}
+          />
+        )}
+
+        {editItem && (
+          <PatientEditModal
+            item={editItem}
+            onClose={() => setEditItem(null)}
+            onSaved={(updated) => {
+              setPatients(prev => prev.map(p => p.id === updated.id ? updated : p));
+              setEditItem(null);
+            }}
+          />
+        )}
       </div>
     </Layout>
   );

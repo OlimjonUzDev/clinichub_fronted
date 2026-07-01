@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Pencil, Trash2, Calendar, Ban } from 'lucide-react';
+import { Eye, Pencil, Trash2, Calendar, Ban, CheckCircle2 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import DoctorScheduleModal from '../components/DoctorScheduleModal';
 
 const PAGE_SIZE = 10;
 
@@ -15,6 +16,7 @@ export default function Doctors() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [scheduleDoctorId, setScheduleDoctorId] = useState(null);
   const { token } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
@@ -39,6 +41,17 @@ export default function Doctors() {
     } catch { alert(t('doctors.delete_error')); }
   };
 
+  const handleToggleActive = async (doc) => {
+    const confirmMsg = doc.is_active ? t('doctors.deactivate_confirm') : t('doctors.activate_confirm');
+    if (!confirm(confirmMsg)) return;
+    try {
+      const res = await api.patch(`/doctors/doctor/${doc.id}/`, { is_active: !doc.is_active }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDoctors(prev => prev.map(d => d.id === doc.id ? res.data : d));
+    } catch { alert(t('doctors.status_error')); }
+  };
+
   return (
     <Layout>
       <div className="p-8">
@@ -50,7 +63,7 @@ export default function Doctors() {
         />
 
         <div className="mb-4">
-          <SearchBar value={search} onChange={setSearch} placeholder={t('doctors.search')} />
+          <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder={t('doctors.search')} />
         </div>
 
         <Table
@@ -86,11 +99,19 @@ export default function Doctors() {
                     <button onClick={() => handleDelete(doc.id)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
                       <Trash2 size={13} />
                     </button>
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-gray-400 transition">
+                    <button
+                      onClick={() => setScheduleDoctorId(doc.id)}
+                      title={t('doctor_schedule.title')}
+                      className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                    >
                       <Calendar size={13} />
                     </button>
-                    <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-gray-400 transition">
-                      <Ban size={13} />
+                    <button
+                      onClick={() => handleToggleActive(doc)}
+                      title={doc.is_active ? t('doctors.deactivate') : t('doctors.activate')}
+                      className={`w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 transition ${doc.is_active ? 'hover:border-red-400 hover:text-red-500' : 'hover:border-green-400 hover:text-green-600'}`}
+                    >
+                      {doc.is_active ? <Ban size={13} /> : <CheckCircle2 size={13} />}
                     </button>
                   </div>
                 </td>
@@ -100,6 +121,13 @@ export default function Doctors() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {scheduleDoctorId && (
+          <DoctorScheduleModal
+            doctorId={scheduleDoctorId}
+            onClose={() => setScheduleDoctorId(null)}
+          />
+        )}
       </div>
     </Layout>
   );

@@ -6,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 10;
 
@@ -30,6 +31,7 @@ export default function Users() {
   const [search, setSearch]     = useState('');
   const [roleFilter, setRole]   = useState('');
   const [page, setPage]         = useState(1);
+  const [viewItem, setViewItem] = useState(null);
   const { token } = useAuth();
   const { t, lang } = useLang();
 
@@ -99,7 +101,7 @@ export default function Users() {
                 <td className="px-5 py-4 text-sm text-gray-500">{item.phone_number || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-400">{fmtDate(item.created_at)}</td>
                 <td className="px-5 py-4">
-                  <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                  <button onClick={() => setViewItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
                     <Eye size={13} />
                   </button>
                 </td>
@@ -109,6 +111,21 @@ export default function Users() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {viewItem && (
+          <DetailModal
+            title={t('users.view_title')}
+            onClose={() => setViewItem(null)}
+            rows={[
+              { label: t('users.id'), value: viewItem.id },
+              { label: t('users.username'), value: viewItem.username },
+              { label: t('users.email'), value: viewItem.email },
+              { label: t('users.role'), value: viewItem.role },
+              { label: t('users.phone'), value: viewItem.phone_number },
+              { label: t('users.created_at'), value: fmtDate(viewItem.created_at) },
+            ]}
+          />
+        )}
       </div>
     </Layout>
   );

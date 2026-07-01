@@ -4,7 +4,10 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors';
 import DoctorCreate from './pages/DoctorCreate';
+import DoctorView from './pages/DoctorView';
+import DoctorEdit from './pages/DoctorEdit';
 import Patients from './pages/Patients';
+import PatientCreate from './pages/PatientCreate';
 import Specialities from './pages/Specialities';
 import SpecialityCreate from './pages/SpecialityCreate';
 import Clinics from './pages/Clinics';
@@ -15,7 +18,9 @@ import GettingStarted from './pages/GettingStarted';
 import Ratings from './pages/Ratings';
 import Appointments from './pages/Appointments';
 import RankTypes from './pages/RankTypes';
+import RankTypeCreate from './pages/RankTypeCreate';
 import RankPrices from './pages/RankPrices';
+import RankPriceCreate from './pages/RankPriceCreate';
 import Invoices from './pages/Invoices';
 import Payouts from './pages/Payouts';
 import Users from './pages/Users';
@@ -38,6 +43,8 @@ function App() {
         {/* Doctors & Staff */}
         <Route path="/doctors"            element={<Protected><Doctors /></Protected>} />
         <Route path="/doctors/create"     element={<Protected><DoctorCreate /></Protected>} />
+        <Route path="/doctors/:id"        element={<Protected><DoctorView /></Protected>} />
+        <Route path="/doctors/:id/edit"   element={<Protected><DoctorEdit /></Protected>} />
         <Route path="/specialities"        element={<Protected><Specialities /></Protected>} />
         <Route path="/specialities/create" element={<Protected><SpecialityCreate /></Protected>} />
         <Route path="/ratings"            element={<Protected><Ratings /></Protected>} />
@@ -50,11 +57,14 @@ function App() {
 
         {/* Patients & Encounters */}
         <Route path="/patients"           element={<Protected><Patients /></Protected>} />
+        <Route path="/patients/create"    element={<Protected><PatientCreate /></Protected>} />
         <Route path="/appointments"       element={<Protected><Appointments /></Protected>} />
 
         {/* Pricing & Ranks */}
         <Route path="/rank-types"         element={<Protected><RankTypes /></Protected>} />
+        <Route path="/rank-types/create"  element={<Protected><RankTypeCreate /></Protected>} />
         <Route path="/rank-prices"        element={<Protected><RankPrices /></Protected>} />
+        <Route path="/rank-prices/create" element={<Protected><RankPriceCreate /></Protected>} />
 
         {/* Financial */}
         <Route path="/invoices"           element={<Protected><Invoices /></Protected>} />

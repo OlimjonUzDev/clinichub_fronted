@@ -6,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 10;
 
@@ -15,6 +16,7 @@ export default function Appointments() {
   const [search, setSearch]       = useState('');
   const [statusFilter, setStatus] = useState('');
   const [page, setPage]           = useState(1);
+  const [viewItem, setViewItem]   = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
 
@@ -119,7 +121,7 @@ export default function Appointments() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                      <button onClick={() => setViewItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
                         <Eye size={13} />
                       </button>
                       <button
@@ -137,6 +139,22 @@ export default function Appointments() {
         </Table>
 
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
+
+        {viewItem && (
+          <DetailModal
+            title={t('appt.view_title')}
+            onClose={() => setViewItem(null)}
+            rows={[
+              { label: t('appt.id'), value: viewItem.id },
+              { label: t('appt.patient'), value: lang === 'ru' ? (viewItem.patient?.name_ru || viewItem.patient?.name_uz) : viewItem.patient?.name_uz },
+              { label: t('appt.doctor'), value: lang === 'ru' ? (viewItem.doctor?.name_ru || viewItem.doctor?.name_uz) : viewItem.doctor?.name_uz },
+              { label: t('appt.start_time'), value: fmtDate(viewItem.start_time) },
+              { label: t('appt.end_time'), value: fmtDate(viewItem.end_time) },
+              { label: t('appt.status'), value: viewItem.status },
+              { label: t('appt.notes'), value: viewItem.notes, full: true },
+            ]}
+          />
+        )}
       </div>
     </Layout>
   );
