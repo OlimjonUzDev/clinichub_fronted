@@ -3,6 +3,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
+import { CONSULTATION_TYPES } from '../lib/consultationTypes';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = `${inputCls} appearance-none`;
@@ -23,6 +24,7 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
   const [form, setForm] = useState({
     rank_type: item.rank_type?.id ?? '',
     clinic: item.clinic?.id ?? '',
+    consultation_type: item.consultation_type || 'in_person',
     price: item.price ?? '',
     currency: item.currency || 'UZS',
     duration_min: item.duration_min ?? 30,
@@ -83,6 +85,11 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
           <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls}>
             <option value="">{t('doctor_create.select')}</option>
             {clinics.map(c => <option key={c.id} value={c.id}>{c.clinic_type?.name_uz || c.phone_number}</option>)}
+          </select>
+        </Field>
+        <Field label={t('appt.consultation_type')} required>
+          <select name="consultation_type" value={form.consultation_type} onChange={handleChange} className={selectCls}>
+            {CONSULTATION_TYPES.map(v => <option key={v} value={v}>{t(`consult.${v}`)}</option>)}
           </select>
         </Field>
         <Field label={t('rank_prices.price')} required>

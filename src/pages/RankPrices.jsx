@@ -75,7 +75,7 @@ export default function RankPrices() {
 
         <Table
           columns={[
-            t('rank_prices.id'), t('rank_prices.rank_type'), t('rank_prices.clinic'),
+            t('rank_prices.id'), t('rank_prices.rank_type'), t('rank_prices.clinic'), t('appt.consultation_type'),
             t('rank_prices.price'), t('rank_prices.duration'), t('rank_prices.status'), t('rank_prices.actions'),
           ]}
           loading={loading}
@@ -97,6 +97,7 @@ export default function RankPrices() {
                   <td className="px-5 py-4 text-sm text-gray-500">{item.id}</td>
                   <td className="px-5 py-4 text-sm font-medium text-gray-800">{rankName}</td>
                   <td className="px-5 py-4 text-sm text-gray-600">{clinicName}</td>
+                  <td className="px-5 py-4 text-sm text-gray-600">{t(`consult.${item.consultation_type}`)}</td>
                   <td className="px-5 py-4 text-sm font-semibold text-gray-800">
                     {Number(item.price).toLocaleString()} {item.currency || 'UZS'}
                   </td>

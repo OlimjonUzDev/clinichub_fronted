@@ -40,8 +40,6 @@ export default function Patients() {
         <PageHeader
           breadcrumbs={[{ label: t('menu.patients_encounters') }, { label: t('menu.patients') }]}
           title={t('patients.title')}
-          createPath="/patients/create"
-          createLabel={t('common.create')}
         />
 
         <div className="mb-4">

@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Ban, CalendarClock } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
-import DetailModal from '../components/DetailModal';
+import AppointmentDetailModal from '../components/AppointmentDetailModal';
+import AppointmentCreateModal from '../components/AppointmentCreateModal';
+import AppointmentCancelModal from '../components/AppointmentCancelModal';
+import AppointmentRescheduleModal from '../components/AppointmentRescheduleModal';
 
 const PAGE_SIZE = 10;
 
@@ -16,7 +19,10 @@ export default function Appointments() {
   const [search, setSearch]       = useState('');
   const [statusFilter, setStatus] = useState('');
   const [page, setPage]           = useState(1);
-  const [viewItem, setViewItem]   = useState(null);
+  const [viewItem, setViewItem]       = useState(null);
+  const [showCreate, setShowCreate]   = useState(false);
+  const [cancelItem, setCancelItem]   = useState(null);
+  const [rescheduleItem, setRescheduleItem] = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
 
@@ -42,13 +48,7 @@ export default function Appointments() {
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const handleDelete = async (id) => {
-    if (!confirm(t('appt.delete_confirm'))) return;
-    try {
-      await api.delete(`/appointments/appointment/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
-      setItems(prev => prev.filter(i => i.id !== id));
-    } catch { alert(t('appt.delete_error')); }
-  };
+  const updateItem = (updated) => setItems(prev => prev.map(i => i.id === updated.id ? updated : i));
 
   const fmtDate = (dt) => dt
     ? new Date(dt).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ', {
@@ -63,6 +63,8 @@ export default function Appointments() {
         <PageHeader
           breadcrumbs={[{ label: t('menu.patients_encounters') }, { label: t('menu.appointments') }]}
           title={t('appt.title')}
+          onCreate={() => setShowCreate(true)}
+          createLabel={t('appt.add')}
         />
 
         <div className="flex gap-3 mb-4">
@@ -86,7 +88,7 @@ export default function Appointments() {
 
         <Table
           columns={[
-            t('appt.id'), t('appt.patient'), t('appt.doctor'),
+            t('appt.id'), t('appt.patient'), t('appt.doctor'), t('appt.consultation_type'),
             t('appt.start_time'), t('appt.status'), t('appt.actions'),
           ]}
           loading={loading}
@@ -113,6 +115,9 @@ export default function Appointments() {
                       <div className="text-xs text-gray-400">{item.doctor.speciality.name_uz}</div>
                     )}
                   </td>
+                  <td className="px-5 py-4 text-sm text-gray-600">
+                    {t(`consult.${item.consultation_type}`)}
+                  </td>
                   <td className="px-5 py-4 text-sm text-gray-500 whitespace-nowrap">
                     {fmtDate(item.start_time)}
                   </td>
@@ -121,15 +126,27 @@ export default function Appointments() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => setViewItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
+                      <button onClick={() => setViewItem(item)} title={t('appt.tab_info')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
                         <Eye size={13} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition"
-                      >
-                        <Trash2 size={13} />
-                      </button>
+                      {item.status !== 'cancelled' && item.status !== 'completed' && (
+                        <button
+                          onClick={() => setRescheduleItem(item)}
+                          title={t('appt.reschedule')}
+                          className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                        >
+                          <CalendarClock size={13} />
+                        </button>
+                      )}
+                      {item.status !== 'cancelled' && (
+                        <button
+                          onClick={() => setCancelItem(item)}
+                          title={t('appt.cancel_action')}
+                          className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition"
+                        >
+                          <Ban size={13} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -141,18 +158,44 @@ export default function Appointments() {
         <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
 
         {viewItem && (
-          <DetailModal
-            title={t('appt.view_title')}
+          <AppointmentDetailModal
+            item={viewItem}
             onClose={() => setViewItem(null)}
-            rows={[
-              { label: t('appt.id'), value: viewItem.id },
-              { label: t('appt.patient'), value: lang === 'ru' ? (viewItem.patient?.name_ru || viewItem.patient?.name_uz) : viewItem.patient?.name_uz },
-              { label: t('appt.doctor'), value: lang === 'ru' ? (viewItem.doctor?.name_ru || viewItem.doctor?.name_uz) : viewItem.doctor?.name_uz },
-              { label: t('appt.start_time'), value: fmtDate(viewItem.start_time) },
-              { label: t('appt.end_time'), value: fmtDate(viewItem.end_time) },
-              { label: t('appt.status'), value: viewItem.status },
-              { label: t('appt.notes'), value: viewItem.notes, full: true },
-            ]}
+            fmtDate={fmtDate}
+            patientName={lang === 'ru' ? (viewItem.patient?.name_ru || viewItem.patient?.name_uz) : viewItem.patient?.name_uz}
+            doctorName={lang === 'ru' ? (viewItem.doctor?.name_ru || viewItem.doctor?.name_uz) : viewItem.doctor?.name_uz}
+          />
+        )}
+
+        {showCreate && (
+          <AppointmentCreateModal
+            onClose={() => setShowCreate(false)}
+            onCreated={(created) => {
+              setItems(prev => [created, ...prev]);
+              setShowCreate(false);
+            }}
+          />
+        )}
+
+        {cancelItem && (
+          <AppointmentCancelModal
+            item={cancelItem}
+            onClose={() => setCancelItem(null)}
+            onCancelled={(updated) => {
+              updateItem(updated);
+              setCancelItem(null);
+            }}
+          />
+        )}
+
+        {rescheduleItem && (
+          <AppointmentRescheduleModal
+            item={rescheduleItem}
+            onClose={() => setRescheduleItem(null)}
+            onRescheduled={(updated) => {
+              updateItem(updated);
+              setRescheduleItem(null);
+            }}
           />
         )}
       </div>

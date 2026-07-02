@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, SquarePlus } from 'lucide-react';
 
-export default function PageHeader({ breadcrumbs = [], title, createPath, createLabel = 'Create' }) {
+export default function PageHeader({ breadcrumbs = [], title, createPath, createLabel = 'Create', onCreate }) {
   const navigate = useNavigate();
 
   return (
@@ -23,9 +23,9 @@ export default function PageHeader({ breadcrumbs = [], title, createPath, create
         <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
       </div>
 
-      {createPath && (
+      {(createPath || onCreate) && (
         <button
-          onClick={() => navigate(createPath)}
+          onClick={() => onCreate ? onCreate() : navigate(createPath)}
           className="flex items-center gap-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <SquarePlus size={16} />

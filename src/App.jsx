@@ -7,7 +7,6 @@ import DoctorCreate from './pages/DoctorCreate';
 import DoctorView from './pages/DoctorView';
 import DoctorEdit from './pages/DoctorEdit';
 import Patients from './pages/Patients';
-import PatientCreate from './pages/PatientCreate';
 import Specialities from './pages/Specialities';
 import SpecialityCreate from './pages/SpecialityCreate';
 import Clinics from './pages/Clinics';
@@ -57,7 +56,6 @@ function App() {
 
         {/* Patients & Encounters */}
         <Route path="/patients"           element={<Protected><Patients /></Protected>} />
-        <Route path="/patients/create"    element={<Protected><PatientCreate /></Protected>} />
         <Route path="/appointments"       element={<Protected><Appointments /></Protected>} />
 
         {/* Pricing & Ranks */}
