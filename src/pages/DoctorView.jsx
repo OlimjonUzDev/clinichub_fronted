@@ -7,6 +7,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { StatusBadge } from '../components/DataTable';
+import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 const Row = ({ label, value }) => (
   <div>
@@ -21,8 +22,18 @@ export default function DoctorView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { token } = useAuth();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const navigate = useNavigate();
+  const users = useLookup('/users/', token);
+  const specialities = useLookup('/catalog/specialities/', token);
+  const rankTypes = useLookup('/catalog/ranktyp/', token);
+  const clinics = useLookup('/clinics/clinics/', token);
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const clinicLabel = doctor && (() => {
+    const clinic = resolveRef(doctor.clinic, clinics);
+    const ct = clinic ? resolveRef(clinic.clinic_type, clinicTypes) : null;
+    return (ct && resolveName(ct, clinicTypes, lang)) || clinic?.phone_number;
+  })();
 
   useEffect(() => {
     api.get(`/doctors/doctor/${id}/`, { headers: { Authorization: `Bearer ${token}` } })
@@ -88,11 +99,11 @@ export default function DoctorView() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-8">
               <Row label={t('doctors.id')} value={doctor.id} />
-              <Row label={t('doctor_create.user')} value={doctor.user?.username || doctor.user?.email} />
+              <Row label={t('doctor_create.user')} value={resolveRef(doctor.user, users)?.username || resolveRef(doctor.user, users)?.email} />
               <Row label={t('doctors.gender')} value={doctor.gender === 'ayol' ? t('doctor_create.female') : t('doctor_create.male')} />
-              <Row label={t('doctors.speciality')} value={doctor.speciality?.name_uz} />
-              <Row label={t('doctors.rank')} value={doctor.rank_type?.name_uz} />
-              <Row label={t('doctor_create.clinic')} value={doctor.clinic?.phone_number} />
+              <Row label={t('doctors.speciality')} value={resolveName(doctor.speciality, specialities, lang)} />
+              <Row label={t('doctors.rank')} value={resolveName(doctor.rank_type, rankTypes, lang)} />
+              <Row label={t('doctor_create.clinic')} value={clinicLabel} />
               <Row label={t('doctors.experience')} value={doctor.experience_years} />
               <Row label={t('doctor_create.telegram')} value={doctor.telegram_username} />
             </div>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors';
 import DoctorCreate from './pages/DoctorCreate';
@@ -35,6 +36,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route path="/getting-started"    element={<Protected><GettingStarted /></Protected>} />
         <Route path="/dashboard"          element={<Protected><Dashboard /></Protected>} />

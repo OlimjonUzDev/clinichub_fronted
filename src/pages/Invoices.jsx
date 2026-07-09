@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
+import { useLookup, resolveName } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -19,6 +20,8 @@ export default function Invoices() {
   const [viewItem, setViewItem]   = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
+  const patients = useLookup('/patients/patient/', token);
+  const patientName = (i) => resolveName(i.patient, patients, lang) || '—';
 
   useEffect(() => {
     api.get('/billing/invoice/', { headers: { Authorization: `Bearer ${token}` } })
@@ -27,12 +30,9 @@ export default function Invoices() {
   }, []);
 
   const filtered = items.filter(i => {
-    const patient = lang === 'ru'
-      ? (i.patient?.name_ru || i.patient?.name_uz || '')
-      : (i.patient?.name_uz || '');
     const matchSearch =
       (i.invoice_number || '').toLowerCase().includes(search.toLowerCase()) ||
-      patient.toLowerCase().includes(search.toLowerCase());
+      patientName(i).toLowerCase().includes(search.toLowerCase());
     const matchStatus = !statusFilter || i.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -102,16 +102,11 @@ export default function Invoices() {
         >
           {paginated.length === 0 && !loading
             ? <EmptyState message={t('invoices.no_data')} />
-            : paginated.map(item => {
-              const patientName = lang === 'ru'
-                ? (item.patient?.name_ru || item.patient?.name_uz || '—')
-                : (item.patient?.name_uz || '—');
-
-              return (
+            : paginated.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-4 text-sm text-gray-500">{item.id}</td>
                   <td className="px-5 py-4 text-sm font-mono text-gray-700">{item.invoice_number || '—'}</td>
-                  <td className="px-5 py-4 text-sm text-gray-800">{patientName}</td>
+                  <td className="px-5 py-4 text-sm text-gray-800">{patientName(item)}</td>
                   <td className="px-5 py-4 text-sm font-semibold text-gray-800">
                     {Number(item.amount).toLocaleString()} {item.currency || 'UZS'}
                   </td>
@@ -125,8 +120,7 @@ export default function Invoices() {
                     </button>
                   </td>
                 </tr>
-              );
-            })
+              ))
           }
         </Table>
 
@@ -139,7 +133,7 @@ export default function Invoices() {
             rows={[
               { label: t('invoices.id'), value: viewItem.id },
               { label: t('invoices.number'), value: viewItem.invoice_number },
-              { label: t('invoices.patient'), value: lang === 'ru' ? (viewItem.patient?.name_ru || viewItem.patient?.name_uz) : viewItem.patient?.name_uz },
+              { label: t('invoices.patient'), value: patientName(viewItem) },
               { label: t('invoices.amount'), value: `${Number(viewItem.amount).toLocaleString()} ${viewItem.currency || 'UZS'}` },
               { label: t('invoices.status'), value: viewItem.status },
               { label: t('invoices.date'), value: fmtDate(viewItem.created_at) },

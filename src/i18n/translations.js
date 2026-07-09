@@ -7,6 +7,26 @@ const translations = {
     'auth.forgot': 'Parolni unutdingizmi?',
     'auth.signing_in': 'Kirilmoqda...',
     'auth.error': 'Email yoki parol noto\'g\'ri',
+    'auth.no_account': 'Hisobingiz yo\'qmi?',
+    'auth.signup': 'Ro\'yxatdan o\'tish',
+    'auth.have_account': 'Hisobingiz bormi?',
+    'auth.username': 'Foydalanuvchi nomi',
+    'auth.phone': 'Telefon raqami',
+    'auth.role': 'Rol',
+    'auth.role.patient': 'Bemor',
+    'auth.role.doctor': 'Shifokor',
+    'auth.role.admin': 'Admin',
+    'auth.signup_success': 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz. Endi kirishingiz mumkin.',
+    'auth.signup_error': 'Ro\'yxatdan o\'tishda xatolik yuz berdi',
+
+    // Validation
+    'validation.letters_only': 'Bu qator faqat harflardan iborat bo\'lishi kerak',
+    'validation.phone': 'Telefon raqami noto\'g\'ri (masalan: +998901234567)',
+    'validation.email': 'Email manzili noto\'g\'ri',
+    'validation.url': 'Havola https:// bilan boshlanishi kerak',
+    'validation.digits_only': 'Bu qator faqat raqamlardan iborat bo\'lishi kerak',
+    'validation.positive_number': 'Qiymat noldan katta bo\'lishi kerak',
+    'validation.non_negative': 'Qiymat manfiy bo\'lishi mumkin emas',
 
     // Top header
     'header.app_url': 'Ilova URL',
@@ -462,6 +482,26 @@ const translations = {
     'auth.forgot': 'Забыли пароль?',
     'auth.signing_in': 'Вход...',
     'auth.error': 'Неверный email или пароль',
+    'auth.no_account': 'Нет аккаунта?',
+    'auth.signup': 'Регистрация',
+    'auth.have_account': 'Уже есть аккаунт?',
+    'auth.username': 'Имя пользователя',
+    'auth.phone': 'Номер телефона',
+    'auth.role': 'Роль',
+    'auth.role.patient': 'Пациент',
+    'auth.role.doctor': 'Врач',
+    'auth.role.admin': 'Админ',
+    'auth.signup_success': 'Регистрация прошла успешно. Теперь вы можете войти.',
+    'auth.signup_error': 'Ошибка при регистрации',
+
+    // Validation
+    'validation.letters_only': 'Это поле должно содержать только буквы',
+    'validation.phone': 'Неверный номер телефона (например: +998901234567)',
+    'validation.email': 'Неверный формат email',
+    'validation.url': 'Ссылка должна начинаться с https://',
+    'validation.digits_only': 'Это поле должно содержать только цифры',
+    'validation.positive_number': 'Значение должно быть больше нуля',
+    'validation.non_negative': 'Значение не может быть отрицательным',
 
     // Top header
     'header.app_url': 'URL приложения',

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
 import { CONSULTATION_TYPES } from '../lib/consultationTypes';
+import { useLookup, resolveRef } from '../lib/useLookup';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = `${inputCls} appearance-none`;
@@ -28,6 +29,11 @@ export default function AppointmentCreateModal({ onClose, onCreated }) {
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();
   const { t, lang } = useLang();
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const clinicLabel = (c) => {
+    const ct = resolveRef(c.clinic_type, clinicTypes);
+    return (ct && (lang === 'ru' ? (ct.name_ru || ct.name_uz) : ct.name_uz)) || `#${c.id}`;
+  };
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${token}` };
@@ -87,7 +93,7 @@ export default function AppointmentCreateModal({ onClose, onCreated }) {
         <Field label={t('gs.clinic')} required>
           <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls} required>
             <option value="">{t('appt.select_clinic')}</option>
-            {clinics.map(c => <option key={c.id} value={c.id}>{c.clinic_type?.name_uz || `#${c.id}`}</option>)}
+            {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
           </select>
         </Field>
 

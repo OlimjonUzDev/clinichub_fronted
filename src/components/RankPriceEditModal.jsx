@@ -4,36 +4,45 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
 import { CONSULTATION_TYPES } from '../lib/consultationTypes';
+import { useLookup, resolveRef } from '../lib/useLookup';
+import { positiveNumberError, validateForm, hasErrors } from '../lib/validators';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = `${inputCls} appearance-none`;
 
-const Field = ({ label, required, children }) => (
+const Field = ({ label, required, error, children }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}
       {label}
     </label>
     {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
+
+const RULES = { price: positiveNumberError, duration_min: positiveNumberError };
 
 export default function RankPriceEditModal({ item, onClose, onSaved }) {
   const [rankTypes, setRankTypes] = useState([]);
   const [clinics, setClinics] = useState([]);
+  const idOf = (val) => (val && typeof val === 'object' ? val.id : val) ?? '';
   const [form, setForm] = useState({
-    rank_type: item.rank_type?.id ?? '',
-    clinic: item.clinic?.id ?? '',
+    rank_type: idOf(item.rank_type),
+    clinic: idOf(item.clinic),
     consultation_type: item.consultation_type || 'in_person',
     price: item.price ?? '',
     currency: item.currency || 'UZS',
     duration_min: item.duration_min ?? 30,
     is_active: item.is_active ?? true,
   });
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();
   const { t, lang } = useLang();
   const headers = { Authorization: `Bearer ${token}` };
+
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
 
   useEffect(() => {
     api.get('/catalog/ranktyp/', { headers }).then(r => setRankTypes(r.data)).catch(() => {});
@@ -41,13 +50,22 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
   }, []);
 
   const nameOf = (c) => lang === 'ru' ? (c.name_ru || c.name_uz) : c.name_uz;
+  const clinicLabel = (c) => {
+    const ct = resolveRef(c.clinic_type, clinicTypes);
+    return (ct && nameOf(ct)) || c.phone_number;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    const nextValue = type === 'checkbox' ? checked : value;
+    setForm(prev => ({ ...prev, [name]: nextValue }));
+    if (RULES[name]) setErrors(prev => ({ ...prev, [name]: RULES[name](nextValue, t) }));
   };
 
   const handleSave = async () => {
+    const newErrors = validateForm(form, RULES, t);
+    setErrors(newErrors);
+    if (hasErrors(newErrors)) return;
     setSaving(true);
     try {
       const res = await api.put(`/catalog/rankprice/${item.id}/`, form, { headers });
@@ -84,7 +102,7 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
         <Field label={t('rank_prices.clinic')} required>
           <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls}>
             <option value="">{t('doctor_create.select')}</option>
-            {clinics.map(c => <option key={c.id} value={c.id}>{c.clinic_type?.name_uz || c.phone_number}</option>)}
+            {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
           </select>
         </Field>
         <Field label={t('appt.consultation_type')} required>
@@ -92,13 +110,13 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
             {CONSULTATION_TYPES.map(v => <option key={v} value={v}>{t(`consult.${v}`)}</option>)}
           </select>
         </Field>
-        <Field label={t('rank_prices.price')} required>
+        <Field label={t('rank_prices.price')} required error={errors.price}>
           <input type="number" min={0} step="0.01" name="price" value={form.price} onChange={handleChange} className={inputCls} />
         </Field>
         <Field label={t('rank_price_create.currency')}>
           <input name="currency" value={form.currency} onChange={handleChange} className={inputCls} />
         </Field>
-        <Field label={t('rank_prices.duration')} required>
+        <Field label={t('rank_prices.duration')} required error={errors.duration_min}>
           <input type="number" min={1} name="duration_min" value={form.duration_min} onChange={handleChange} className={inputCls} />
         </Field>
         <Field label={t('rank_prices.status')}>

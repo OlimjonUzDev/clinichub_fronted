@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
 import RankPriceEditModal from '../components/RankPriceEditModal';
+import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -19,6 +20,15 @@ export default function RankPrices() {
   const [editItem, setEditItem]   = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
+  const rankTypes = useLookup('/catalog/ranktyp/', token);
+  const clinics = useLookup('/clinics/clinics/', token);
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const rankName = (i) => resolveName(i.rank_type, rankTypes, lang) || '—';
+  const clinicName = (i) => {
+    const clinic = resolveRef(i.clinic, clinics);
+    const ct = clinic ? resolveRef(clinic.clinic_type, clinicTypes) : null;
+    return (ct && resolveName(ct, clinicTypes, lang)) || clinic?.phone_number || '—';
+  };
 
   useEffect(() => {
     api.get('/catalog/rankprice/', { headers: { Authorization: `Bearer ${token}` } })
@@ -27,10 +37,7 @@ export default function RankPrices() {
   }, []);
 
   const filtered = items.filter(i => {
-    const rankName = lang === 'ru'
-      ? (i.rank_type?.name_ru || i.rank_type?.name_uz || '')
-      : (i.rank_type?.name_uz || '');
-    const matchSearch = rankName.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = rankName(i).toLowerCase().includes(search.toLowerCase());
     const matchActive = activeFilter === ''
       || (activeFilter === 'true' && i.is_active)
       || (activeFilter === 'false' && !i.is_active);
@@ -82,21 +89,11 @@ export default function RankPrices() {
         >
           {paginated.length === 0 && !loading
             ? <EmptyState message={t('rank_prices.no_data')} />
-            : paginated.map(item => {
-              const rankName = lang === 'ru'
-                ? (item.rank_type?.name_ru || item.rank_type?.name_uz || '—')
-                : (item.rank_type?.name_uz || '—');
-              const clinicName = item.clinic?.clinic_type
-                ? (lang === 'ru'
-                    ? (item.clinic.clinic_type.name_ru || item.clinic.clinic_type.name_uz)
-                    : item.clinic.clinic_type.name_uz)
-                : (item.clinic?.phone_number || '—');
-
-              return (
+            : paginated.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-4 text-sm text-gray-500">{item.id}</td>
-                  <td className="px-5 py-4 text-sm font-medium text-gray-800">{rankName}</td>
-                  <td className="px-5 py-4 text-sm text-gray-600">{clinicName}</td>
+                  <td className="px-5 py-4 text-sm font-medium text-gray-800">{rankName(item)}</td>
+                  <td className="px-5 py-4 text-sm text-gray-600">{clinicName(item)}</td>
                   <td className="px-5 py-4 text-sm text-gray-600">{t(`consult.${item.consultation_type}`)}</td>
                   <td className="px-5 py-4 text-sm font-semibold text-gray-800">
                     {Number(item.price).toLocaleString()} {item.currency || 'UZS'}
@@ -121,8 +118,7 @@ export default function RankPrices() {
                     </div>
                   </td>
                 </tr>
-              );
-            })
+              ))
           }
         </Table>
 

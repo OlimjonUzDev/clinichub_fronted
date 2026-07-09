@@ -81,6 +81,12 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
   const nameOf = (item) =>
     item ? (lang === 'ru' ? (item.name_ru || item.name_uz) : item.name_uz) : '';
 
+  const clinicLabel = (c) => {
+    const ctId = c.clinic_type && typeof c.clinic_type === 'object' ? c.clinic_type.id : c.clinic_type;
+    const ct = rel.clinicTypes.find(t2 => t2.id === ctId);
+    return nameOf(ct) || c.phone_number || `Klinika ${c.id}`;
+  };
+
   const inp = (name, extra = {}) => (
     <input
       value={form[name] ?? ''}
@@ -201,7 +207,7 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
       <Field label={t('gs.clinic')} required>
         {sel('clinic', rel.clinics.map(c => ({
           id:    c.id,
-          label: nameOf(c.clinic_type) || c.phone_number || `Klinika ${c.id}`,
+          label: clinicLabel(c),
         })))}
       </Field>
     </div>
@@ -215,7 +221,7 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
       <Field label={t('gs.clinic')} required>
         {sel('clinic', rel.clinics.map(c => ({
           id:    c.id,
-          label: nameOf(c.clinic_type) || c.phone_number || `Klinika ${c.id}`,
+          label: clinicLabel(c),
         })))}
       </Field>
       <Field label={t('gs.price')} required>

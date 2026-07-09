@@ -3,19 +3,28 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
+import { lettersOnlyError, phoneError, digitsOnlyError, validateForm, hasErrors } from '../lib/validators';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = `${inputCls} appearance-none`;
 
-const Field = ({ label, required, children }) => (
+const Field = ({ label, required, error, children }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}
       {label}
     </label>
     {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
+
+const RULES = {
+  name_uz: lettersOnlyError,
+  name_ru: lettersOnlyError,
+  phone_number: phoneError,
+  national_id: digitsOnlyError,
+};
 
 export default function PatientEditModal({ item, onClose, onSaved }) {
   const [form, setForm] = useState({
@@ -27,13 +36,21 @@ export default function PatientEditModal({ item, onClose, onSaved }) {
     national_id: item.national_id || '',
     address: item.address || '',
   });
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();
   const { t } = useLang();
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (RULES[name]) setErrors(prev => ({ ...prev, [name]: RULES[name](value, t) }));
+  };
 
   const handleSave = async () => {
+    const newErrors = validateForm(form, RULES, t);
+    setErrors(newErrors);
+    if (hasErrors(newErrors)) return;
     setSaving(true);
     try {
       const res = await api.patch(`/patients/patient/${item.id}/`, form, {
@@ -63,10 +80,10 @@ export default function PatientEditModal({ item, onClose, onSaved }) {
       }
     >
       <div className="space-y-5">
-        <Field label={t('doctor_create.name_uz')} required>
+        <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
           <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} />
         </Field>
-        <Field label={t('doctor_create.name_ru')} required>
+        <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
           <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} />
         </Field>
         <Field label={t('doctor_create.gender')}>
@@ -78,10 +95,10 @@ export default function PatientEditModal({ item, onClose, onSaved }) {
         <Field label={t('patient_create.birth_date')}>
           <input type="date" name="birth_date" value={form.birth_date} onChange={handleChange} className={inputCls} />
         </Field>
-        <Field label={t('patients.phone')}>
+        <Field label={t('patients.phone')} error={errors.phone_number}>
           <input name="phone_number" value={form.phone_number} onChange={handleChange} className={inputCls} />
         </Field>
-        <Field label={t('patients.national_id')}>
+        <Field label={t('patients.national_id')} error={errors.national_id}>
           <input name="national_id" value={form.national_id} onChange={handleChange} className={inputCls} />
         </Field>
         <Field label={t('patient_create.address')}>

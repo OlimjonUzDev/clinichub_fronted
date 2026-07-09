@@ -5,19 +5,23 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
+import { phoneError, validateForm, hasErrors } from '../lib/validators';
 
 const inputCls  = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition appearance-none";
 
-const Field = ({ label, required, children }) => (
+const Field = ({ label, required, error, children }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}
       {label}
     </label>
     {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
+
+const RULES = { phone_number: phoneError };
 
 export default function ClinicCreate() {
   const [medicalCenters, setMedicalCenters] = useState([]);
@@ -28,6 +32,7 @@ export default function ClinicCreate() {
     phone_number:   '',
     status:         'active',
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { token }   = useAuth();
   const { t, lang } = useLang();
@@ -39,11 +44,17 @@ export default function ClinicCreate() {
     api.get('/clinics/clinictype/',    { headers: h }).then(r => setClinicTypes(r.data)).catch(() => {});
   }, []);
 
-  const handleChange = (e) =>
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (RULES[name]) setErrors(prev => ({ ...prev, [name]: RULES[name](value, t) }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = validateForm(form, RULES, t);
+    setErrors(newErrors);
+    if (hasErrors(newErrors)) return;
     setLoading(true);
     try {
       await api.post('/clinics/clinics/', form, {
@@ -108,7 +119,7 @@ export default function ClinicCreate() {
             </Field>
 
             {/* Phone */}
-            <Field label={t('clinic_create.phone')} required>
+            <Field label={t('clinic_create.phone')} required error={errors.phone_number}>
               <input
                 name="phone_number"
                 value={form.phone_number}

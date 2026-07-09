@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import { phoneError } from '../lib/validators';
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,26 +15,47 @@ const LogoIcon = () => (
   </svg>
 );
 
-export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+export default function Register() {
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'patient',
+    phone_number: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const { lang, setLang, t } = useLang();
   const navigate = useNavigate();
 
+  const handleChange = (field) => (e) => {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, [field]: value }));
+    if (field === 'phone_number') {
+      setFieldErrors(prev => ({ ...prev, phone_number: phoneError(value, t) }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const phoneErr = phoneError(form.phone_number, t);
+    setFieldErrors({ phone_number: phoneErr });
+    if (phoneErr) return;
     setLoading(true);
     setError('');
     try {
-      const response = await api.post('/auth/token/', { username, password });
-      login(response.data.access);
-      navigate('/dashboard');
-    } catch {
-      setError(t('auth.error'));
+      await api.post('/register/', form);
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 1500);
+    } catch (err) {
+      const data = err?.response?.data;
+      const firstError = data && typeof data === 'object'
+        ? Object.values(data).flat()[0]
+        : null;
+      setError(firstError || t('auth.signup_error'));
     } finally {
       setLoading(false);
     }
@@ -42,7 +63,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Top right language */}
       <div className="flex justify-end p-4">
         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden text-xs font-medium">
           <button
@@ -64,10 +84,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Center card */}
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md border border-gray-200 rounded-2xl p-10 shadow-sm bg-white">
-          {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <LogoIcon />
             <div className="mt-3 text-center">
@@ -81,9 +99,30 @@ export default function Login() {
               {error}
             </div>
           )}
+          {success && (
+            <div className="mb-4 text-green-600 text-sm text-center bg-green-50 rounded-lg py-2 px-3">
+              {t('auth.signup_success')}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('auth.username')}
+              </label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  required
+                  value={form.username}
+                  onChange={handleChange('username')}
+                  placeholder={t('auth.username')}
+                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 {t('auth.email')}
@@ -91,16 +130,48 @@ export default function Login() {
               <div className="relative">
                 <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={handleChange('email')}
                   placeholder={t('auth.email')}
                   className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('auth.phone')}
+              </label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={form.phone_number}
+                  onChange={handleChange('phone_number')}
+                  placeholder={t('auth.phone')}
+                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                />
+              </div>
+              {fieldErrors.phone_number && <p className="text-red-500 text-xs mt-1">{fieldErrors.phone_number}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('auth.role')}
+              </label>
+              <select
+                value={form.role}
+                onChange={handleChange('role')}
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+              >
+                <option value="patient">{t('auth.role.patient')}</option>
+                <option value="doctor">{t('auth.role.doctor')}</option>
+                <option value="admin">{t('auth.role.admin')}</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 {t('auth.password')}
@@ -109,8 +180,10 @@ export default function Login() {
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  value={form.password}
+                  onChange={handleChange('password')}
                   placeholder={t('auth.password')}
                   className="w-full border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
                 />
@@ -129,19 +202,14 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 mt-2"
             >
-              {loading ? t('auth.signing_in') : t('auth.signin')}
+              {loading ? t('auth.signing_in') : t('auth.signup')}
             </button>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">
-                {t('auth.no_account')}{' '}
-                <Link to="/register" className="text-indigo-500 hover:text-indigo-700 hover:underline">
-                  {t('auth.signup')}
-                </Link>
-              </div>
-              <button type="button" className="text-sm text-indigo-500 hover:text-indigo-700 hover:underline">
-                {t('auth.forgot')}
-              </button>
+            <div className="text-center text-sm text-gray-500">
+              {t('auth.have_account')}{' '}
+              <Link to="/login" className="text-indigo-500 hover:text-indigo-700 hover:underline">
+                {t('auth.signin')}
+              </Link>
             </div>
           </form>
         </div>

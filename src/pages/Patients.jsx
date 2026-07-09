@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 import PatientEditModal from '../components/PatientEditModal';
+import { useLookup, resolveRef } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -20,6 +21,8 @@ export default function Patients() {
   const [editItem, setEditItem] = useState(null);
   const { token } = useAuth();
   const { t } = useLang();
+  const users = useLookup('/users/', token);
+  const userEmail = (p) => resolveRef(p.user, users)?.email || '—';
 
   useEffect(() => {
     api.get('/patients/patient/', { headers: { Authorization: `Bearer ${token}` } })
@@ -62,7 +65,7 @@ export default function Patients() {
                   <div className="text-sm font-medium text-gray-800">{p.name_uz || '—'}</div>
                   <div className="text-xs text-gray-400">{p.name_ru || ''}</div>
                 </td>
-                <td className="px-5 py-4 text-sm text-gray-500">{p.user?.email || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{userEmail(p)}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{p.phone_number || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '—'}</td>
                 <td className="px-5 py-4">

@@ -3,29 +3,35 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
+import { phoneError, validateForm, hasErrors } from '../lib/validators';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = `${inputCls} appearance-none`;
 
-const Field = ({ label, required, children }) => (
+const Field = ({ label, required, error, children }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}
       {label}
     </label>
     {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
+
+const RULES = { phone_number: phoneError };
 
 export default function ClinicEditModal({ item, onClose, onSaved }) {
   const [medicalCenters, setMedicalCenters] = useState([]);
   const [clinicTypes, setClinicTypes] = useState([]);
+  const idOf = (val) => (val && typeof val === 'object' ? val.id : val) ?? '';
   const [form, setForm] = useState({
-    medical_center: item.medical_center?.id ?? '',
-    clinic_type: item.clinic_type?.id ?? '',
+    medical_center: idOf(item.medical_center),
+    clinic_type: idOf(item.clinic_type),
     phone_number: item.phone_number || '',
     status: item.status || 'active',
   });
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();
   const { t, lang } = useLang();
@@ -36,11 +42,18 @@ export default function ClinicEditModal({ item, onClose, onSaved }) {
     api.get('/clinics/clinictype/', { headers }).then(r => setClinicTypes(r.data)).catch(() => {});
   }, []);
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (RULES[name]) setErrors(prev => ({ ...prev, [name]: RULES[name](value, t) }));
+  };
 
   const nameOf = (c) => lang === 'ru' ? (c.name_ru || c.name_uz) : c.name_uz;
 
   const handleSave = async () => {
+    const newErrors = validateForm(form, RULES, t);
+    setErrors(newErrors);
+    if (hasErrors(newErrors)) return;
     setSaving(true);
     try {
       const res = await api.put(`/clinics/clinics/${item.id}/`, form, { headers });
@@ -80,7 +93,7 @@ export default function ClinicEditModal({ item, onClose, onSaved }) {
             {clinicTypes.map(ct => <option key={ct.id} value={ct.id}>{nameOf(ct)}</option>)}
           </select>
         </Field>
-        <Field label={t('clinic_create.phone')} required>
+        <Field label={t('clinic_create.phone')} required error={errors.phone_number}>
           <input name="phone_number" value={form.phone_number} onChange={handleChange} className={inputCls} />
         </Field>
         <Field label={t('clinic_create.status')}>

@@ -5,19 +5,29 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
+import { lettersOnlyError, urlFormatError, nonNegativeNumberError, validateForm, hasErrors } from '../lib/validators';
+import { useLookup, resolveRef } from '../lib/useLookup';
 
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition";
 const selectCls = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition appearance-none";
 
-const Field = ({ label, required, children }) => (
+const Field = ({ label, required, error, children }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}
       {label}
     </label>
     {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
+
+const RULES = {
+  name_uz: lettersOnlyError,
+  name_ru: lettersOnlyError,
+  avatar: urlFormatError,
+  experience_years: nonNegativeNumberError,
+};
 
 export default function DoctorCreate() {
   const [specialities, setSpecialities] = useState([]);
@@ -38,10 +48,16 @@ export default function DoctorCreate() {
     avatar: '',
     gender: 'erkak',
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const clinicLabel = (c) => {
+    const ct = resolveRef(c.clinic_type, clinicTypes);
+    return (ct && ct.name_uz) || c.phone_number;
+  };
 
   useEffect(() => {
     const h = { Authorization: `Bearer ${token}` };
@@ -53,11 +69,16 @@ export default function DoctorCreate() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: name === 'experience_years' ? Number(value) : value }));
+    const nextValue = name === 'experience_years' ? Number(value) : value;
+    setForm(prev => ({ ...prev, [name]: nextValue }));
+    if (RULES[name]) setErrors(prev => ({ ...prev, [name]: RULES[name](nextValue, t) }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = validateForm(form, RULES, t);
+    setErrors(newErrors);
+    if (hasErrors(newErrors)) return;
     setLoading(true);
     try {
       await api.post('/doctors/doctor/', form, { headers: { Authorization: `Bearer ${token}` } });
@@ -93,11 +114,11 @@ export default function DoctorCreate() {
               </select>
             </Field>
 
-            <Field label={t('doctor_create.name_uz')} required>
+            <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
               <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} />
             </Field>
 
-            <Field label={t('doctor_create.name_ru')} required>
+            <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
               <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} />
             </Field>
 
@@ -111,7 +132,7 @@ export default function DoctorCreate() {
             <Field label={t('doctor_create.clinic')} required>
               <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls}>
                 <option value="">{t('doctor_create.select')}</option>
-                {clinics.map(c => <option key={c.id} value={c.id}>{c.clinic_type?.name_uz || c.phone_number}</option>)}
+                {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
               </select>
             </Field>
 
@@ -129,7 +150,7 @@ export default function DoctorCreate() {
               </select>
             </Field>
 
-            <Field label={t('doctor_create.experience_years')}>
+            <Field label={t('doctor_create.experience_years')} error={errors.experience_years}>
               <input
                 type="number"
                 name="experience_years"
@@ -158,7 +179,7 @@ export default function DoctorCreate() {
               <textarea name="bio_ru" value={form.bio_ru} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
             </Field>
 
-            <Field label={t('doctor_create.avatar')}>
+            <Field label={t('doctor_create.avatar')} error={errors.avatar}>
               <input
                 name="avatar"
                 value={form.avatar}

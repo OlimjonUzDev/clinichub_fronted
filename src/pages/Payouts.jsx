@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
+import { useLookup, resolveName } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -19,6 +20,8 @@ export default function Payouts() {
   const [viewItem, setViewItem]   = useState(null);
   const { token }   = useAuth();
   const { t, lang } = useLang();
+  const doctors = useLookup('/doctors/doctor/', token);
+  const doctorName = (i) => resolveName(i.doctor, doctors, lang) || '—';
 
   useEffect(() => {
     api.get('/billing/doctorpayout/', { headers: { Authorization: `Bearer ${token}` } })
@@ -27,10 +30,7 @@ export default function Payouts() {
   }, []);
 
   const filtered = items.filter(i => {
-    const doctorName = lang === 'ru'
-      ? (i.doctor?.name_ru || i.doctor?.name_uz || '')
-      : (i.doctor?.name_uz || '');
-    const matchSearch = doctorName.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = doctorName(i).toLowerCase().includes(search.toLowerCase());
     const matchStatus = !statusFilter || i.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -76,16 +76,11 @@ export default function Payouts() {
         >
           {paginated.length === 0 && !loading
             ? <EmptyState message={t('payouts.no_data')} />
-            : paginated.map(item => {
-              const doctorName = lang === 'ru'
-                ? (item.doctor?.name_ru || item.doctor?.name_uz || '—')
-                : (item.doctor?.name_uz || '—');
-
-              return (
+            : paginated.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-4 text-sm text-gray-500">{item.id}</td>
                   <td className="px-5 py-4">
-                    <div className="text-sm font-medium text-gray-800">{doctorName}</div>
+                    <div className="text-sm font-medium text-gray-800">{doctorName(item)}</div>
                   </td>
                   <td className="px-5 py-4 text-sm text-gray-500 whitespace-nowrap">
                     {fmtDate(item.period_from)} — {fmtDate(item.period_to)}
@@ -105,8 +100,7 @@ export default function Payouts() {
                     </button>
                   </td>
                 </tr>
-              );
-            })
+              ))
           }
         </Table>
 
@@ -118,7 +112,7 @@ export default function Payouts() {
             onClose={() => setViewItem(null)}
             rows={[
               { label: t('payouts.id'), value: viewItem.id },
-              { label: t('payouts.doctor'), value: lang === 'ru' ? (viewItem.doctor?.name_ru || viewItem.doctor?.name_uz) : viewItem.doctor?.name_uz },
+              { label: t('payouts.doctor'), value: doctorName(viewItem) },
               { label: t('payouts.period'), value: `${fmtDate(viewItem.period_from)} — ${fmtDate(viewItem.period_to)}` },
               { label: t('payouts.amount'), value: `${Number(viewItem.amount).toLocaleString()} UZS` },
               { label: t('payouts.status'), value: viewItem.status },

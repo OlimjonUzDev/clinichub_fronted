@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
 import ClinicEditModal from '../components/ClinicEditModal';
 import DetailModal from '../components/DetailModal';
+import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -20,7 +21,11 @@ export default function Clinics() {
   const [editItem, setEditItem] = useState(null);
   const [viewItem, setViewItem] = useState(null);
   const { token } = useAuth();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const medicalCenters = useLookup('/clinics/medicalcenter/', token);
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const typeName = (i) => resolveName(i.clinic_type, clinicTypes, lang);
+  const centerName = (i) => resolveName(i.medical_center, medicalCenters, lang);
 
   const handleDelete = async (id) => {
     if (!confirm(t('clinics.delete_confirm'))) return;
@@ -38,8 +43,8 @@ export default function Clinics() {
 
   const filtered = items.filter(i => {
     const matchSearch =
-      (i.clinic_type?.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
-      (i.medical_center?.name_uz || '').toLowerCase().includes(search.toLowerCase()) ||
+      (typeName(i) || '').toLowerCase().includes(search.toLowerCase()) ||
+      (centerName(i) || '').toLowerCase().includes(search.toLowerCase()) ||
       (i.phone_number || '').includes(search);
     const matchStatus = !statusFilter || (i.status || '').toLowerCase() === statusFilter;
     return matchSearch && matchStatus;
@@ -79,15 +84,18 @@ export default function Clinics() {
         >
           {paginated.length === 0 && !loading
             ? <EmptyState message={t('clinics.no_data')} />
-            : paginated.map(item => (
+            : paginated.map(item => {
+              const ct = resolveRef(item.clinic_type, clinicTypes);
+              const mc = resolveRef(item.medical_center, medicalCenters);
+              return (
               <tr key={item.id} className="hover:bg-gray-50">
                 <td className="px-5 py-4 text-sm text-gray-500 w-16">{item.id}</td>
                 <td className="px-5 py-4">
-                  <div className="text-sm font-medium text-gray-800">{item.clinic_type?.name_uz || '—'}</div>
-                  {item.clinic_type?.name_ru && <div className="text-xs text-gray-400">{item.clinic_type.name_ru}</div>}
+                  <div className="text-sm font-medium text-gray-800">{ct?.name_uz || '—'}</div>
+                  {ct?.name_ru && <div className="text-xs text-gray-400">{ct.name_ru}</div>}
                 </td>
                 <td className="px-5 py-4">
-                  <div className="text-sm text-gray-700">{item.medical_center?.name_uz || '—'}</div>
+                  <div className="text-sm text-gray-700">{mc?.name_uz || '—'}</div>
                 </td>
                 <td className="px-5 py-4 text-sm text-gray-500">{item.phone_number || '—'}</td>
                 <td className="px-5 py-4"><StatusBadge status={item.status || 'active'} /></td>
@@ -106,7 +114,8 @@ export default function Clinics() {
                   </div>
                 </td>
               </tr>
-            ))
+              );
+            })
           }
         </Table>
 
@@ -118,8 +127,8 @@ export default function Clinics() {
             onClose={() => setViewItem(null)}
             rows={[
               { label: t('clinics.id'), value: viewItem.id },
-              { label: t('clinics.clinic_type'), value: viewItem.clinic_type?.name_uz },
-              { label: t('clinics.medical_center'), value: viewItem.medical_center?.name_uz },
+              { label: t('clinics.clinic_type'), value: typeName(viewItem) },
+              { label: t('clinics.medical_center'), value: centerName(viewItem) },
               { label: t('clinics.contact'), value: viewItem.phone_number },
               { label: t('clinics.status'), value: viewItem.status },
               { label: t('clinics.doctors'), value: viewItem.doctors_count },

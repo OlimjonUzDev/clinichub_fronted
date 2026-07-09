@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
 
-export default function AppointmentDetailModal({ item, onClose, fmtDate, patientName, doctorName }) {
+export default function AppointmentDetailModal({ item, onClose, fmtDate, patientName, doctorName, cancelledByName }) {
   const [tab, setTab] = useState('info');
   const [prescription, setPrescription] = useState(undefined);
   const { token } = useAuth();
@@ -57,7 +57,7 @@ export default function AppointmentDetailModal({ item, onClose, fmtDate, patient
             { label: t('appt.status'), value: item.status },
             { label: t('appt.notes'), value: item.notes, full: true },
             item.status === 'cancelled' && { label: t('appt.cancel_reason'), value: item.cancel_reason, full: true },
-            item.status === 'cancelled' && { label: t('appt.cancelled_by'), value: item.cancelled_by?.username },
+            item.status === 'cancelled' && { label: t('appt.cancelled_by'), value: cancelledByName },
           ].filter(Boolean).map(r => (
             <div key={r.label} className={r.full ? 'sm:col-span-2' : ''}>
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">{r.label}</div>

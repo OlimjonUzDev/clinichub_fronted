@@ -8,6 +8,7 @@ import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 import DoctorScheduleModal from '../components/DoctorScheduleModal';
+import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 const PAGE_SIZE = 10;
 
@@ -18,8 +19,17 @@ export default function Doctors() {
   const [page, setPage] = useState(1);
   const [scheduleDoctorId, setScheduleDoctorId] = useState(null);
   const { token } = useAuth();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const navigate = useNavigate();
+  const specialities = useLookup('/catalog/specialities/', token);
+  const rankTypes = useLookup('/catalog/ranktyp/', token);
+  const clinics = useLookup('/clinics/clinics/', token);
+  const clinicTypes = useLookup('/clinics/clinictype/', token);
+  const clinicLabel = (doc) => {
+    const clinic = resolveRef(doc.clinic, clinics);
+    const ct = clinic ? resolveRef(clinic.clinic_type, clinicTypes) : null;
+    return (ct && resolveName(ct, clinicTypes, lang)) || clinic?.phone_number || '—';
+  };
 
   useEffect(() => {
     api.get('/doctors/doctor/', { headers: { Authorization: `Bearer ${token}` } })
@@ -83,10 +93,10 @@ export default function Doctors() {
                   <div className="text-sm font-medium text-gray-800">{doc.name_uz || '—'}</div>
                   <div className="text-xs text-gray-400">{doc.name_ru || ''}</div>
                 </td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.speciality?.name_uz || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{resolveName(doc.speciality, specialities, lang) || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{doc.gender || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.clinic?.phone_number || '—'}</td>
-                <td className="px-5 py-4 text-sm text-gray-500">{doc.rank_type?.name_uz || '—'}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{clinicLabel(doc)}</td>
+                <td className="px-5 py-4 text-sm text-gray-500">{resolveName(doc.rank_type, rankTypes, lang) || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-500">{doc.experience_years ?? '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
