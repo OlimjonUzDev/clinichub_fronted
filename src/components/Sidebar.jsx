@@ -5,10 +5,10 @@ import { useLang } from '../context/LangContext';
 import {
   Rocket, BarChart2, Stethoscope, LayoutGrid, Star,
   Home, Building2, UsersRound, Calendar, DollarSign,
-  Plug, Wallet, Megaphone, Settings, LogOut,
+  Plug, Wallet, Settings, LogOut,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
   UserSquare, FileText, ShieldCheck, ArrowLeftRight, UserCog,
-  Tag, ImageIcon, Users
+  Tag, Users, Puzzle, MessageSquare
 } from 'lucide-react';
 
 const LogoIcon = () => (
@@ -61,7 +61,10 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     },
     {
       key: 'integrations', label: t('menu.integrations'), icon: Plug,
-      children: []
+      children: [
+        { label: t('menu.apps'), path: '/apps', icon: Puzzle },
+        { label: t('menu.messages'), path: '/messages', icon: MessageSquare },
+      ]
     },
     {
       key: 'financial', label: t('menu.financial'), icon: Wallet,
@@ -70,13 +73,6 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         { label: t('menu.insurance'), path: '/insurance', icon: ShieldCheck },
         { label: t('menu.doctor_payouts'), path: '/payouts', icon: ArrowLeftRight },
         { label: t('menu.doctors_settings'), path: '/doctor-settings', icon: UserCog },
-      ]
-    },
-    {
-      key: 'marketing', label: t('menu.marketing'), icon: Megaphone,
-      children: [
-        { label: t('menu.coupons'), path: '/coupons', icon: Tag },
-        { label: t('menu.banners'), path: '/banners', icon: ImageIcon },
       ]
     },
     {

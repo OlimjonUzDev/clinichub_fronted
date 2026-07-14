@@ -47,6 +47,8 @@ export default function MedicalCenters() {
             { label: t('menu.medical_centers') },
           ]}
           title={t('mc.title')}
+          createPath="/medical-centers/create"
+          createLabel={t('common.create')}
         />
 
         <div className="mb-4">

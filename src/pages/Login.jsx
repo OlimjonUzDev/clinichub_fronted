@@ -32,7 +32,7 @@ export default function Login() {
     try {
       const response = await api.post('/auth/token/', { username, password });
       login(response.data.access);
-      navigate('/dashboard');
+      navigate('/getting-started');
     } catch (err) {
       setError(err.response?.data?.detail || t('auth.error'));
     } finally {

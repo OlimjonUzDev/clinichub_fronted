@@ -24,6 +24,7 @@ import RankPriceCreate from './pages/RankPriceCreate';
 import Invoices from './pages/Invoices';
 import Payouts from './pages/Payouts';
 import Users from './pages/Users';
+import DoctorSettings from './pages/DoctorSettings';
 import Placeholder from './pages/Placeholder';
 
 const Protected = ({ children }) => {
@@ -66,15 +67,15 @@ function App() {
         <Route path="/rank-prices"        element={<Protected><RankPrices /></Protected>} />
         <Route path="/rank-prices/create" element={<Protected><RankPriceCreate /></Protected>} />
 
+        {/* Integrations */}
+        <Route path="/apps"               element={<Protected><Placeholder title="Apps" /></Protected>} />
+        <Route path="/messages"           element={<Protected><Placeholder title="Messages" /></Protected>} />
+
         {/* Financial */}
         <Route path="/invoices"           element={<Protected><Invoices /></Protected>} />
         <Route path="/insurance"          element={<Protected><Placeholder title="Insurance Claims" /></Protected>} />
         <Route path="/payouts"            element={<Protected><Payouts /></Protected>} />
-        <Route path="/doctor-settings"    element={<Protected><Placeholder title="Doctors Settings" /></Protected>} />
-
-        {/* Marketing */}
-        <Route path="/coupons"            element={<Protected><Placeholder title="Coupons" /></Protected>} />
-        <Route path="/banners"            element={<Protected><Placeholder title="Banners" /></Protected>} />
+        <Route path="/doctor-settings"    element={<Protected><DoctorSettings /></Protected>} />
 
         {/* Admin */}
         <Route path="/users"              element={<Protected><Users /></Protected>} />
