@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios';
+import { fetchAll } from '../api/axios';
 
 // Backend often returns a foreign key as a bare ID instead of a nested object.
 // This fetches the referenced list once and builds an id -> item map so pages
@@ -10,10 +10,10 @@ export function useLookup(url, token) {
 
   useEffect(() => {
     if (!url || !token) return;
-    api.get(url, { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
+    fetchAll(url, token)
+      .then(items => {
         const m = {};
-        (res.data || []).forEach(item => { m[item.id] = item; });
+        items.forEach(item => { m[item.id] = item; });
         setMap(m);
       })
       .catch(() => {});

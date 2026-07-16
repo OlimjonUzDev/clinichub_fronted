@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye, Pencil } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -10,7 +10,7 @@ import DetailModal from '../components/DetailModal';
 import PatientEditModal from '../components/PatientEditModal';
 import { useLookup, resolveRef } from '../lib/useLookup';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function Patients() {
   const [patients, setPatients] = useState([]);
@@ -25,8 +25,8 @@ export default function Patients() {
   const userEmail = (p) => resolveRef(p.user, users)?.email || '—';
 
   useEffect(() => {
-    api.get('/patients/patient/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setPatients(res.data); setLoading(false); })
+    fetchAll('/patients/patient/', token)
+      .then(data => { setPatients(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

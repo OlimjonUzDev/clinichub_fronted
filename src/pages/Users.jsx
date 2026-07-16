@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -8,7 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 const ROLE_COLORS = {
   admin:   'text-red-600 bg-red-50 border-red-300',
@@ -36,8 +36,8 @@ export default function Users() {
   const { t, lang } = useLang();
 
   useEffect(() => {
-    api.get('/users/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/users/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

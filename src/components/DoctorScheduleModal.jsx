@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
@@ -27,9 +27,9 @@ export default function DoctorScheduleModal({ doctorId, onClose }) {
   const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    api.get('/doctors/doctorschedule/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        const mine = res.data.filter(s => s.doctor === doctorId);
+    fetchAll('/doctors/doctorschedule/', token)
+      .then(data => {
+        const mine = data.filter(s => s.doctor === doctorId);
         setDays(prev => prev.map(d => {
           const found = mine.find(s => s.weekday === d.value);
           return found

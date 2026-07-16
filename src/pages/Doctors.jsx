@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil, Trash2, Calendar, Ban, CheckCircle2 } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -10,7 +10,7 @@ import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTabl
 import DoctorScheduleModal from '../components/DoctorScheduleModal';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function Doctors() {
   const [doctors, setDoctors] = useState([]);
@@ -32,8 +32,8 @@ export default function Doctors() {
   };
 
   useEffect(() => {
-    api.get('/doctors/doctor/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setDoctors(res.data); setLoading(false); })
+    fetchAll('/doctors/doctor/', token)
+      .then(data => { setDoctors(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

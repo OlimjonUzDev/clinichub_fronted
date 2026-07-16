@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -8,7 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 import RankTypeEditModal from '../components/RankTypeEditModal';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function RankTypes() {
   const [items, setItems]     = useState([]);
@@ -20,8 +20,8 @@ export default function RankTypes() {
   const { t, lang } = useLang();
 
   useEffect(() => {
-    api.get('/catalog/ranktyp/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/catalog/ranktyp/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

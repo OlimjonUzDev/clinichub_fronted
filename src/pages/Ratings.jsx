@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -8,7 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { Table, EmptyState, Pagination } from '../components/DataTable';
 import ColumnFilter from '../components/ColumnFilter';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 function Stars({ score }) {
   return (
@@ -34,8 +34,8 @@ export default function Ratings() {
   const { t, lang } = useLang();
 
   useEffect(() => {
-    api.get('/appointments/rating/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setRatings(res.data); setLoading(false); })
+    fetchAll('/appointments/rating/', token)
+      .then(data => { setRatings(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

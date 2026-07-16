@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye, Ban, CalendarClock } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -12,7 +12,7 @@ import AppointmentCancelModal from '../components/AppointmentCancelModal';
 import AppointmentRescheduleModal from '../components/AppointmentRescheduleModal';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function Appointments() {
   const [items, setItems]         = useState([]);
@@ -35,8 +35,8 @@ export default function Appointments() {
   const cancelledByName = (i) => resolveRef(i.cancelled_by, users)?.username || null;
 
   useEffect(() => {
-    api.get('/appointments/appointment/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/appointments/appointment/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

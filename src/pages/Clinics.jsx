@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -10,7 +10,7 @@ import ClinicEditModal from '../components/ClinicEditModal';
 import DetailModal from '../components/DetailModal';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function Clinics() {
   const [items, setItems] = useState([]);
@@ -36,8 +36,8 @@ export default function Clinics() {
   };
 
   useEffect(() => {
-    api.get('/clinics/clinics/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/clinics/clinics/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

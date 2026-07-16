@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -9,7 +9,7 @@ import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../compon
 import DetailModal from '../components/DetailModal';
 import { useLookup, resolveName } from '../lib/useLookup';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function Payouts() {
   const [items, setItems]         = useState([]);
@@ -24,8 +24,8 @@ export default function Payouts() {
   const doctorName = (i) => resolveName(i.doctor, doctors, lang) || '—';
 
   useEffect(() => {
-    api.get('/billing/doctorpayout/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/billing/doctorpayout/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

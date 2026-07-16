@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Pencil } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -9,7 +9,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function MedicalCenters() {
   const [items, setItems]     = useState([]);
@@ -22,8 +22,8 @@ export default function MedicalCenters() {
   const navigate    = useNavigate();
 
   useEffect(() => {
-    api.get('/clinics/medicalcenter/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setItems(res.data); setLoading(false); })
+    fetchAll('/clinics/medicalcenter/', token)
+      .then(data => { setItems(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 

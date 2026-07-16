@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pencil, CheckCircle2, Circle } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -8,7 +8,7 @@ import PageHeader from '../components/PageHeader';
 import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
 import DoctorSettingsEditModal from '../components/DoctorSettingsEditModal';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 export default function DoctorSettings() {
   const [doctors, setDoctors] = useState([]);
@@ -20,8 +20,8 @@ export default function DoctorSettings() {
   const { t } = useLang();
 
   useEffect(() => {
-    api.get('/doctors/doctor/', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => { setDoctors(res.data); setLoading(false); })
+    fetchAll('/doctors/doctor/', token)
+      .then(data => { setDoctors(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
