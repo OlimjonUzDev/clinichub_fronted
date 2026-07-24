@@ -14,6 +14,7 @@ const translations = {
     'auth.no_account': 'Hisobingiz yo\'qmi?',
     'auth.have_account': 'Hisobingiz bormi?',
     'auth.forgot': 'Parolni unutdingizmi?',
+    'auth.patient_only': 'Bu portal faqat bemorlar uchun. Iltimos, bemor hisobingiz bilan kiring.',
 
     // Validation
     'validation.phone': "Telefon raqami noto'g'ri (masalan: +998901234567)",
@@ -22,6 +23,9 @@ const translations = {
     // Nav
     'nav.home': 'Doktor qidirish',
     'nav.appointments': 'Mening tashriflarim',
+    'nav.prescriptions': 'Retseptlar',
+    'nav.reviews': 'Sharhlarim',
+    'nav.payments': "To'lovlar",
     'nav.profile': 'Profil',
     'nav.logout': 'Chiqish',
 
@@ -63,10 +67,47 @@ const translations = {
     'appointments.cancel': 'Bekor qilish',
     'appointments.cancel_confirm': 'Ushbu tashrifni bekor qilishni tasdiqlaysizmi?',
     'appointments.cancel_error': 'Bekor qilishda xatolik yuz berdi',
+    'appointments.reschedule': 'Vaqtini o\'zgartirish',
+    'appointments.reschedule_confirm': 'Tasdiqlash',
+    'appointments.rescheduling': 'Saqlanmoqda...',
+    'appointments.reschedule_error': 'Vaqtni o\'zgartirishda xatolik yuz berdi',
     'status.pending': 'Kutilmoqda',
     'status.confirmed': 'Tasdiqlangan',
     'status.completed': 'Yakunlangan',
     'status.cancelled': 'Bekor qilingan',
+
+    // Prescriptions
+    'prescriptions.title': 'Mening retseptlarim',
+    'prescriptions.no_data': 'Hali retsept yozilmagan',
+    'prescriptions.diagnosis': 'Tashxis',
+    'prescriptions.medications': 'Dorilar',
+    'prescriptions.no_medications': 'Dori yozilmagan',
+    'prescriptions.days': 'kun',
+
+    // Reviews
+    'reviews.title': 'Sharhlarim',
+    'reviews.leave_title': 'Baholash mumkin bo\'lgan tashriflar',
+    'reviews.no_eligible': 'Hozircha baholanadigan tashrif yo\'q',
+    'reviews.my_reviews': 'Mening sharhlarim',
+    'reviews.no_data': 'Siz hali hech kimni baholamagansiz',
+    'reviews.comment_placeholder': 'Fikringiz (ixtiyoriy)',
+    'reviews.submit': 'Yuborish',
+    'reviews.submitting': 'Yuborilmoqda...',
+    'reviews.submit_error': 'Sharh yuborishda xatolik yuz berdi',
+    'reviews.profile_required': 'Sharh qoldirish uchun avval profilingizni to\'ldiring',
+
+    // Payments
+    'payments.title': "To'lovlar",
+    'payments.no_data': "Hozircha hisob-fakturalar yo'q",
+    'payments.pay_button': "To'lash",
+    'payments.processing': "To'lov amalga oshirilmoqda...",
+    'payments.pay_error': "To'lovda xatolik yuz berdi",
+    'payments.stripe_not_configured': "To'lov tizimi hozircha sozlanmagan",
+    'payments.status.pending': 'Kutilmoqda',
+    'payments.status.paid': "To'landi",
+    'payments.status.failed': 'Xato',
+    'payments.status.cancelled': 'Bekor qilindi',
+    'payments.status.refunded': 'Qaytarildi',
 
     // Profile
     'profile.title': 'Mening profilim',
@@ -103,12 +144,16 @@ const translations = {
     'auth.no_account': 'Нет аккаунта?',
     'auth.have_account': 'Уже есть аккаунт?',
     'auth.forgot': 'Забыли пароль?',
+    'auth.patient_only': 'Этот портал только для пациентов. Пожалуйста, войдите с аккаунтом пациента.',
 
     'validation.phone': 'Неверный формат номера (например: +998901234567)',
     'validation.letters_only': 'Это поле должно содержать только буквы',
 
     'nav.home': 'Поиск врача',
     'nav.appointments': 'Мои визиты',
+    'nav.prescriptions': 'Рецепты',
+    'nav.reviews': 'Мои отзывы',
+    'nav.payments': 'Оплата',
     'nav.profile': 'Профиль',
     'nav.logout': 'Выйти',
 
@@ -147,10 +192,47 @@ const translations = {
     'appointments.cancel': 'Отменить',
     'appointments.cancel_confirm': 'Подтвердите отмену этого визита',
     'appointments.cancel_error': 'Ошибка при отмене',
+    'appointments.reschedule': 'Перенести',
+    'appointments.reschedule_confirm': 'Подтвердить',
+    'appointments.rescheduling': 'Сохранение...',
+    'appointments.reschedule_error': 'Ошибка при переносе визита',
     'status.pending': 'Ожидание',
     'status.confirmed': 'Подтверждён',
     'status.completed': 'Завершён',
     'status.cancelled': 'Отменён',
+
+    // Prescriptions
+    'prescriptions.title': 'Мои рецепты',
+    'prescriptions.no_data': 'Пока нет рецептов',
+    'prescriptions.diagnosis': 'Диагноз',
+    'prescriptions.medications': 'Лекарства',
+    'prescriptions.no_medications': 'Лекарства не назначены',
+    'prescriptions.days': 'дн.',
+
+    // Reviews
+    'reviews.title': 'Мои отзывы',
+    'reviews.leave_title': 'Визиты, которые можно оценить',
+    'reviews.no_eligible': 'Пока нет визитов для оценки',
+    'reviews.my_reviews': 'Мои отзывы',
+    'reviews.no_data': 'Вы ещё никого не оценили',
+    'reviews.comment_placeholder': 'Ваш отзыв (необязательно)',
+    'reviews.submit': 'Отправить',
+    'reviews.submitting': 'Отправка...',
+    'reviews.submit_error': 'Ошибка при отправке отзыва',
+    'reviews.profile_required': 'Заполните профиль, чтобы оставить отзыв',
+
+    // Payments
+    'payments.title': 'Оплата',
+    'payments.no_data': 'Пока нет счетов',
+    'payments.pay_button': 'Оплатить',
+    'payments.processing': 'Обработка платежа...',
+    'payments.pay_error': 'Ошибка при оплате',
+    'payments.stripe_not_configured': 'Платёжная система пока не настроена',
+    'payments.status.pending': 'Ожидание',
+    'payments.status.paid': 'Оплачено',
+    'payments.status.failed': 'Ошибка',
+    'payments.status.cancelled': 'Отменено',
+    'payments.status.refunded': 'Возвращено',
 
     'profile.title': 'Мой профиль',
     'profile.section_personal': 'Личные данные',

@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Calendar, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Calendar, User, LogOut, ChevronLeft, ChevronRight, FileText, Star, Wallet } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
@@ -22,6 +22,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   const MENU = [
     { label: t('nav.home'), path: '/', icon: Search },
     { label: t('nav.appointments'), path: '/appointments', icon: Calendar },
+    { label: t('nav.prescriptions'), path: '/prescriptions', icon: FileText },
+    { label: t('nav.reviews'), path: '/reviews', icon: Star },
+    { label: t('nav.payments'), path: '/payments', icon: Wallet },
     { label: t('nav.profile'), path: '/profile', icon: User },
   ];
 

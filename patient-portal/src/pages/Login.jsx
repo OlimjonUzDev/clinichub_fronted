@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -24,6 +24,8 @@ export default function Login() {
   const { login } = useAuth();
   const { lang, setLang, t } = useLang();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const blocked = searchParams.get('blocked') === '1';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,6 +70,12 @@ export default function Login() {
               <div className="text-xs text-gray-400 tracking-widest uppercase mt-0.5">Care at Home</div>
             </div>
           </div>
+
+          {blocked && !error && (
+            <div className="mb-4 text-amber-700 text-sm text-center bg-amber-50 rounded-lg py-2 px-3">
+              {t('auth.patient_only')}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 text-red-500 text-sm text-center bg-red-50 rounded-lg py-2 px-3">
