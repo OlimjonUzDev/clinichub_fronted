@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import Analytics from './pages/Analytics';
 import DoctorProfile from './pages/DoctorProfile';
 import MyAppointments from './pages/MyAppointments';
 import Profile from './pages/Profile';
@@ -34,6 +35,7 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/" element={<Protected><Home /></Protected>} />
+        <Route path="/analytics" element={<Protected><Analytics /></Protected>} />
         <Route path="/doctor/:id" element={<Protected><DoctorProfile /></Protected>} />
         <Route path="/appointments" element={<Protected><MyAppointments /></Protected>} />
         <Route path="/prescriptions" element={<Protected><Prescriptions /></Protected>} />

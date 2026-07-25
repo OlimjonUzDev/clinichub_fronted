@@ -22,6 +22,7 @@ const translations = {
 
     // Nav
     'nav.home': 'Doktor qidirish',
+    'nav.analytics': 'Tahlil',
     'nav.appointments': 'Mening tashriflarim',
     'nav.prescriptions': 'Retseptlar',
     'nav.reviews': 'Sharhlarim',
@@ -60,6 +61,16 @@ const translations = {
     'consultation.voice': 'Ovozli',
     'consultation.chat': 'Chat',
     'consultation.in_person': "Klinikaga borib",
+
+    // Analytics
+    'analytics.title': 'Tahlil',
+    'analytics.total_appointments': 'Jami tashriflar',
+    'analytics.upcoming': 'Yaqin tashriflar',
+    'analytics.completed': 'Yakunlangan',
+    'analytics.prescriptions': 'Retseptlar',
+    'analytics.status_breakdown': 'Tashriflar holati bo\'yicha',
+    'analytics.monthly_trend': 'Oylik dinamika',
+    'analytics.top_doctors': 'Ko\'p murojaat qilingan doktorlar',
 
     // Appointments
     'appointments.title': 'Mening tashriflarim',
@@ -150,6 +161,7 @@ const translations = {
     'validation.letters_only': 'Это поле должно содержать только буквы',
 
     'nav.home': 'Поиск врача',
+    'nav.analytics': 'Аналитика',
     'nav.appointments': 'Мои визиты',
     'nav.prescriptions': 'Рецепты',
     'nav.reviews': 'Мои отзывы',
@@ -186,6 +198,16 @@ const translations = {
     'consultation.voice': 'Голосовой',
     'consultation.chat': 'Чат',
     'consultation.in_person': 'Очно',
+
+    // Analytics
+    'analytics.title': 'Аналитика',
+    'analytics.total_appointments': 'Всего визитов',
+    'analytics.upcoming': 'Предстоящие',
+    'analytics.completed': 'Завершённые',
+    'analytics.prescriptions': 'Рецепты',
+    'analytics.status_breakdown': 'По статусу визитов',
+    'analytics.monthly_trend': 'Динамика по месяцам',
+    'analytics.top_doctors': 'Часто посещаемые врачи',
 
     'appointments.title': 'Мои визиты',
     'appointments.no_data': 'Пока нет записанных визитов',
