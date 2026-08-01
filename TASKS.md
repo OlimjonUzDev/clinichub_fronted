@@ -33,9 +33,9 @@ Ushbu fayl backend'ni production'ga tayyorlash uchun qilinishi kerak bo'lgan bar
 
 ## 4-BOSQICH — Testlar
 
-- [ ] Har bir app'dagi `tests.py` bo'sh stub — kamida quyidagilar uchun test yozish:
-  - [ ] Registratsiya / login oqimi (shu jumladan `role` escalation endi bloklanganini tekshiruvchi test)
-  - [ ] To'lov oqimi (Stripe intent yaratish, webhook idempotency)
+- [x] Har bir app'dagi `tests.py` endi to'ldirilgan — barcha 10 app uchun testlar yozilgan. ✅ Tekshirildi (2026-08-01, `manage.py test` bilan): **barcha 87 ta test o'tadi** (`OK`). 2026-07-28'da 2 tasi (`billing.test_patient_cannot_list_invoice`, `payments.test_non_admin_cannot_list_payments`) 9-bosqichdagi ataylab qilingan ruxsat o'zgarishi tufayli FAIL berayotgan edi — endi yangilangan (pastga qarang, `test_patient_can_list_own_invoice_only`/`test_patient_can_list_own_payments_only`).
+  - [x] Registratsiya / login oqimi — `users/tests.py` (`role` escalation blokini ham tekshiradi).
+  - [x] To'lov oqimi — `payments/tests.py` (Stripe intent yaratish mock bilan, webhook signature tekshiruvi).
 
 ### `appointments/tests.py` — `AppointmentViewSetTestCase`
 
@@ -64,7 +64,7 @@ Validatsiya testlari (`serializers.py`) — tugallandi:
 Permission testlari — tugallandi:
 
 - [x] `test_admin_can_list_invoices`
-- [x] `test_patient_cannot_list_invoice`
+- [x] `test_patient_can_list_own_invoice_only` (2026-08-01'da `test_patient_cannot_list_invoice`ning o'rniga yangilandi — 9-bosqich ruxsat o'zgarishiga mos)
 - [x] `test_owner_patient_can_retrieve_invoice`
 - [x] `test_admin_can_list_payouts`
 - [x] `test_doctor_cannot_list_payouts`
@@ -78,6 +78,7 @@ Rejada bo'lgan, lekin hali yozilmagan (bo'sh qolgan) holatlar:
 - [ ] `test_other_patient_cannot_retrieve_invoice` — begona patient invoice'ni `GET` qila olmasligi (`403`)
 - [ ] `test_patient_cannot_update_invoice` — hech kim (hatto egasi ham) invoice'ni yangilay olmasligi
 - [ ] `test_admin_can_update_invoice` — admin `status`ni `paid`ga o'zgartira olishi
+- [x] ~~`test_patient_cannot_list_invoice` FAIL beryapti~~ — ✅ **Tuzatildi va tekshirildi (2026-08-01).** `test_patient_can_list_own_invoice_only`ga almashtirildi: patient endi `200` oladi, va boshqa bemorning invoice'i ro'yxatida chiqmasligi (`len == 1`, faqat o'zinikisi) real so'rov bilan tasdiqlandi.
 
 ### `catalog/tests.py` — `Speciality`, `RankType`, `RankPrice`
 
@@ -162,7 +163,7 @@ Permission testlari — tugallandi (10/10, barchasi ✅ o'tdi):
 
 Permission va validatsiya testlari — tugallandi (8/8, barchasi ✅ o'tdi):
 
-- [x] `test_non_admin_cannot_list_payments` — `PaymentViewSet` — `IsAuthenticated` + `IsAdmin` ikkalasi ham talab qilinadi
+- [x] `test_patient_can_list_own_payments_only` (2026-08-01'da `test_non_admin_cannot_list_payments`ning o'rniga yangilandi — 9-bosqich ruxsat o'zgarishiga mos)
 - [x] `test_admin_can_list_payments` — muvaffaqiyatli
 - [x] `test_create_payment_amount_mismatch_rejected` — `serializers.py:31-34` — `amount != invoice.amount` bo'lsa `400`
 - [x] `test_create_payment_for_already_paid_invoice_rejected` — `serializers.py:27-28` — invoice `status='paid'` bo'lsa `400`
@@ -170,36 +171,46 @@ Permission va validatsiya testlari — tugallandi (8/8, barchasi ✅ o'tdi):
 - [x] `test_create_stripe_intent_for_own_payment` — `CreateStripeIntentView` (`stripe.PaymentIntent.create`ни `@patch('payments.views.stripe.PaymentIntent.create')` bilan mock qilingan) — o'z to'lovi uchun `client_secret` qaytishi tasdiqlandi
 - [x] `test_create_stripe_intent_for_other_patient_payment_returns_404` — `views.py:22`даги `patient__user=request.user` filtri to'g'ri ishlayotganini tasdiqlaydi (bu yerda IDOR himoyasi allaqachon to'g'ri yozilgan — regression testi sifatida foydali)
 - [x] `test_stripe_webhook_invalid_signature_rejected` — `Stripe-Signature` header yuborilmasa `stripe.Webhook.construct_event` `SignatureVerificationError` chiqarib `400` qaytishi tasdiqlandi
+- [x] ~~`test_non_admin_cannot_list_payments` FAIL beryapti~~ — ✅ **Tuzatildi va tekshirildi (2026-08-01).** `test_patient_can_list_own_payments_only`ga almashtirildi: patient endi `200` oladi, va boshqa patientning to'lovi ro'yxatda chiqmasligi (`len == 1`, faqat o'zinikisi) real so'rov bilan tasdiqlandi.
 
 ### `prescriptions/tests.py` — `Prescription`, `PrescriptionItem`
 
-- [ ] `test_owner_doctor_can_create_prescription_with_items` — `serializers.py:22-36`даги custom `create()` — bir nechta dori bilan yaratish
-- [ ] `test_prescription_list_filtered_to_own_patient` — patient faqat o'ziga tegishli retseptlarni ko'radi (`views.py:18-19`)
-- [ ] `test_prescription_list_filtered_to_own_doctor` — doktor faqat o'zi yozgan retseptlarni ko'radi (`views.py:20-21`)
-- [ ] `test_other_doctor_cannot_retrieve_prescription` — `403`
-- [ ] `test_patient_cannot_update_prescription` — `permissions.py:12`даги non-safe tekshiruv faqat doktor/adminga ruxsat beradi, patient (hatto egasi bo'lsa ham) yoza olmaydi
-- [ ] `test_update_with_invalid_item_data_returns_400_not_500` — 3-bosqichda tuzatilgan bug uchun regression testi (`serializers.py:39-59`)
-- [ ] `test_update_replaces_items_when_items_provided` — eski itemlar o'chirilib, yangilari yozilishi
-- [ ] `test_update_without_items_keeps_existing_items` — `items` yuborilmasa mavjudlari saqlanib qolishi
+Tugallandi (7/7, barchasi ✅ o'tdi — tasdiqlandi 2026-07-28, `manage.py test`):
+
+- [x] `test_owner_doctor_can_create_prescription_with_items` — `serializers.py:22-36`даги custom `create()` — bir nechta dori bilan yaratish
+- [x] `test_prescription_list_filtered_to_own_patient` — patient faqat o'ziga tegishli retseptlarni ko'radi (`views.py:18-19`)
+- [x] `test_prescription_list_filtered_to_own_doctor` — doktor faqat o'zi yozgan retseptlarni ko'radi (`views.py:20-21`)
+- [x] `test_other_doctor_cannot_retrieve_prescription` — `403`
+- [x] `test_patient_cannot_update_prescription` — `permissions.py:12`даги non-safe tekshiruv faqat doktor/adminga ruxsat beradi, patient (hatto egasi bo'lsa ham) yoza olmaydi
+- [x] `test_update_with_invalid_item_data_returns_400_not_500` — 3-bosqichda tuzatilgan bug uchun regression testi (`serializers.py:39-59`)
+- [x] `test_update_replaces_items_when_items_provided` — eski itemlar o'chirilib, yangilari yozilishi
+- [x] `test_update_without_items_keeps_existing_items` — `items` yuborilmasa mavjudlari saqlanib qolishi
 
 ### `users/tests.py` — Registratsiya, `UserListView`, `DashboardView`
 
-- [ ] `test_register_creates_patient_role_regardless_of_payload` — `role: "admin"` yuborilsa ham DB'da `role='patient'` bo'lib qolishi (1-bosqichdagi tuzatish uchun regression testi)
-- [ ] `test_register_rejects_weak_password` — `"12345"` kabi zaif parol `400`
-- [ ] `test_register_response_does_not_include_password` — javobda `password` maydoni chiqmasligi
-- [ ] `test_non_admin_cannot_list_users` — `UserListView` — `403`
-- [ ] `test_admin_can_list_users` — muvaffaqiyatli
-- [ ] `test_non_admin_cannot_access_dashboard` — `DashboardView` — `403`
-- [ ] `test_admin_can_access_dashboard` — statistikalar to'g'ri qaytishi
+Tugallandi (7/7, barchasi ✅ o'tdi — tasdiqlandi 2026-07-28, `manage.py test`):
+
+- [x] `test_register_creates_patient_role_regardless_of_payload` — `role: "admin"` yuborilsa ham DB'da `role='patient'` bo'lib qolishi (1-bosqichdagi tuzatish uchun regression testi)
+- [x] `test_register_rejects_weak_password` — `"12345"` kabi zaif parol `400`
+- [x] `test_register_response_does_not_include_password` — javobda `password` maydoni chiqmasligi
+- [x] `test_non_admin_cannot_list_users` — `UserListView` — `403`
+- [x] `test_admin_can_list_users` — muvaffaqiyatli
+- [x] `test_non_admin_cannot_access_dashboard` — `DashboardView` — `403`
+- [x] `test_admin_can_access_dashboard` — statistikalar to'g'ri qaytishi
 
 ## 5-BOSQICH — Infratuzilma / deploy
 
 - [ ] **`ALLOWED_HOSTS = []`** — production domenini/IP'ni qo'shish (`DEBUG=False` bo'lganda bu bo'sh bo'lsa hamma so'rov `DisallowedHost` xatosi beradi). Hozircha `DEBUG=True` bo'lgani uchun ta'siri yo'q — haqiqiy domen aniq bo'lgach qo'shiladi.
-- [ ] SQLite'dan PostgreSQL'ga o'tish (`psycopg2-binary` allaqachon o'rnatilgan, `DATABASES` sozlamasini yangilash kerak).
-- [x] `requiremets.txt` fayl nomini `requirements.txt`ga to'g'irlash (ko'p hosting platformalari aynan shu nomni qidiradi). ✅ Bajarildi (2-bosqichda tasodifan). UTF-16 kodировкani UTF-8'ga o'tkazish hali qilinmagan (ixtiyoriy).
+- [x] SQLite'dan PostgreSQL'ga o'tish — ✅ Tekshirildi (2026-08-01): `DATABASES` allaqachon Postgres'ga sozlangan (`config/settings.py`, `os.environ.get(...)` orqali `.env`dan), `psycopg2-binary` o'rnatilgan. `manage.py check --database default` xatosiz, `manage.py showmigrations` — barcha app'lar uchun barcha migratsiyalar qo'llangan holatda real Postgres'ga ulanib tasdiqlandi.
+- [x] `requiremets.txt` fayl nomini `requirements.txt`ga to'g'irlash (ko'p hosting platformalari aynan shu nomni qidiradi). ✅ Bajarildi (2-bosqichda tasodifan). UTF-16 kodировкани UTF-8'ga o'tkazish ham ✅ bajarildi va tekshirildi (2026-08-01) — fayl endi ASCII/UTF-8, `pip install -r requirements.txt` (Docker build ichida) muvaffaqiyatli o'tdi.
+- [x] **Dockerfile va docker-compose.yml — to'liq tuzatildi va amaliy sinovdan o'tkazildi (2026-08-01):**
+  - `Dockerfile` — `CMD`даги `manag.py` yozuv xatosi `manage.py`ga to'g'irlandi (avval `docker run` konteynerni darhol qulatardi).
+  - `docker-compose.yml` — bir nechta muammo tuzatildi: `db` volume yo'lidagi typo (`/var/lib.postgresql/data` → to'g'ri yo'l), `web` xizmatiga `depends_on: db` qo'shildi, `web` volume mount'i Dockerfile'dagi `WORKDIR /app` bilan mos qilib (`.:/app`) to'g'irlandi, `web`ga `environment: DB_HOST=db` qo'shildi (`.env`dagi `DB_HOST=localhost` faqat lokal/venv ishga tushirish uchun to'g'ri, Docker tarmog'ida `db` xizmat nomi kerak), `postgres:latest` → `postgres:18` (lokal Postgres 18.3 bilan mos), va Postgres 18+ image'ining yangi talabi bo'yicha volume mount `/var/lib/postgresql/data` → `/var/lib/postgresql`ga o'zgartirildi (18+ image endi to'g'ridan-to'g'ri `.../data` mount'ini qo'llab-quvvatlamaydi — bo'sh volume bilan ham sinab tasdiqlandi).
+  - ✅ **Amaliy sinov (2026-08-01)**: `docker compose up -d --build` — `db` (`PostgreSQL 18.4 ... ready to accept connections`) va `web` (`Starting development server at http://0.0.0.0:8000/`, `OperationalError` yo'q) ikkalasi ham sog'lom ishga tushdi, `curl http://localhost:8000/` → `200 OK`. `docker compose down` bilan tozalandi.
 - [ ] Statik fayllarni production'da xizmat qilish sozlamasi (`STATIC_ROOT`, masalan whitenoise).
 - [ ] `LOGGING` konfiguratsiyasini qo'shish (production'da xatolarni kuzatish uchun).
 - [ ] `notifications` (Infobip SMS) app'ining haqiqatda ishlashini tekshirish.
+- [x] **CI (`.github/workflows/django-ci.yml`)** — ✅ Tekshirildi (2026-08-01): Postgres 16 service container, kerakli secret/env'lar to'g'ri sozlangan, `manage.py test` ishga tushadi. Eslatma: bu faqat **CI** (test) — build/push/deploy (**CD**) bosqichi hali yo'q.
 
 ## 6-BOSQICH — KRITIK: Login/autentifikatsiya nosozligi (2026-07-13 audit)
 
@@ -230,28 +241,41 @@ Telecare Plus qo'llanmasi (`TELECARE_TENANT_GUIDE.md`) bilan solishtirilganda ba
 
 Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodimlari uchun). Bemorlar uchun alohida, mustaqil **veb-sayt** (React/Vite, admin panel'dan alohida loyiha/papka) qilinadi — mobil ilova emas.
 
+### ⏭️ Keyingi navbatdagi ishlar (2026-07-28 holatiga ko'ra, ustuvorlik tartibida)
+
+1. ✅ ~~`POST`/`PATCH /patients/patient/me/`~~ — **Bajarildi va tekshirildi (2026-07-28).**
+2. ✅ ~~Appointment `create` — `patient` maydonini avtomatik biriktirish~~ — **Bajarildi va tekshirildi (2026-07-28).**
+3. ✅ ~~`GET /me/` (`users` app, rol qaytaruvchi)~~ — **Bajarildi va tekshirildi (2026-07-28).** Barcha 3 ta BLOKER band yopildi — patient-portal endi ro'yxatdan o'tish→profil→booking→to'lov zanjiri bo'yicha to'liq ishlashi kerak.
+4. ✅ ~~**Rating yaratish cheklovi** (IDOR)~~ — **Bajarildi va tekshirildi (2026-08-01).** Pastga qarang.
+5. ✅ ~~**2 ta eski unit test'ni yangilash**~~ — **Bajarildi va tekshirildi (2026-08-01).** `billing.test_patient_can_list_own_invoice_only` va `payments.test_patient_can_list_own_payments_only` — barcha 87 test `OK`.
+6. *(ixtiyoriy, keyinroq)* **Bildirishnomalar** — `notifications` app tayyor turibdi, lekin hech narsa uni chaqirmaydi va patient-portalda ko'rsatilmaydi.
+
 ### Backend (mavjud `clinichub` loyihasiga qo'shimcha/tuzatish)
 
-- [ ] **Patient self-registratsiya to'liq ishlamayapti** — `users/serializers.py`даги `RegisterSerializers` faqat `User` yaratadi (`role='patient'`), lekin `patients/models.py`даги `Patient` (OneToOneField `user`) yozuvi yaratilmaydi. `patients/views.py`даги `PatientViewSet.get_permissions()` esa `create` action'ini faqat `IsAdmin()`ga ruxsat beradi — demak hozircha ro'yxatdan o'tgan bemor o'zining Patient profilini (ism, tug'ilgan sana, telefon, JSHSHIR) hech qachon to'ldira olmaydi. Kerak: patient o'ziga tegishli Patient'ni yarata olishi (`user=request.user` serializer/view ichida avtomatik biriktirilsin, client `user`/`patient_id` yubormasin — IDOR oldini olish uchun), va OneToOne bo'lgani uchun ikkinchi marta yaratib bo'lmasligi tekshirilsin.
-  - ⚠️ **BLOKER — `patient-portal` frontend shunga tayyor kutmoqda:** `PatientViewSet`ga `@action(detail=False, url_path='me')` qo'shish kerak:
-    - `GET /patients/patient/me/` — `request.user`ga tegishli `Patient`ni qaytaradi, topilmasa `404`.
-    - `POST /patients/patient/me/` — `user=request.user` bilan yangi `Patient` yaratadi (agar allaqachon bor bo'lsa `400`).
-    - `PATCH /patients/patient/me/` — o'zinikini yangilaydi.
-    - Bu bir yo'la ID-bilmaslik muammosini ham, joriy `IsAdminOrOwnerPatient`даги IDOR bug'ini (SAFE_METHODS uchun auth tekshirilmasligi) ham chetlab o'tadi — patient endi faqat shu action orqali ishlaydi.
-    - Frontend allaqachon aynan shu 3 ta so'rovni yuboradi: `patient-portal/src/pages/Profile.jsx`.
+- [x] **Patient self-registratsiya — `me` action to'liq tuzatildi (2026-07-28).** `users/serializers.py`даги `RegisterSerializers` faqat `User` yaratadi (`role='patient'`), lekin `patients/views.py`даги `PatientViewSet.me` orqali endi bemor o'zi darhol Patient profilini yaratadi.
+  - [x] `GET /patients/patient/me/` — ✅ Tekshirildi: `200`, o'zining `Patient`ini qaytaradi (profil bo'lmasa `400`).
+  - [x] `POST /patients/patient/me/` — ✅ Tekshirildi (2026-07-28, real so'rov bilan): yangi profil `201` bilan yaratiladi, ikkinchi marta urinilsa `400` "allaqachon mavjud". **Yo'lda 1 ta bug topilib tuzatildi:** birinchi versiyada `PatientSerializers`даги `fields='__all__'` tufayli `user` maydoni majburiy/yozib bo'ladigan bo'lib qolgan edi — client `user` yubormasa (haqiqiy frontend holati) `400 "user maydoni to'ldirilishi shart"`, yuborsa esa DRF'ning o'z unique-tekshiruvi ishga tushib chalkash xato berardi. Tuzatish: `serializer.fields.pop('user', None)` — `is_valid()`dan oldin, so'ng `serializer.save(user=request.user)` bilan majburlash.
+  - [x] `PATCH /patients/patient/me/` — ✅ Tekshirildi: `address` kabi maydonlarni yangilaydi, `user`ni boshqa foydalanuvchiga o'zgartirishga urinish e'tiborsiz qoldiriladi.
+  - [x] **IDOR himoyasi tasdiqlandi** — POST/PATCH'да so'rov tanasida `"user": <boshqa_patient_id>` yuborib ko'rildi — ikkala holatda ham haqiqiy egasi so'rov yuborgan userning o'zi bo'lib qoldi (client yuborgan qiymat e'tiborsiz qoldirildi).
+  - [ ] `IsAdminOrOwnerPatient`даги eski IDOR bug'i (SAFE_METHODS uchun auth tekshirilmasligi, `list`/`retrieve` uchun) hali alohida tuzatilmagan — `me` action bunga tegmaydi, patient endi asosan shu action orqali ishlaydi.
+  - `patients` app testlari (10/10) regressiyasiz o'tdi (2026-07-28).
 - [ ] **Doktor/klinika ro'yxatini ochiq ko'rish qarori** — `doctors/views.py`даги `DoctorViewSet`да `list`/`retrieve` uchun `IsAuthenticated()` talab qilinadi (login qilmasdan doktor qidirib bo'lmaydi). Qaror kerak: patientlar ro'yxatdan o'tishdan oldin doktor/narx/klinikalarni ko'ra olishi kerakmi (marketing uchun foydali) yoki faqat login qilgandan keyin ko'rinsinmi. `catalog`/`clinics` app'lari (`IsAdminOrReadOnly`) allaqachon anonim `GET`ga ochiq — shunga moslashtirish mumkin.
-- [ ] **Appointment yaratishda `patient` maydoni** — patient tomonidan yuborilganda boshqa bemor nomidan yozib qo'yish (IDOR) mumkin emasligini tekshirish/ta'minlash — `patient` avtomatik `request.user.patient` bo'lishi kerak, client tanlay olmasligi kerak.
-  - ⚠️ **BLOKER — `patient-portal` shunga tayyor kutmoqda:** `AppointmentViewSet`да `perform_create()`ni override qilib, `request.user.role == 'patient'` bo'lsa `serializer.save(patient=request.user.patient)` qilish kerak (client yuborgan `patient`ni butunlay e'tiborsiz qoldirib). Frontend (`patient-portal/src/pages/DoctorProfile.jsx`, `handleBook`) `patient` maydonini umuman yubormaydi — aynan shuni kutadi.
-- [ ] **"Faqat o'zinikini ko'rish" auditi** — Appointment/Prescription/Invoice/Rating viewset'larida patient roli uchun queryset `request.user`ga filtrlanganini (`get_queryset()`) tasdiqlash — hozir ba'zilari admin-panel ehtiyoji uchun yozilgan, patient uchun sinalmagan. ✅ Tekshirildi (2026-07-25, real so'rov bilan): `Appointment` va `Prescription` to'g'ri filtrlangan (patient faqat o'zinikini ko'radi). `Rating` (`appointments/views.py:32-41`) `list`/`retrieve` uchun hech qanday `get_queryset()` filtri yo'q — istalgan login qilgan user `/appointments/rating/` orqali **hamma bemorning** sharhini (comment matni bilan) ko'ra oladi. `Invoice` esa aksincha — `list` action patient uchun butunlay yopiq (pastga qarang).
-- [ ] **Rating yaratish cheklovi** — patient faqat o'zi borgan va yakunlangan (`status='completed'`) appointment uchun baho qoldira olishi, boshqa birovning yoki tugallanmagan appointment uchun yoza olmasligi kerak. Hozir `RatingSerializers` (`appointments/serializers.py:36-39`) oddiy `ModelSerializer`, `validate()` yo'q — client istalgan `appointment`/`doctor` ID yuborib begona appointment'ga baho qo'yishi mumkin (IDOR). `patient-portal/src/pages/Reviews.jsx` frontendda faqat o'z tugallangan appointment'larini tanlash imkonini beradi, lekin bu faqat UI cheklovi — backend hali ham himoyasiz.
-- [x] **To'lov (Stripe) patient oqimi** — ⚠️ **Tekshirildi (2026-07-25, real so'rov bilan) — patient uchun hozircha butunlay ishlamaydi:**
-  - `billing/views.py`даги `InvoiceViewSet.get_permissions()` — `list`/`create` faqat `IsAdmin()`. Patient hatto o'zining invoice'lari ro'yxatini ko'ra olmaydi (`GET /billing/invoice/` → `403`, real so'rov bilan tasdiqlangan). Kerak: `list` uchun ham `IsAuthenticated` ruxsat berish, `get_queryset()`да non-admin uchun `patient__user=request.user` bilan filtrlash.
-  - `payments/views.py`даги `PaymentViewSet.permission_classes = [IsAuthenticated, IsAdmin]` — bu barcha action (`list`/`retrieve`/`create`) uchun class-darajasida qattiq belgilangan, patient hech qachon o'z to'lovini yarata/ko'ra olmaydi (`POST /payments/payment/` → `403`, tasdiqlangan). Kerak: `get_permissions()`ga o'tish (`InvoiceViewSet`dagidek), patient uchun `create`da `patient`ni `request.user.patient`dan avtomatik olish (client yubormasin — IDOR oldini olish uchun, appointment'dagi tuzatish bilan bir xil naqsh), `list`/`retrieve`ni `patient__user=request.user`ga filtrlash.
-  - `CreateStripeIntentView` (`payments/views.py:17-31`) — bu allaqachon to'g'ri ishlaydi (`patient__user=request.user` bilan filtrlangan), lekin yuqoridagi ikkita bloker tufayli patient unga yetib bora olmaydi (avval `Payment` yozuvi yaratish kerak, buning uchun esa `create` yopiq).
-  - ⚠️ **BLOKER — `patient-portal/src/pages/Payments.jsx` shu uchta tuzatishni kutib qurilgan:** invoice ro'yxati, to'lov yaratish, Stripe Card orqali tasdiqlash — barchasi frontendda tayyor (`@stripe/stripe-js` + `@stripe/react-stripe-js` bilan), lekin yuqoridagi permission tuzatishlarsiz sahifa doim `403` qaytaradi.
-- [ ] **`GET /me/` endpoint yo'q** — ⚠️ **BLOKER — `patient-portal` shunga tayyor kutmoqda:** joriy login qilgan foydalanuvchining `role`ini (va xohlasa `username`ni) qaytaruvchi oddiy `IsAuthenticated` endpoint kerak (masalan `users/views.py`га `MeView(APIView)`, `users/urls.py`да `path('me/', MeView.as_view())`). Hozir JWT token payload'da (`TokenObtainPairView` standart, custom claim yo'q) va boshqa hech qanday endpoint'da rol ma'lumoti yo'q — frontend admin/doctor hisoblarini patient portaldan bloklay olmayapti, chunki rolni bilishning imkoni yo'q. `patient-portal/src/context/AuthContext.jsx` login'dan keyin `GET /me/`ni chaqirib `role`ni saqlaydi va admin/doctor bo'lsa avtomatik chiqarib yuboradi — hozircha endpoint yo'qligi sababli (`404`, tasdiqlangan) bu himoya ishlamayapti.
+- [x] **Appointment yaratishda `patient` maydoni** — ✅ **Tuzatildi va tekshirildi (2026-07-28).** `AppointmentViewSet.create()` override qilindi: patient roli uchun `patient` maydoni serializer'dan olib tashlanadi (`serializer.fields.pop('patient', None)`) va `request.user.patient` bilan majburlanadi; admin/doktor uchun eski xatti-harakat (client `patient`ni o'zi yuboradi) saqlanib qoldi. Yo'lda 2 ta bug topilib tuzatildi: (1) `raise_exception=Ture` — yozuv xatosi, `NameError` bilan `500` berardi; (2) `is_valid()`/`save()`/`return` qatorlari dastlab faqat `if role=='patient'` bloki ichida edi — natijada admin/doktor uchun funksiya `None` qaytarib, `AssertionError` berardi (admin panel orqali appointment yaratish butunlay buzilgan edi). ✅ Tekshirildi (real so'rov bilan, to'liq `DoctorSchedule` bilan): patient `patient`siz booking qiladi (`201`, to'g'ri egasi bilan), `patient=<boshqa_id>` IDOR urinishi e'tiborsiz qoldiriladi (baribir o'ziniki saqlanadi), admin `patient`ni ochiq yuborib booking qiladi (`201`, buzilmagan), profilsiz patient booking qilsa toza `400` (`500` emas). `appointments` app testlari (12/12) regressiyasiz o'tdi.
+- [x] **"Faqat o'zinikini ko'rish" auditi** — Appointment/Prescription/Invoice/Rating viewset'larida patient roli uchun queryset `request.user`ga filtrlanganini (`get_queryset()`) tasdiqlash. ✅ Tekshirildi (2026-07-25, real so'rov bilan): `Appointment` va `Prescription` to'g'ri filtrlangan. `Invoice` va `Payment` ham to'g'ri filtrlangan (2026-07-28). `Rating` ham endi to'g'ri filtrlangan (2026-08-01, pastga qarang) — audit to'liq yopildi.
+- [x] **Rating yaratish cheklovi** — ✅ **Tuzatildi va tekshirildi (2026-08-01, real so'rov bilan).** `RatingSerializers`ga (`appointments/serializers.py`) `validate()` qo'shildi: patient faqat o'zi borgan (`appointment.patient_id == request.user.patient.id`) va yakunlangan (`status='completed'`) appointment uchun baho qoldira oladi; `Meta.read_only_fields = ['patient', 'doctor']` — bu ikkalasi client'dan hech qachon qabul qilinmaydi, `RatingViewSet.create()`да (`appointments/views.py`) `appointment.patient`/`appointment.doctor`dan majburan olinadi. `RatingViewSet`ga `get_queryset()` ham qo'shildi (`Appointment`dagi kabi naqsh) — patient faqat o'zi yozgan, doktor faqat o'zi haqidagi sharhlarni ko'radi, admin — hammasini.
+  - Yo'lda birinchi versiyada 4 ta bug topilib tuzatildi: `read_only_fields`даги `'patients'` yozuv xatosi (`patient` maydonini himoyasiz qoldirgan edi — PATCH orqali boshqa bemorga rating'ni "o'tkazib yuborish" mumkin bo'lardi), `validate()` parametri `atrrs` deb yozilgan bo'lsa-da funksiya oxirida `attrs` qaytarilgan (`NameError`, **har qanday, hatto to'g'ri so'rovda ham** crash berardi), `patient_id` aniqlanmagan o'zgaruvchi ishlatilgan (to'g'risi `patient.id`), va indentatsiya xatosi tufayli admin uchun `validate()` `None` qaytarardi.
+  - ✅ Real so'rov bilan tekshirildi (fixture yaratib, JWT bilan): egasi o'z yakunlangan tashrifiga baho qo'yadi (`201`), ikkinchi marta urinsa (`400` "allaqachon mavjud"), begona bemor boshqasining tashrifiga baho qo'ymoqchi bo'lsa (`400` "Bu tashrifga baho qo'yish huquqingiz yo'q"), yakunlanmagan (`pending`) tashrifga baho qo'ymoqchi bo'lsa (`400`), soxta `patient`/`doctor` ID yuborilsa e'tiborsiz qoldiriladi, `GET /rating/` har bir patient faqat o'zinikini ko'radi, PATCH orqali `patient`ni boshqasiga o'tkazishga urinish e'tiborsiz qoldiriladi.
+  - ⚠️ Kichik imlo xatosi qoldi (funksional emas): xato xabarida `"...baho qoldirish mumkun"` → to'g'risi `"mumkin"`.
+- [x] **To'lov (Stripe) patient oqimi** — ✅ **Tuzatildi va tekshirildi (2026-07-28, real so'rov bilan, Django test client orqali) — patient uchun endi to'liq ishlaydi:**
+  - `billing/views.py`даги `InvoiceViewSet` — `get_queryset()` qo'shildi (non-admin uchun `patient__user=request.user`), `get_permissions()`даги `list` endi admin-only emas (`IsAdminOrOwnerInvoice`). ✅ `GET /billing/invoice/` patient uchun `200`, faqat o'zinikini qaytaradi.
+  - `payments/views.py`даги `PaymentViewSet` — class-darajasidagi `permission_classes = [IsAuthenticated, IsAdmin]` olib tashlandi, `get_permissions()` (`list`/`create`/`retrieve` → `IsAuthenticated`, qolgani → `IsAdmin`) va `get_queryset()` (non-admin uchun `patient__user=request.user`) qo'shildi. ✅ `POST /payments/payment/` o'z invoice'i uchun `201`.
+  - `payments/serializers.py`даги `PaymentSerializer.validate()`га IDOR himoyasi qo'shildi — `request.user.role != 'admin'` bo'lsa, `invoice.patient.user`/`patient.user` so'rov yuborgan userga teng emasligini tekshiradi. ✅ Boshqa patientning invoice/patient ID'si bilan yuborilgan so'rov `400 "Bu invoice sizga tegishli emas"` bilan rad etiladi (3 xil variant sinaldi: begona invoice+patient, faqat begona invoice, faqat begona patient — barchasi bloklandi).
+  - `CreateStripeIntentView` (`payments/views.py:17-31`) — o'zgarishsiz, allaqachon to'g'ri edi (`patient__user=request.user`), endi yuqoridagilar tufayli haqiqatda ishlatib ko'rish mumkin bo'ldi.
+  - ✅ 2 ta eski unit test (`billing`/`payments`) yangilandi va tekshirildi (2026-08-01) — 4-bosqichdagi tegishli bo'limlarga qarang.
+  - `patient-portal/src/pages/Payments.jsx` — invoice ro'yxati, to'lov yaratish endi ishlaydi. Stripe Card orqali tasdiqlash (`@stripe/stripe-js`) uchun hali ham `VITE_STRIPE_PUBLISHABLE_KEY` (`.env`) va `STRIPE_WEBHOOK_SECRET` (2-bosqich, "keyinga qoldirilgan") kerak bo'ladi — bular sozlanmaguncha karta orqali real to'lovni oxirigacha sinab bo'lmaydi.
+- [x] **`GET /me/` endpoint** — ✅ **Qo'shildi va tekshirildi (2026-07-28).** `users/views.py`га `MeView(APIView, permission_classes=[IsAuthenticated])` qo'shildi, `users/urls.py`да `path('me/', MeView.as_view())`. `{id, username, role}` qaytaradi. Yo'lda 1 ta bug topilib tuzatildi: birinchi versiyada `request.user_id` yozilgan edi (`request.user.id` o'rniga) — bu atribut umuman mavjud emas, har qanday login qilgan foydalanuvchi uchun `500 AttributeError` berardi. ✅ Tekshirildi (real so'rov bilan): patient/doctor/admin uchun `200` va to'g'ri `role`, anonim uchun `401`. `users` app testlari (7/7) regressiyasiz o'tdi. Endi `patient-portal/src/context/AuthContext.jsx`даги admin/doctor'ni patient-portaldan avtomatik chiqarib yuborish himoyasi ishlaydi.
 - [ ] **Forgot-password / reset-password** — 8-bosqichda admin panel uchun ham flag qilingan, patient portal uchun ham zarur (email orqali parol tiklash endpoint'i hali yo'q).
-- [ ] **Bildirishnomalar** — `notifications` (Infobip SMS) va/yoki email: ro'yxatdan o'tish tasdig'i, appointment eslatmasi, "doktor band qildi/bekor qildi" xabarlari patient uchun ham ishga tushirilishi kerak.
+- [ ] **Bildirishnomalar** — `notifications` (Infobip SMS) va/yoki email: ro'yxatdan o'tish tasdig'i, appointment eslatmasi, "doktor band qildi/bekor qildi" xabarlari patient uchun ham ishga tushirilishi kerak. `notifications` app (model + Infobip SMS kodi) allaqachon tayyor, lekin hech qanday signal uni chaqirmaydi va patient-portalda ko'rsatuvchi sahifa yo'q.
 - [x] **CORS** — `localhost:5174` (`patient-portal`) `config/settings.py`даги `CORS_ALLOWED_ORIGINS`ga qo'shildi va tekshirildi (login endi ishlayapti).
 
 ### Frontend (yangi, mustaqil loyiha — admin panel kodidan alohida)
@@ -260,13 +284,13 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 - [ ] **Login / Register** — asosiy oqim tayyor (`patient-portal/src/pages/Login.jsx`, `Register.jsx`; Register'da rol tanlash yo'q, doim `patient`). "Parolni unutdim" oqimi hali yo'q (backendda ham yo'q, 8-bosqichga bog'liq).
 - [x] **Bosh sahifa** — tayyor (`patient-portal/src/pages/Home.jsx`): ism bo'yicha qidiruv, mutaxassislik/klinika filtri.
 - [ ] **Doktor profili** — tayyor (`patient-portal/src/pages/DoctorProfile.jsx`): narx (`rank_price`) va haftalik ish jadvali ko'rsatiladi. **Aniq bo'sh slot hisoblash yo'q** — patient istalgan sana/vaqtni tanlaydi, band/ish vaqtidan tashqari bo'lsa backend validatsiyasi (`AppointmentSerializers.validate()`) xato qaytaradi. Soddalashtirilgan yechim, keyin kerak bo'lsa slot-calc qo'shiladi.
-- [x] **Appointment (tashrif) band qilish** — tayyor, xuddi shu sahifada (`DoctorProfile.jsx` → `handleBook`). **Backend bloker:** yuqoridagi `perform_create` tuzatilmaguncha ishlamaydi (frontend `patient` maydonini yubormaydi).
+- [x] **Appointment (tashrif) band qilish** — tayyor, xuddi shu sahifada (`DoctorProfile.jsx` → `handleBook`). ✅ **Endi ishlaydi (2026-07-28)** — backend `create()` tuzatilgach real so'rov bilan tasdiqlandi.
 - [x] **"Mening tashriflarim"** — ro'yxat + bekor qilish + **qayta rejalashtirish** tayyor (`patient-portal/src/pages/MyAppointments.jsx`). Qayta rejalashtirish sana/vaqt tanlab, `PATCH start_time`/`end_time` yuboradi — bu allaqachon ishlaydi (`IsAdminOrOwnerAppointments` patientning o'z appointment'ini yangilashiga ruxsat beradi), backend bloker yo'q.
 - [x] **Retseptlar** — tayyor (`patient-portal/src/pages/Prescriptions.jsx`): `GET /prescriptions/prescription/` orqali o'z retseptlari + dorilar ro'yxatini ko'rsatadi. Real so'rov bilan tekshirildi — patient uchun to'g'ri filtrlangan, backend bloker yo'q. **Laboratoriya buyurtmalari** backendda mos model yo'qligi sababli qo'shilmadi (kerak bo'lsa yangi model/app kerak bo'ladi).
-- [x] **To'lov sahifasi** — kod tayyor (`patient-portal/src/pages/Payments.jsx`, Stripe Card orqali; `@stripe/stripe-js` + `@stripe/react-stripe-js` qo'shildi, `VITE_STRIPE_PUBLISHABLE_KEY` `.env`ga kerak — `.env.example`га qarang). **Ishlamaydi** — yuqoridagi backend bo'limidagi uchta bloker (Invoice list, Payment permissions, `/me/`dan mustaqil) tuzatilmaguncha `403` qaytaveradi.
+- [x] **To'lov sahifasi** — kod tayyor (`patient-portal/src/pages/Payments.jsx`, Stripe Card orqali; `@stripe/stripe-js` + `@stripe/react-stripe-js` qo'shildi, `VITE_STRIPE_PUBLISHABLE_KEY` `.env`ga kerak — `.env.example`га qarang). ✅ **Endi ishlaydi (2026-07-28)** — backend bo'limidagi Invoice/Payment permission tuzatishlari qo'llangach, invoice ro'yxati va to'lov yaratish real so'rov bilan tasdiqlandi. Karta orqali to'liq to'lovni tugatish uchun hali `VITE_STRIPE_PUBLISHABLE_KEY` va `STRIPE_WEBHOOK_SECRET` sozlanishi kerak.
 - [x] **Reyting/sharh qoldirish** — tayyor (`patient-portal/src/pages/Reviews.jsx`): tugallangan, hali baholanmagan tashriflar ro'yxati + yulduzcha/izoh formasi, va patientning o'z sharhlari ro'yxati (backend `/appointments/rating/`ni filtrlamagani uchun frontendda o'zinikiga cheklab ko'rsatiladi). Ishlaydi, lekin yuqoridagi "Rating yaratish cheklovi" bandi backendda hali tuzatilmagan (IDOR xavfi qoladi).
-- [x] **Profil** — tayyor (`patient-portal/src/pages/Profile.jsx`): ism/jins/tug'ilgan sana/telefon/JSHSHIR/manzil ko'rish va tahrirlash. **Backend bloker:** yuqoridagi `/patients/patient/me/` action qo'shilmaguncha ishlamaydi (404 qaytadi).
-- [x] Auth: admin/doctor hisobi bilan kirilsa, patient portalga ruxsat berilmasin — frontend tayyor (`App.jsx`даги `Protected`, `AuthContext.jsx`). **Backend bloker:** yuqoridagi `GET /me/` endpoint qo'shilmaguncha rolni bilib bo'lmagani uchun bloklash ishlamaydi.
+- [x] **Profil** — tayyor (`patient-portal/src/pages/Profile.jsx`): ism/jins/tug'ilgan sana/telefon/JSHSHIR/manzil ko'rish va tahrirlash. ✅ **Endi to'liq ishlaydi (2026-07-28)** — ko'rish, yaratish va tahrirlash (`GET`/`POST`/`PATCH /patients/patient/me/`) barchasi real so'rov bilan tekshirildi.
+- [x] Auth: admin/doctor hisobi bilan kirilsa, patient portalga ruxsat berilmasin — frontend tayyor (`App.jsx`даги `Protected`, `AuthContext.jsx`). ✅ **Endi ishlaydi (2026-07-28)** — `GET /me/` (`users` app) qo'shilgach real so'rov bilan tasdiqlandi.
 - [x] Responsive dizayn — grid/flex Tailwind bilan mobil ekranga moslashtirilgan (asosiy sahifalarda tekshirildi).
 
 ---
