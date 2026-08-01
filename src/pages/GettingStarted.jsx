@@ -4,7 +4,7 @@ import {
   CheckCircle2, Circle, Rocket, ChevronRight, ChevronLeft,
   ChevronDown, Eye, Plus, SkipForward, Info,
 } from 'lucide-react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -260,19 +260,17 @@ export default function GettingStarted() {
 
   // ── Mount: load related data + check done state ──────────────────────────
   useEffect(() => {
-    const h = { headers };
-
-    api.get('/clinics/medicalcenter/', h).then(r => setRel(p => ({ ...p, medicalCenters: r.data }))).catch(() => {});
-    api.get('/clinics/clinictype/',    h).then(r => setRel(p => ({ ...p, clinicTypes:    r.data }))).catch(() => {});
-    api.get('/catalog/specialities/', h).then(r => setRel(p => ({ ...p, specialities:   r.data }))).catch(() => {});
-    api.get('/catalog/ranktyp/',      h).then(r => setRel(p => ({ ...p, rankTypes:      r.data }))).catch(() => {});
-    api.get('/clinics/clinics/',      h).then(r => setRel(p => ({ ...p, clinics:        r.data }))).catch(() => {});
-    api.get('/users/',                h).then(r => setRel(p => ({ ...p, users:          r.data }))).catch(() => {});
+    fetchAll('/clinics/medicalcenter/', token).then(items => setRel(p => ({ ...p, medicalCenters: items }))).catch(() => {});
+    fetchAll('/clinics/clinictype/',    token).then(items => setRel(p => ({ ...p, clinicTypes:    items }))).catch(() => {});
+    fetchAll('/catalog/specialities/', token).then(items => setRel(p => ({ ...p, specialities:   items }))).catch(() => {});
+    fetchAll('/catalog/ranktyp/',      token).then(items => setRel(p => ({ ...p, rankTypes:      items }))).catch(() => {});
+    fetchAll('/clinics/clinics/',      token).then(items => setRel(p => ({ ...p, clinics:        items }))).catch(() => {});
+    fetchAll('/users/',                token).then(items => setRel(p => ({ ...p, users:          items }))).catch(() => {});
 
     Promise.all(
       STEPS.map(s =>
-        api.get(s.checkUrl, h)
-          .then(r => Array.isArray(r.data) ? r.data.length > 0 : false)
+        fetchAll(s.checkUrl, token)
+          .then(items => items.length > 0)
           .catch(() => false)
       )
     ).then(results => {
@@ -284,7 +282,6 @@ export default function GettingStarted() {
 
   // ── Refresh one dropdown list after a save ───────────────────────────────
   const refreshRelated = (stepKey) => {
-    const h = { headers };
     const map = {
       medical_center: ['/clinics/medicalcenter/', 'medicalCenters'],
       clinic_type:    ['/clinics/clinictype/',    'clinicTypes'],
@@ -294,7 +291,7 @@ export default function GettingStarted() {
     };
     if (map[stepKey]) {
       const [url, key] = map[stepKey];
-      api.get(url, h).then(r => setRel(p => ({ ...p, [key]: r.data }))).catch(() => {});
+      fetchAll(url, token).then(items => setRel(p => ({ ...p, [key]: items }))).catch(() => {});
     }
   };
 

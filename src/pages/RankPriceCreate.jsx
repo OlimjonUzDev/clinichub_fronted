@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -44,9 +44,8 @@ export default function RankPriceCreate() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const h = { Authorization: `Bearer ${token}` };
-    api.get('/catalog/ranktyp/', { headers: h }).then(r => setRankTypes(r.data)).catch(() => {});
-    api.get('/clinics/clinics/', { headers: h }).then(r => setClinics(r.data)).catch(() => {});
+    fetchAll('/catalog/ranktyp/', token).then(setRankTypes).catch(() => {});
+    fetchAll('/clinics/clinics/', token).then(setClinics).catch(() => {});
   }, []);
 
   const nameOf = (c) => lang === 'ru' ? (c.name_ru || c.name_uz) : c.name_uz;

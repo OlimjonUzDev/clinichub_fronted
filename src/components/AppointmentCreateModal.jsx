@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
@@ -36,10 +36,9 @@ export default function AppointmentCreateModal({ onClose, onCreated }) {
   };
 
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${token}` };
-    api.get('/patients/patient/', { headers }).then(r => setPatients(r.data)).catch(() => {});
-    api.get('/doctors/doctor/', { headers }).then(r => setDoctors(r.data)).catch(() => {});
-    api.get('/clinics/clinics/', { headers }).then(r => setClinics(r.data)).catch(() => {});
+    fetchAll('/patients/patient/', token).then(setPatients).catch(() => {});
+    fetchAll('/doctors/doctor/', token).then(setDoctors).catch(() => {});
+    fetchAll('/clinics/clinics/', token).then(setClinics).catch(() => {});
   }, []);
 
   const nameOf = (o) => (lang === 'ru' ? (o.name_ru || o.name_uz) : o.name_uz) || `#${o.id}`;

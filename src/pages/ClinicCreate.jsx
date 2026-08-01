@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -39,9 +39,8 @@ export default function ClinicCreate() {
   const navigate    = useNavigate();
 
   useEffect(() => {
-    const h = { Authorization: `Bearer ${token}` };
-    api.get('/clinics/medicalcenter/', { headers: h }).then(r => setMedicalCenters(r.data)).catch(() => {});
-    api.get('/clinics/clinictype/',    { headers: h }).then(r => setClinicTypes(r.data)).catch(() => {});
+    fetchAll('/clinics/medicalcenter/', token).then(setMedicalCenters).catch(() => {});
+    fetchAll('/clinics/clinictype/',    token).then(setClinicTypes).catch(() => {});
   }, []);
 
   const handleChange = (e) => {

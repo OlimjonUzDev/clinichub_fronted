@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
@@ -45,8 +45,8 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
   const clinicTypes = useLookup('/clinics/clinictype/', token);
 
   useEffect(() => {
-    api.get('/catalog/ranktyp/', { headers }).then(r => setRankTypes(r.data)).catch(() => {});
-    api.get('/clinics/clinics/', { headers }).then(r => setClinics(r.data)).catch(() => {});
+    fetchAll('/catalog/ranktyp/', token).then(setRankTypes).catch(() => {});
+    fetchAll('/clinics/clinics/', token).then(setClinics).catch(() => {});
   }, []);
 
   const nameOf = (c) => lang === 'ru' ? (c.name_ru || c.name_uz) : c.name_uz;

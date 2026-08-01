@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Modal from './Modal';
@@ -38,8 +38,8 @@ export default function ClinicEditModal({ item, onClose, onSaved }) {
   const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    api.get('/clinics/medicalcenter/', { headers }).then(r => setMedicalCenters(r.data)).catch(() => {});
-    api.get('/clinics/clinictype/', { headers }).then(r => setClinicTypes(r.data)).catch(() => {});
+    fetchAll('/clinics/medicalcenter/', token).then(setMedicalCenters).catch(() => {});
+    fetchAll('/clinics/clinictype/', token).then(setClinicTypes).catch(() => {});
   }, []);
 
   const handleChange = (e) => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
+import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
@@ -60,11 +60,10 @@ export default function DoctorCreate() {
   };
 
   useEffect(() => {
-    const h = { Authorization: `Bearer ${token}` };
-    api.get('/catalog/specialities/', { headers: h }).then(r => setSpecialities(r.data)).catch(() => {});
-    api.get('/catalog/ranktyp/', { headers: h }).then(r => setRankTypes(r.data)).catch(() => {});
-    api.get('/clinics/clinics/', { headers: h }).then(r => setClinics(r.data)).catch(() => {});
-    api.get('/users/', { headers: h }).then(r => setUsers(r.data)).catch(() => {});
+    fetchAll('/catalog/specialities/', token).then(setSpecialities).catch(() => {});
+    fetchAll('/catalog/ranktyp/', token).then(setRankTypes).catch(() => {});
+    fetchAll('/clinics/clinics/', token).then(setClinics).catch(() => {});
+    fetchAll('/users/', token).then(setUsers).catch(() => {});
   }, []);
 
   const handleChange = (e) => {
