@@ -20,13 +20,15 @@ export const AuthProvider = ({ children }) => {
       .finally(() => setRoleLoading(false));
   }, [token]);
 
-  const login = (accessToken) => {
+  const login = (accessToken, refreshToken) => {
     localStorage.setItem('access_token', accessToken);
+    if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
     setToken(accessToken);
   };
 
   const logout = () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setToken(null);
     setRole(null);
   };

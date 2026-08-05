@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Stethoscope, Building2, User, Calendar, Clock, MessageSquare, Video } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
@@ -7,6 +7,25 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 import { CONSULTATION_TYPES } from '../lib/consultationTypes';
+
+// DoctorSchedule.weekday: 0=Dushanba ... 6=Yakshanba (backend bilan mos).
+// JS Date.getDay(): 0=Yakshanba ... 6=Shanba — shuning uchun aylantirish kerak.
+const toBackendWeekday = (jsDay) => (jsDay + 6) % 7;
+
+// Ish jadvali oralig'ini (masalan "09:00:00"–"18:00:00") berilgan davomiylikka
+// (daqiqa) bo'lib, sanaga bog'langan Date obyektlari ro'yxatiga aylantiradi.
+function buildCandidateSlots(dateStr, startHHMM, endHHMM, durationMin) {
+  const [sh, sm] = startHHMM.slice(0, 5).split(':').map(Number);
+  const [eh, em] = endHHMM.slice(0, 5).split(':').map(Number);
+  const slots = [];
+  let cursor = new Date(`${dateStr}T${String(sh).padStart(2, '0')}:${String(sm).padStart(2, '0')}:00`);
+  const end = new Date(`${dateStr}T${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}:00`);
+  while (cursor.getTime() + durationMin * 60000 <= end.getTime()) {
+    slots.push(new Date(cursor));
+    cursor = new Date(cursor.getTime() + durationMin * 60000);
+  }
+  return slots;
+}
 
 const WEEKDAY_LABELS = [
   { uz: 'Dushanba', ru: 'Понедельник' },
@@ -54,6 +73,12 @@ export default function DoctorProfile() {
   const [bookError, setBookError] = useState('');
   const [bookSuccess, setBookSuccess] = useState(false);
 
+  // { key: "<doctorId>:<date>", slots: [...] } — key orqali "shu ma'lumot
+  // aynan hozirgi tanlovga tegishlimi" solishtiriladi, alohida "loading"
+  // state kerak bo'lmaydi (sana tez-tez almashtirilganda eski natija
+  // chaqnab ketmasligi uchun ham foydali).
+  const [busySlotsData, setBusySlotsData] = useState({ key: null, slots: [] });
+
   const specialities = useLookup('/catalog/specialities/', token);
   const clinics = useLookup('/clinics/clinics/', token);
 
@@ -84,6 +109,53 @@ export default function DoctorProfile() {
   };
 
   const selectedPrice = priceFor(consultationType);
+  const duration = selectedPrice?.duration_min ?? 30;
+
+  // Tanlangan sanaga mos ish jadvali yozuvi (bo'lmasa — doktor shu kuni ishlamaydi).
+  const daySchedule = useMemo(() => {
+    if (!date) return null;
+    const jsDay = new Date(`${date}T00:00:00`).getDay();
+    const backendWeekday = toBackendWeekday(jsDay);
+    return schedule.find((s) => s.weekday === backendWeekday) || null;
+  }, [date, schedule]);
+
+  // Sana o'zgarganda — shu doktorning o'sha kundagi band vaqtlarini (boshqa
+  // bemorlar ma'lumotisiz) backend'dan olib kelamiz.
+  const slotsKey = date && doctor ? `${doctor.id}:${date}` : null;
+
+  useEffect(() => {
+    if (!date || !doctor) return;
+    const key = `${doctor.id}:${date}`;
+    api.get('/appointments/busy-slots/', { params: { doctor: doctor.id, date } })
+      .then((res) => setBusySlotsData({ key, slots: res.data }))
+      .catch(() => setBusySlotsData({ key, slots: [] }));
+  }, [date, doctor]);
+
+  const slotsLoading = slotsKey !== null && busySlotsData.key !== slotsKey;
+  const busySlots = useMemo(
+    () => (busySlotsData.key === slotsKey ? busySlotsData.slots : []),
+    [busySlotsData, slotsKey],
+  );
+
+  // Ish jadvali + band vaqtlar + tanlangan xizmat davomiyligi asosida
+  // bo'sh/band slotlar ro'yxati hisoblanadi.
+  const daySlots = useMemo(() => {
+    if (!daySchedule || !date || slotsLoading) return [];
+    const candidates = buildCandidateSlots(date, daySchedule.start_time, daySchedule.end_time, duration);
+    const now = new Date();
+    return candidates.map((slotStart) => {
+      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+      const isBusy = busySlots.some((b) => {
+        const bStart = new Date(b.start_time);
+        const bEnd = new Date(b.end_time);
+        return slotStart < bEnd && slotEnd > bStart;
+      });
+      const isPast = slotStart <= now;
+      const hh = String(slotStart.getHours()).padStart(2, '0');
+      const mm = String(slotStart.getMinutes()).padStart(2, '0');
+      return { value: `${hh}:${mm}`, label: `${hh}:${mm}`, disabled: isBusy || isPast };
+    });
+  }, [daySchedule, busySlots, duration, date, slotsLoading]);
 
   const handleBook = async (e) => {
     e.preventDefault();
@@ -191,7 +263,7 @@ export default function DoctorProfile() {
             <BookField icon={Video} label={t('doctor.consultation_type')}>
               <select
                 value={consultationType}
-                onChange={(e) => setConsultationType(e.target.value)}
+                onChange={(e) => { setConsultationType(e.target.value); setStartTime(''); }}
                 className={`${fieldCls} appearance-none bg-white`}
               >
                 {CONSULTATION_TYPES.map((c) => (
@@ -213,20 +285,50 @@ export default function DoctorProfile() {
                 required
                 min={new Date().toISOString().slice(0, 10)}
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => { setDate(e.target.value); setStartTime(''); }}
                 className={fieldCls}
               />
             </BookField>
 
-            <BookField icon={Clock} label={t('doctor.start_time')}>
-              <input
-                type="time"
-                required
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className={fieldCls}
-              />
-            </BookField>
+            <div>
+              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
+                <Clock size={14} /> {t('doctor.start_time')}
+              </label>
+
+              {!date && (
+                <p className="text-xs text-gray-400">{t('doctor.pick_date_first')}</p>
+              )}
+              {date && slotsLoading && (
+                <p className="text-xs text-gray-400">{t('doctor.loading_slots')}</p>
+              )}
+              {date && !slotsLoading && !daySchedule && (
+                <p className="text-xs text-amber-600">{t('doctor.day_off')}</p>
+              )}
+              {date && !slotsLoading && daySchedule && daySlots.length === 0 && (
+                <p className="text-xs text-amber-600">{t('doctor.no_slots')}</p>
+              )}
+              {date && !slotsLoading && daySchedule && daySlots.length > 0 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {daySlots.map((slot) => (
+                    <button
+                      key={slot.value}
+                      type="button"
+                      disabled={slot.disabled}
+                      onClick={() => setStartTime(slot.value)}
+                      className={`text-xs font-medium rounded-lg py-2 transition-colors ${
+                        slot.disabled
+                          ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
+                          : startTime === slot.value
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300'
+                      }`}
+                    >
+                      {slot.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">{t('doctor.notes')}</label>
@@ -243,7 +345,7 @@ export default function DoctorProfile() {
 
             <button
               type="submit"
-              disabled={booking}
+              disabled={booking || !date || !startTime}
               className="w-full bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
             >
               {booking ? t('doctor.booking') : t('doctor.book_button')}
