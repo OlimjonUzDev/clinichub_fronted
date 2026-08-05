@@ -16,6 +16,7 @@ const translations = {
     'nav.prescriptions': 'Retseptlar',
     'nav.schedule': 'Ish jadvali',
     'nav.reviews': 'Sharhlar',
+    'nav.payouts': "To'lovlarim",
     'nav.profile': 'Profil',
     'nav.logout': 'Chiqish',
 
@@ -97,6 +98,15 @@ const translations = {
     'reviews.title': 'Sharhlarim',
     'reviews.no_data': 'Sizga hali sharh qoldirilmagan',
 
+    // Payouts
+    'payouts.title': "To'lovlarim",
+    'payouts.no_data': "Hali to'lov tarixi yo'q",
+    'payouts.total_paid': "To'langan",
+    'payouts.total_pending': 'Kutilmoqda',
+    'payouts.paid_at': "To'langan sana",
+    'payouts.status.pending': 'Kutilmoqda',
+    'payouts.status.paid': "To'landi",
+
     // Profile
     'profile.title': 'Mening profilim',
     'profile.section_personal': "Shaxsiy ma'lumotlar",
@@ -137,6 +147,7 @@ const translations = {
     'nav.prescriptions': 'Рецепты',
     'nav.schedule': 'График работы',
     'nav.reviews': 'Отзывы',
+    'nav.payouts': 'Мои выплаты',
     'nav.profile': 'Профиль',
     'nav.logout': 'Выйти',
 
@@ -211,6 +222,15 @@ const translations = {
 
     'reviews.title': 'Мои отзывы',
     'reviews.no_data': 'Вам ещё не оставили отзывов',
+
+    // Payouts
+    'payouts.title': 'Мои выплаты',
+    'payouts.no_data': 'Пока нет истории выплат',
+    'payouts.total_paid': 'Выплачено',
+    'payouts.total_pending': 'Ожидание',
+    'payouts.paid_at': 'Дата выплаты',
+    'payouts.status.pending': 'Ожидание',
+    'payouts.status.paid': 'Выплачено',
 
     'profile.title': 'Мой профиль',
     'profile.section_personal': 'Личные данные',

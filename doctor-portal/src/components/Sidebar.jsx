@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, FileText, CalendarClock, Star, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, FileText, CalendarClock, Star, Wallet, User, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 
@@ -26,6 +26,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     { label: t('nav.prescriptions'), path: '/prescriptions', icon: FileText },
     { label: t('nav.schedule'), path: '/schedule', icon: CalendarClock },
     { label: t('nav.reviews'), path: '/reviews', icon: Star },
+    { label: t('nav.payouts'), path: '/payouts', icon: Wallet },
     { label: t('nav.profile'), path: '/profile', icon: User },
   ];
 
