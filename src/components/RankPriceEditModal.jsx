@@ -30,7 +30,7 @@ export default function RankPriceEditModal({ item, onClose, onSaved }) {
   const [form, setForm] = useState({
     rank_type: idOf(item.rank_type),
     clinic: idOf(item.clinic),
-    consultation_type: item.consultation_type || 'in_person',
+    consultation_type: item.consultation_type || 'video',
     price: item.price ?? '',
     currency: item.currency || 'UZS',
     duration_min: item.duration_min ?? 30,

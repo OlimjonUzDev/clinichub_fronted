@@ -48,6 +48,7 @@ const translations = {
     'appointments.cancel': 'Bekor qilish',
     'appointments.cancel_confirm': 'Ushbu tashrifni bekor qilishni tasdiqlaysizmi?',
     'appointments.action_error': 'Amalni bajarishda xatolik yuz berdi',
+    'appointments.join_call': 'Video chatga qo\'shilish',
     'appointments.patient': 'Bemor',
 
     // Patients
@@ -177,6 +178,7 @@ const translations = {
     'appointments.cancel': 'Отменить',
     'appointments.cancel_confirm': 'Подтвердите отмену этого приёма',
     'appointments.action_error': 'Ошибка при выполнении действия',
+    'appointments.join_call': 'Присоединиться к видеозвонку',
     'appointments.patient': 'Пациент',
 
     'patients.title': 'Мои пациенты',

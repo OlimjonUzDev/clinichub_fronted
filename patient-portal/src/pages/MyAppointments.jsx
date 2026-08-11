@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Clock, X, CalendarClock } from 'lucide-react';
+import { Stethoscope, Clock, X, CalendarClock, Video } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName } from '../lib/useLookup';
+import { jitsiUrlFor } from '../lib/videoCall';
 
 const fieldCls = "border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 
@@ -120,6 +121,17 @@ export default function MyAppointments() {
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-500'}`}>
                       {t(`status.${a.status}`)}
                     </span>
+                    {a.status === 'confirmed' && (
+                      <a
+                        href={jitsiUrlFor(a)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={t('appointments.join_call')}
+                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 transition"
+                      >
+                        <Video size={13} />
+                      </a>
+                    )}
                     {canCancel && (
                       <button
                         onClick={() => (reschedulingId === a.id ? setReschedulingId(null) : openReschedule(a))}

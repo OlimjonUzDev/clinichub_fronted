@@ -24,7 +24,7 @@ export default function AppointmentCreateModal({ onClose, onCreated }) {
   const [doctors, setDoctors] = useState([]);
   const [clinics, setClinics] = useState([]);
   const [form, setForm] = useState({
-    patient: '', doctor: '', clinic: '', consultation_type: 'in_person', start_time: '', end_time: '', notes: '',
+    patient: '', doctor: '', clinic: '', consultation_type: 'video', start_time: '', end_time: '', notes: '',
   });
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();

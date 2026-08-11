@@ -31,7 +31,7 @@ export default function RankPriceCreate() {
   const [form, setForm] = useState({
     rank_type: '',
     clinic: '',
-    consultation_type: 'in_person',
+    consultation_type: 'video',
     price: '',
     currency: 'UZS',
     duration_min: 30,

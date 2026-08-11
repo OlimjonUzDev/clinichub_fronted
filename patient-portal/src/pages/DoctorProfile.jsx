@@ -65,7 +65,7 @@ export default function DoctorProfile() {
   const [rankPrices, setRankPrices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [consultationType, setConsultationType] = useState('in_person');
+  const [consultationType, setConsultationType] = useState('video');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [notes, setNotes] = useState('');

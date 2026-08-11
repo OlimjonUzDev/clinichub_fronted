@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { User, Clock, Check, X, CheckCheck } from 'lucide-react';
+import { User, Clock, Check, X, CheckCheck, Video } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
+import { jitsiUrlFor } from '../lib/videoCall';
 
 const STATUS_STYLES = {
   pending: 'bg-amber-50 text-amber-700',
@@ -101,6 +102,17 @@ export default function Appointments() {
                     <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-500'}`}>
                       {t(`status.${a.status}`)}
                     </span>
+                    {a.status === 'confirmed' && (
+                      <a
+                        href={jitsiUrlFor(a)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={t('appointments.join_call')}
+                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 transition"
+                      >
+                        <Video size={13} />
+                      </a>
+                    )}
                     {a.status === 'pending' && (
                       <button
                         onClick={() => updateStatus(a.id, 'confirmed')}
