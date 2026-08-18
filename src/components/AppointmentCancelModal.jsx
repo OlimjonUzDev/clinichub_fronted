@@ -13,8 +13,10 @@ export default function AppointmentCancelModal({ item, onClose, onCancelled }) {
   const handleConfirm = async () => {
     setSaving(true);
     try {
-      const res = await api.patch(`/appointments/appointment/${item.id}/`,
-        { status: 'cancelled', cancel_reason: reason },
+      // Backend endi status'ni to'g'ridan-to'g'ri PATCH qilishga ruxsat bermaydi —
+      // bekor qilish alohida /cancel/ action orqali amalga oshadi.
+      const res = await api.post(`/appointments/appointment/${item.id}/cancel/`,
+        { cancel_reason: reason },
         { headers: { Authorization: `Bearer ${token}` } },
       );
       onCancelled(res.data);

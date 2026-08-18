@@ -42,7 +42,9 @@ export default function MyAppointments() {
     if (!confirm(t('appointments.cancel_confirm'))) return;
     setCancellingId(id);
     try {
-      const res = await api.patch(`/appointments/appointment/${id}/`, { status: 'cancelled' }, {
+      // Backend endi status'ni to'g'ridan-to'g'ri PATCH qilishga ruxsat bermaydi —
+      // bekor qilish alohida, rolga qarab tekshiriladigan /cancel/ action orqali amalga oshadi.
+      const res = await api.post(`/appointments/appointment/${id}/cancel/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAppointments((prev) => prev.map((a) => (a.id === id ? res.data : a)));

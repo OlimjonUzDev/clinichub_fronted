@@ -23,11 +23,22 @@ export default function AppointmentRescheduleModal({ item, onClose, onReschedule
   const handleSave = async () => {
     setSaving(true);
     try {
+      // status endi PATCH orqali o'zgarmaydi (backend xavfsizlik uchun read-only qilgan) —
+      // faqat vaqtni yangilaymiz.
       const res = await api.patch(`/appointments/appointment/${item.id}/`,
-        { start_time: startTime, end_time: endTime, status: 'confirmed' },
+        { start_time: startTime, end_time: endTime },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      onRescheduled(res.data);
+      let updated = res.data;
+      // Avval reschedule qilingan 'pending' tashrif avtomatik tasdiqlanardi — bu xatti-harakatni
+      // endi alohida /confirm/ action orqali saqlab qolamiz.
+      if (item.status === 'pending') {
+        const confirmRes = await api.post(`/appointments/appointment/${item.id}/confirm/`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        updated = confirmRes.data;
+      }
+      onRescheduled(updated);
     } catch {
       alert(t('appt.reschedule_error'));
     } finally {

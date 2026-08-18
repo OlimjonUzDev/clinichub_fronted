@@ -33,11 +33,17 @@ export default function Appointments() {
 
   useEffect(load, [token]);
 
+  // Backend endi status'ni to'g'ridan-to'g'ri PATCH qilishga ruxsat bermaydi (xavfsizlik
+  // uchun read-only qilingan) — o'rniga rolga qarab tekshiriladigan alohida action
+  // endpoint'lar bor: /confirm/, /complete/, /cancel/. Shularga mos POST yuboramiz.
+  const ACTION_ENDPOINTS = { confirmed: 'confirm', completed: 'complete', cancelled: 'cancel' };
+
   const updateStatus = async (id, status) => {
     if (status === 'cancelled' && !confirm(t('appointments.cancel_confirm'))) return;
     setActingId(id);
     try {
-      const res = await api.patch(`/appointments/appointment/${id}/`, { status }, {
+      const action = ACTION_ENDPOINTS[status];
+      const res = await api.post(`/appointments/appointment/${id}/${action}/`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAppointments((prev) => prev.map((a) => (a.id === id ? res.data : a)));
