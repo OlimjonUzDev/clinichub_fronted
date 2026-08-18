@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
-import api, { fetchAll } from '../api/axios';
+import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';

@@ -10,7 +10,7 @@ export default function Patients() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const { token } = useAuth();
+  const { token, doctor } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
 
@@ -57,6 +57,8 @@ export default function Patients() {
 
       {loading ? (
         <p className="text-sm text-gray-400">{t('common.loading')}</p>
+      ) : !doctor ? (
+        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
       ) : filtered.length === 0 ? (
         <p className="text-sm text-gray-400">{t('patients.no_data')}</p>
       ) : (

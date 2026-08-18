@@ -309,4 +309,48 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 
 ---
 
+## Uch portal auditi (admin, patient-portal, doctor-portal) — 2026-08-18
+
+3 nafar agent orqali admin panel (`src/`, 25 sahifa + 18 komponent), `patient-portal/` (10 sahifa) va `doctor-portal/` (9 sahifa) sahifama-sahifa o'qib chiqildi — marshrutlar/oqimlar to'g'riligi, API izchilligi, CRUD to'liqligi, tarjima qamrovi va `eslint` tekshirildi. Topilgan aniq xato/nomuvofiqliklar shu yerda tuzatildi; mahsulot qaroriga bog'liq topilmalar quyida alohida ro'yxatlangan (tuzatilmagan, sizning qararingizga qoldirilgan).
+
+### Admin panel (`src/`)
+
+- [x] **8 ta faylda ishlatilmayotgan `api` importi (`no-unused-vars` xatosi)** — `Appointments.jsx`, `DoctorSettings.jsx`, `Invoices.jsx`, `MedicalCenters.jsx`, `Patients.jsx`, `Payouts.jsx`, `Ratings.jsx`, `Users.jsx` — hammasi faqat `fetchAll` ishlatadi, `api`ning o'zi hech qayerda chaqirilmagan edi. ✅ Tekshirildi: `npx eslint src` — avval 11 xato bor edi, endi 2 taga tushdi (qolgan 2 tasi `AuthContext.jsx`/`LangContext.jsx`даги oldindan mavjud, aloqasiz `react-refresh` ogohlantirishi).
+- [x] **`Dashboard.jsx` — istalgan tarmoq xatosida adminni majburan chiqarib yuborardi** — `/dashboard/` so'rovi vaqtincha 500/tarmoq xatosi bersa ham, `catch()` har doim `logout()` chaqirardi. Endi faqat `401`/`403` bo'lganda chiqariladi.
+- [x] **`Dashboard.jsx` — haqiqiy `0` soxta raqam bilan niqoblangan edi** — `completed_appointments || 18` va `cancelled_appointments || 4` — agar backend haqiqatan `0` qaytarsa ham, chart doim soxta `18`/`4`ni ko'rsatardi. `?? 0`ga almashtirildi.
+- [x] **`DataTable.jsx` — jadval "Loading..." matni tarjima qilinmagan edi** (yagona lokalizatsiya qilinmagan matn, qolgan hammasi `t()` orqali) — endi `t('common.loading')`. Yo'lda ishlatilmayotgan `useState` importi ham olib tashlandi.
+- [x] **`DoctorCreate.jsx`/`DoctorEdit.jsx` — majburiy select'larda HTML `required` yo'q edi** — `user`/`clinic`/`speciality`/`rank_type` `Field required` bilan qizil `*` ko'rsatadi, lekin brauzer bo'sh qoldirib yuborishga ruxsat berardi (xato faqat umumiy `alert()` bilan chiqardi). Endi 4 tasiga ham `required` qo'shildi (ikkala faylda).
+- [x] **`Register.jsx` — ochiq ro'yxatdan o'tish formasi "Admin" rolini tanlash imkonini berardi, lekin bu hech narsaga ta'sir qilmasdi** — `/register/` backend'i (1-bosqichda tuzatilgan `role` escalation himoyasi tufayli) yuborilgan `role`ni e'tiborsiz qoldirib, doim `patient` yaratadi. Ya'ni "Admin"ni tanlab yuborgan odam aslida jim-jit oddiy bemor bo'lib qolar edi — hech qanday xato yoki ogohlantirishsiz. Rol select'i butunlay olib tashlandi (funksional yo'qotish yo'q, chunki u allaqachon hech narsaga ta'sir qilmasdi).
+- ✅ Tekshirildi (2026-08-18): `npx eslint src` — 2 xato (oldindan mavjud, aloqasiz), 26 ogohlantirish (tizimli `exhaustive-deps` naqshi, hammasi `token`ni effect dependency'dan ataylab tashlab ketgan — mavjud konventsiya, o'zgartirilmadi). `npm run build` — muvaffaqiyatli.
+
+### `patient-portal/`
+
+- [x] **`api/axios.js` — token muddati tugaganda sessiya jimgina "o'lib qolardi"** — hech qanday response interceptor yo'q edi, `401` xatolari har bir sahifaning o'z `.catch()`ida yutilib, foydalanuvchi sababsiz bo'sh ekranga qolib ketardi. Endi global interceptor qo'shildi: `401` kelsa token tozalanadi va `/login`ga qaytariladi.
+- [x] **`Login.jsx` — yangi bemor profilsiz Bosh sahifaga tushib qolardi** — muvaffaqiyatli kirgandan keyin har doim `/` ga yo'naltirardi, garchi bemorning hali `Patient` profili bo'lmasa ham (keyin Reviews/booking kabi joylarda kutilmagan xatoga duch kelardi). Endi login'dan keyin `GET /patients/patient/me/` tekshiriladi — `400` (profil yo'q) bo'lsa `/profile`ga, aks holda `/`ga yo'naltiradi.
+- ⚠️ **Audit noto'g'ri signal berdi, tekshirib chiqildi, tuzatilmadi:** `DoctorProfile.jsx`даги `busy-slots` so'rovida `Authorization` header yo'qligi bug sifatida ko'rsatilgan edi. Bu **noto'g'ri chiqdi** — `9-BOSQICH`da tasdiqlanganidek, bu endpoint ataylab `permission_classes=[AllowAny]` va login qilmasdan ham ishlashi real so'rov bilan tekshirilgan. Header qo'shilmadi.
+- ✅ Tekshirildi (2026-08-18): `npm run build` — muvaffaqiyatli. `npx eslint src` — faqat 2 ta oldindan mavjud, aloqasiz `AuthContext.jsx`/`LangContext.jsx` xatosi (o'zgarishsiz).
+
+### `doctor-portal/`
+
+- [x] **`AuthContext.jsx` — login paytida "poyga sharti" (race condition)** — `login()` sahifa qayta yuklanmasa `roleLoading`ni qayta `true` qilmas edi, natijada `Protected` sahifani `/me/` orqali rol tasdiqlanishidan oldin ko'rsatib yuborardi (har bir kirishda "Doktor profili topilmadi" degan ogohlantirish bir lahza yaltirab o'tardi). `login()`ga `setRoleLoading(true)` qo'shildi.
+- [x] **`Prescriptions.jsx` — yarim to'ldirilgan dori qatorlari jim-jit tashlab ketilardi, bo'sh retsept yuborish mumkin edi** — dori qatoridagi maydonlarda HTML `required` yo'q edi, va kamida bitta to'liq qator borligi hech qachon tekshirilmasdi (faqat diagnoz bilan, `items: []` bilan ham retsept saqlanardi). Endi 4 ta maydon (`medication_name_uz`, `dosage`, `frequency_uz`, `duration_days`) `required`, va yuborishdan oldin kamida bitta to'liq qator borligi tekshiriladi (yo'q bo'lsa aniq xato xabari).
+- [x] **`Schedule.jsx` — boshlanish/tugash vaqti tartibi tekshirilmasdi** — doktor tugash vaqtini boshlanishdan oldin qo'yib saqlashi mumkin edi, bu esa patient-portal'dagi bo'sh-slot hisoblashini jimgina buzardi. Endi saqlashdan oldin `endTime <= startTime` tekshiriladi. Yo'lda tugma'larga `title` qo'shildi va `schedule.add`/`schedule.save`/`schedule.saving`/`schedule.delete` (avval hech qayerda ishlatilmagan tarjima kalitlari) endi haqiqatan foydalanilmoqda.
+- [x] **`Appointments.jsx`/`Patients.jsx`/`Reviews.jsx`/`Payouts.jsx` — "doktor profili topilmadi" holati ko'rsatilmasdi** — `Dashboard`/`Prescriptions`/`Schedule`/`Profile`da bu holat aniq ogohlantirish bilan ko'rsatiladi, qolgan 4 sahifada esa jim-jit oddiy "ma'lumot yo'q" bo'sh holatini ko'rsatardi — sababi noaniq qolardi. Endi hammasida bir xil `auth.no_doctor_profile` ogohlantirishi izchil ko'rsatiladi.
+- ✅ Tekshirildi (2026-08-18): `npx eslint src` — 2 xato (oldindan mavjud, aloqasiz), 0 ogohlantirish. `npm run build` — muvaffaqiyatli.
+
+### Tuzatilmagan, mahsulot qaroriga bog'liq topilmalar (sizning qararingiz kerak)
+
+- [ ] **Admin panelda doktor/admin uchun `User` akkaunt yaratishning ishlaydigan yo'li yo'q — QAROR QILINDI, ISH REJALASHTIRILDI (2026-08-18).** `DoctorCreate.jsx` yangi doktor yaratishda mavjud `User`ni tanlashni talab qiladi, lekin uni yaratadigan joy yo'q (ochiq `/register` doim `patient` yaratadi, `Users.jsx`da "Create" yo'q).
+  - **Qaror:** admin doktor/admin uchun `User`ni o'zi yaratadi, `username` + **vaqtinchalik parol**ni o'zi kiritadi (yoki tizim generatsiya qiladi); yangi foydalanuvchi keyin parolni o'zi almashtiradi. (SMS-havola orqali parolsiz oqim — SMS OTP qayta yoqilgandagina ko'rib chiqiladi, hozircha emas.)
+  - **Bajarilishi kerak — Backend (siz):** `Users.jsx`даги "Create" formasidan chaqiriladigan, faqat admin uchun ruxsat etilgan `User` yaratish endpoint'i (`username`, `password`, `role`, `phone_number` qabul qiladigan; mavjud `/register/`ni emas — u ochiq va doim `patient` yaratadi, shu holicha qolishi kerak).
+  - **Bajarilishi kerak — Frontend (men):**
+    1. Admin panelning `AuthContext.jsx`/`Login.jsx`siga rol-tekshiruvi qo'shish (hozir umuman yo'q — `patient-portal`/`doctor-portal`dagi `/me/` + rol-gate naqshiga mos, faqat `role==='admin'` kirsin). Bu backend'siz, sof frontend ishi.
+    2. `Users.jsx`ga "Create" tugmasi/formasi (`username`, vaqtinchalik parol, `role` tanlovi, `phone_number`) — yuqoridagi yangi backend endpoint tayyor bo'lgach ulanadi.
+  - Backend endpoint tayyor bo'lgach davom ettirish uchun ayting.
+- [ ] **`Dashboard.jsx`даги "Finance & Payments" kartalari, oylik chart va "Top Doctors"/"Top Patients" ro'yxati to'liq qattiq kodlangan (hardcoded), API'ga bog'lanmagan.** Haqiqiy statistikaga o'xshab ko'rinadi, lekin doim bir xil raqamlarni ko'rsatadi. Real endpoint bormi (yoki qo'shish kerakmi), yoki hozircha "demo data" deb belgilab qo'yish yetarlimi — qaror kerak.
+- [ ] **Admin panelda 3 xil tahrirlash UX naqshi bir vaqtda ishlatiladi** — Doctors alohida sahifa, ko'pchilik resurslar (Specialities/Clinics/RankTypes/RankPrices/Patients/DoctorSettings) modal, Medical Centers esa "create sahifasini `?edit=`query bilan qayta ishlatish" trikini ishlatadi. Bittasiga birlashtirish kerakmi (masalan hammasi modal)?
+- [ ] **Medical Centers'da delete, Patients'da create/delete yo'q** — qo'shni resurslarga (Clinics, Doctors) qaraganda kam imkoniyat. Ataylab shundaymi (masalan markazni o'chirib bo'lmasligi biznes qoidasi) yoki haqiqiy bo'shliqmi?
+
+---
+
 **Ishlash tartibi:** Backend — har bir bandni siz yozasiz, men tekshirib/tasdiqlab boraman (kerak bo'lsa real so'rov yuborib sinab ko'raman). Frontend (`patient-portal`, `doctor-portal`) — men to'g'ridan-to'g'ri yozaman, siz tekshirasiz.

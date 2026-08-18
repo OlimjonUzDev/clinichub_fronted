@@ -105,7 +105,7 @@ export default function DoctorCreate() {
           <form onSubmit={handleSubmit} className="space-y-5">
 
             <Field label={t('doctor_create.user')} required>
-              <select name="user" value={form.user} onChange={handleChange} className={selectCls}>
+              <select name="user" required value={form.user} onChange={handleChange} className={selectCls}>
                 <option value="">{t('doctor_create.select')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.username || u.email}</option>
@@ -129,21 +129,21 @@ export default function DoctorCreate() {
             </Field>
 
             <Field label={t('doctor_create.clinic')} required>
-              <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls}>
+              <select name="clinic" required value={form.clinic} onChange={handleChange} className={selectCls}>
                 <option value="">{t('doctor_create.select')}</option>
                 {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
               </select>
             </Field>
 
             <Field label={t('doctor_create.speciality')} required>
-              <select name="speciality" value={form.speciality} onChange={handleChange} className={selectCls}>
+              <select name="speciality" required value={form.speciality} onChange={handleChange} className={selectCls}>
                 <option value="">{t('doctor_create.select')}</option>
                 {specialities.map(s => <option key={s.id} value={s.id}>{s.name_uz}</option>)}
               </select>
             </Field>
 
             <Field label={t('doctor_create.rank')} required>
-              <select name="rank_type" value={form.rank_type} onChange={handleChange} className={selectCls}>
+              <select name="rank_type" required value={form.rank_type} onChange={handleChange} className={selectCls}>
                 <option value="">{t('doctor_create.select')}</option>
                 {rankTypes.map(r => <option key={r.id} value={r.id}>{r.name_uz}</option>)}
               </select>

@@ -21,7 +21,7 @@ export default function Appointments() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [actingId, setActingId] = useState(null);
-  const { token } = useAuth();
+  const { token, doctor } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
 
@@ -75,6 +75,8 @@ export default function Appointments() {
 
       {loading ? (
         <p className="text-sm text-gray-400">{t('common.loading')}</p>
+      ) : !doctor ? (
+        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
       ) : filtered.length === 0 ? (
         <p className="text-sm text-gray-400">{t('appointments.no_data')}</p>
       ) : (

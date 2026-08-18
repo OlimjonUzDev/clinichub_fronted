@@ -33,14 +33,19 @@ export default function Dashboard() {
   useEffect(() => {
     api.get('/dashboard/', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setStats(res.data))
-      .catch(() => { logout(); navigate('/login'); });
+      .catch((err) => {
+        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          logout();
+          navigate('/login');
+        }
+      });
   }, []);
 
   const appointmentData = [
-    { name: t('dashboard.upcoming'), value: stats?.upcoming_appointments || 0 },
-    { name: t('dashboard.ongoing'), value: stats?.ongoing_appointments || 0 },
-    { name: t('dashboard.completed'), value: stats?.completed_appointments || 18 },
-    { name: t('dashboard.cancelled'), value: stats?.cancelled_appointments || 4 },
+    { name: t('dashboard.upcoming'), value: stats?.upcoming_appointments ?? 0 },
+    { name: t('dashboard.ongoing'), value: stats?.ongoing_appointments ?? 0 },
+    { name: t('dashboard.completed'), value: stats?.completed_appointments ?? 0 },
+    { name: t('dashboard.cancelled'), value: stats?.cancelled_appointments ?? 0 },
   ];
 
   const monthlyData = [

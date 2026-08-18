@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Phone, KeyRound, ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { User, Lock } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import { phoneError } from '../lib/validators';
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -16,72 +15,45 @@ const LogoIcon = () => (
   </svg>
 );
 
-// Backend'dagi otp/request/ shu telefon raqami uchun 60 soniyalik cooldown qo'yadi
-// (users/views.py, RequestOTPView) — "qayta yuborish" tugmasi shu bilan mos.
-const RESEND_COOLDOWN_SECONDS = 60;
-
+// VAQTINCHALIK: backend'da SMS_OTP_ENABLED=False bo'lgani uchun (/otp/request/,
+// /otp/verify/ 503 qaytaradi — config/settings.py, users/views.py) login/parol
+// bilan kirishga o'tkazildi. Standart SimpleJWT endpoint'i ishlatiladi:
+// POST /auth/token/ {username, password} -> {access, refresh}.
+// SMS OTP qayta yoqilganda bu fayl e3d5c0f commitidagi holatga qaytarilsin.
 export default function Login() {
-  const [step, setStep] = useState('phone'); // 'phone' | 'code'
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [phoneFieldError, setPhoneFieldError] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const { login } = useAuth();
   const { lang, setLang, t } = useLang();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const blocked = searchParams.get('blocked') === '1';
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const id = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearInterval(id);
-  }, [cooldown]);
-
-  const requestCode = async (e) => {
-    e?.preventDefault();
-    if (cooldown > 0) return;
-    const fieldErr = !phone.trim() ? t('validation.phone') : phoneError(phone, t);
-    setPhoneFieldError(fieldErr);
-    if (fieldErr) return;
-
-    setLoading(true);
-    setError('');
-    try {
-      await api.post('/otp/request/', { phone_number: phone });
-      setStep('code');
-      setCode('');
-      setCooldown(RESEND_COOLDOWN_SECONDS);
-    } catch (err) {
-      setError(err.response?.data?.detail || t('auth.otp_error'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyCode = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const res = await api.post('/otp/verify/', { phone_number: phone, code });
+      const res = await api.post('/auth/token/', { username, password });
       login(res.data.access, res.data.refresh);
-      // Yangi patient uchun avval profil to'ldirilsin (Profile.jsx allaqachon
-      // profil mavjud emasligini o'zi aniqlab, POST/PATCH'ni to'g'ri boshqaradi).
-      navigate(res.data.is_new_user ? '/profile' : '/');
+      // New patients have no Patient profile yet (GET /patients/patient/me/
+      // returns 400 in that case, per TASKS.md) — send them to complete it
+      // instead of dropping them on Home where booking/reviews would fail.
+      try {
+        await api.get('/patients/patient/me/', {
+          headers: { Authorization: `Bearer ${res.data.access}` },
+        });
+        navigate('/');
+      } catch (profileErr) {
+        navigate(profileErr?.response?.status === 400 ? '/profile' : '/');
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || t('auth.otp_error'));
+      setError(err.response?.data?.detail || t('auth.login_error'));
     } finally {
       setLoading(false);
     }
-  };
-
-  const changePhone = () => {
-    setStep('phone');
-    setCode('');
-    setError('');
   };
 
   return (
@@ -125,91 +97,55 @@ export default function Login() {
             </div>
           )}
 
-          {step === 'phone' ? (
-            <form onSubmit={requestCode} className="space-y-4">
-              <p className="text-sm text-gray-500 text-center -mt-1 mb-2">{t('auth.otp_subtitle')}</p>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t('auth.phone')}
-                </label>
-                <div className="relative">
-                  <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    required
-                    autoFocus
-                    value={phone}
-                    onChange={(e) => { setPhone(e.target.value); setPhoneFieldError(''); }}
-                    placeholder="+998901234567"
-                    className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                  />
-                </div>
-                {phoneFieldError && <p className="text-red-500 text-xs mt-1">{phoneFieldError}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('auth.username')}
+              </label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 mt-2"
-              >
-                {loading ? t('auth.sending_code') : t('auth.send_code')}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={verifyCode} className="space-y-4">
-              <p className="text-sm text-gray-500 text-center -mt-1 mb-2">
-                {t('auth.code_sent_to')} <span className="font-medium text-gray-700">{phone}</span>
-              </p>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t('auth.code_label')}
-                </label>
-                <div className="relative">
-                  <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    autoFocus
-                    required
-                    maxLength={6}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="000000"
-                    className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm tracking-[0.35em] text-center focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                  />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('auth.password')}
+              </label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading || code.length !== 6}
-                className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 mt-2"
-              >
-                {loading ? t('auth.verifying') : t('auth.verify')}
-              </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 mt-2"
+            >
+              {loading ? t('auth.logging_in') : t('auth.login_button')}
+            </button>
 
-              <div className="flex items-center justify-between text-sm pt-1">
-                <button
-                  type="button"
-                  onClick={changePhone}
-                  className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
-                >
-                  <ArrowLeft size={14} /> {t('auth.change_phone')}
-                </button>
-                <button
-                  type="button"
-                  onClick={requestCode}
-                  disabled={cooldown > 0 || loading}
-                  className="text-indigo-500 hover:text-indigo-700 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  {t('auth.resend_code')}{cooldown > 0 ? ` (${cooldown})` : ''}
-                </button>
-              </div>
-            </form>
-          )}
+            <div className="text-center text-sm text-gray-500">
+              {t('auth.no_account')}{' '}
+              <Link to="/register" className="text-indigo-500 hover:text-indigo-700 hover:underline">
+                {t('auth.signup')}
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>

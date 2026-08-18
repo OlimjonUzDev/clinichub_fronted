@@ -53,7 +53,7 @@ export default function Specialities() {
           <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder={t('specialities.search')} />
         </div>
 
-        <Table columns={[t('specialities.id'), t('specialities.name'), t('specialities.actions')]} loading={loading}>
+        <Table columns={[t('specialities.id'), t('specialities.name'), { label: t('specialities.actions'), align: 'right', className: 'pl-5 pr-16' }]} loading={loading}>
           {paginated.length === 0 && !loading
             ? <EmptyState message={t('specialities.no_data')} />
             : paginated.map(item => (
@@ -63,8 +63,8 @@ export default function Specialities() {
                   <div className="text-sm font-medium text-gray-800">{item.name_uz}</div>
                   {item.name_ru && <div className="text-xs text-gray-400">{item.name_ru}</div>}
                 </td>
-                <td className="px-5 py-4">
-                  <div className="flex items-center gap-1.5">
+                <td className="pl-5 pr-16 py-4 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => setEditItem(item)}
                       className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"

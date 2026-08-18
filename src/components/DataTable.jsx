@@ -1,5 +1,5 @@
 import { Search, Inbox } from 'lucide-react';
-import { useState } from 'react';
+import { useLang } from '../context/LangContext';
 
 export function SearchBar({ value, onChange, placeholder = 'Search...' }) {
   return (
@@ -90,26 +90,33 @@ export function EmptyState({ message = 'No data' }) {
 }
 
 export function Table({ columns, children, loading }) {
+  const { t } = useLang();
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-100">
-            {columns.map((col, i) => (
-              <th
-                key={i}
-                className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-              >
-                {col}
-              </th>
-            ))}
+            {columns.map((col, i) => {
+              const isObj = col && typeof col === 'object';
+              const label = isObj ? col.label : col;
+              const align = isObj && col.align === 'right' ? 'text-right' : 'text-left';
+              const pad = isObj && col.className ? col.className : 'px-5';
+              return (
+                <th
+                  key={i}
+                  className={`${pad} py-3 ${align} text-xs font-semibold text-gray-500 uppercase tracking-wider`}
+                >
+                  {label}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           {loading ? (
             <tr>
               <td colSpan={100} className="text-center py-12 text-sm text-gray-400">
-                Loading...
+                {t('common.loading')}
               </td>
             </tr>
           ) : children}

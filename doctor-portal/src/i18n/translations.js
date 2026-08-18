@@ -79,6 +79,7 @@ const translations = {
     'prescriptions.save': 'Saqlash',
     'prescriptions.saving': 'Saqlanmoqda...',
     'prescriptions.save_error': 'Retsept saqlashda xatolik yuz berdi',
+    'prescriptions.items_required_error': 'Kamida bitta to\'liq to\'ldirilgan dori qo\'shing',
     'prescriptions.days': 'kun',
     'prescriptions.no_medications': 'Dori yozilmagan',
 
@@ -88,12 +89,14 @@ const translations = {
     'schedule.start_time': 'Boshlanish vaqti',
     'schedule.end_time': 'Tugash vaqti',
     'schedule.add': 'Kun qo\'shish',
+    'schedule.edit': 'Tahrirlash',
     'schedule.save': 'Saqlash',
     'schedule.saving': 'Saqlanmoqda...',
     'schedule.delete': "O'chirish",
     'schedule.delete_confirm': 'Ushbu kunni ish jadvalidan o\'chirishni tasdiqlaysizmi?',
     'schedule.no_data': 'Ish jadvali hali kiritilmagan',
     'schedule.save_error': 'Saqlashda xatolik yuz berdi',
+    'schedule.time_order_error': 'Tugash vaqti boshlanish vaqtidan keyin bo\'lishi kerak',
 
     // Reviews
     'reviews.title': 'Sharhlarim',
@@ -207,6 +210,7 @@ const translations = {
     'prescriptions.save': 'Сохранить',
     'prescriptions.saving': 'Сохранение...',
     'prescriptions.save_error': 'Ошибка при сохранении рецепта',
+    'prescriptions.items_required_error': 'Добавьте хотя бы одно полностью заполненное лекарство',
     'prescriptions.days': 'дн.',
     'prescriptions.no_medications': 'Лекарства не назначены',
 
@@ -215,12 +219,14 @@ const translations = {
     'schedule.start_time': 'Время начала',
     'schedule.end_time': 'Время окончания',
     'schedule.add': 'Добавить день',
+    'schedule.edit': 'Редактировать',
     'schedule.save': 'Сохранить',
     'schedule.saving': 'Сохранение...',
     'schedule.delete': 'Удалить',
     'schedule.delete_confirm': 'Подтвердите удаление этого дня из графика',
     'schedule.no_data': 'График работы ещё не заполнен',
     'schedule.save_error': 'Ошибка при сохранении',
+    'schedule.time_order_error': 'Время окончания должно быть позже времени начала',
 
     'reviews.title': 'Мои отзывы',
     'reviews.no_data': 'Вам ещё не оставили отзывов',

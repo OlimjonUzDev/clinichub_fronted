@@ -20,7 +20,6 @@ export default function Register() {
     username: '',
     email: '',
     password: '',
-    role: 'patient',
     phone_number: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -155,21 +154,6 @@ export default function Register() {
                 />
               </div>
               {fieldErrors.phone_number && <p className="text-red-500 text-xs mt-1">{fieldErrors.phone_number}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('auth.role')}
-              </label>
-              <select
-                value={form.role}
-                onChange={handleChange('role')}
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-              >
-                <option value="patient">{t('auth.role.patient')}</option>
-                <option value="doctor">{t('auth.role.doctor')}</option>
-                <option value="admin">{t('auth.role.admin')}</option>
-              </select>
             </div>
 
             <div>

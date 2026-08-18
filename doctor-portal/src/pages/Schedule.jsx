@@ -41,6 +41,10 @@ export default function Schedule() {
 
   const handleSave = async (weekday) => {
     const existing = byWeekday[weekday];
+    if (endTime <= startTime) {
+      setError(t('schedule.time_order_error'));
+      return;
+    }
     setSaving(true);
     setError('');
     const headers = { Authorization: `Bearer ${token}` };
@@ -104,11 +108,11 @@ export default function Schedule() {
                       <div className="flex-1 text-sm text-gray-400">{t('schedule.no_data')}</div>
                     )}
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openEditor(weekday, existing)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-teal-400 hover:text-teal-600 transition">
+                      <button onClick={() => openEditor(weekday, existing)} title={existing ? t('schedule.edit') : t('schedule.add')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-teal-400 hover:text-teal-600 transition">
                         {existing ? <Pencil size={13} /> : <Plus size={13} />}
                       </button>
                       {existing && (
-                        <button onClick={() => handleDelete(existing)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
+                        <button onClick={() => handleDelete(existing)} title={t('schedule.delete')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
                           <Trash2 size={13} />
                         </button>
                       )}
@@ -129,6 +133,7 @@ export default function Schedule() {
                     <button
                       onClick={() => handleSave(weekday)}
                       disabled={saving}
+                      title={saving ? t('schedule.saving') : t('schedule.save')}
                       className="w-8 h-8 flex items-center justify-center rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition disabled:opacity-60"
                     >
                       <Check size={15} />

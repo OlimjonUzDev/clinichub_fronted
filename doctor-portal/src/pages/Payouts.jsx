@@ -20,7 +20,7 @@ function StatusBadge({ status, t }) {
 export default function Payouts() {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { token } = useAuth();
+  const { token, doctor } = useAuth();
   const { t } = useLang();
 
   useEffect(() => {
@@ -54,6 +54,8 @@ export default function Payouts() {
 
       {loading ? (
         <p className="text-sm text-gray-400">{t('common.loading')}</p>
+      ) : !doctor ? (
+        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
       ) : sorted.length === 0 ? (
         <p className="text-sm text-gray-400">{t('payouts.no_data')}</p>
       ) : (

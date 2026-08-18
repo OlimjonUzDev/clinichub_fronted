@@ -27,6 +27,13 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const completeItems = items
+      .filter((it) => it.medication_name_uz && it.dosage && it.frequency_uz && it.duration_days)
+      .map((it) => ({ ...it, duration_days: Number(it.duration_days) }));
+    if (completeItems.length === 0) {
+      setError(t('prescriptions.items_required_error'));
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -37,9 +44,7 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
         diagnosis_uz: diagnosisUz,
         diagnosis_ru: diagnosisRu,
         notes_uz: notesUz,
-        items: items
-          .filter((it) => it.medication_name_uz && it.dosage && it.frequency_uz && it.duration_days)
-          .map((it) => ({ ...it, duration_days: Number(it.duration_days) })),
+        items: completeItems,
       }, { headers: { Authorization: `Bearer ${token}` } });
       onSaved(res.data);
     } catch (err) {
@@ -95,13 +100,13 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
                 </button>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-6">
-                <input placeholder={t('prescriptions.medication_name_uz')} value={item.medication_name_uz} onChange={(e) => updateItem(i, 'medication_name_uz', e.target.value)} className={fieldCls} />
+                <input required placeholder={t('prescriptions.medication_name_uz')} value={item.medication_name_uz} onChange={(e) => updateItem(i, 'medication_name_uz', e.target.value)} className={fieldCls} />
                 <input placeholder={t('prescriptions.medication_name_ru')} value={item.medication_name_ru} onChange={(e) => updateItem(i, 'medication_name_ru', e.target.value)} className={fieldCls} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input placeholder={t('prescriptions.dosage')} value={item.dosage} onChange={(e) => updateItem(i, 'dosage', e.target.value)} className={fieldCls} />
-                <input placeholder={t('prescriptions.frequency_uz')} value={item.frequency_uz} onChange={(e) => updateItem(i, 'frequency_uz', e.target.value)} className={fieldCls} />
-                <input type="number" min="1" placeholder={t('prescriptions.duration_days')} value={item.duration_days} onChange={(e) => updateItem(i, 'duration_days', e.target.value)} className={fieldCls} />
+                <input required placeholder={t('prescriptions.dosage')} value={item.dosage} onChange={(e) => updateItem(i, 'dosage', e.target.value)} className={fieldCls} />
+                <input required placeholder={t('prescriptions.frequency_uz')} value={item.frequency_uz} onChange={(e) => updateItem(i, 'frequency_uz', e.target.value)} className={fieldCls} />
+                <input required type="number" min="1" placeholder={t('prescriptions.duration_days')} value={item.duration_days} onChange={(e) => updateItem(i, 'duration_days', e.target.value)} className={fieldCls} />
               </div>
             </div>
           ))}

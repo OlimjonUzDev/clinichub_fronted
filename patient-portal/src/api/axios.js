@@ -4,6 +4,22 @@ const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/v1',
 });
 
+// Session died (token expired/invalid) mid-use: every page's requests would
+// otherwise fail 401 and get silently swallowed by their own .catch(), leaving
+// the user staring at an empty-looking screen with no idea why. Force them
+// back to a clean login instead.
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 401 && window.location.pathname !== '/login') {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(err);
+  }
+);
+
 // The backend paginates list endpoints ({count, next, previous, results}).
 // This follows every 'next' link and returns the full concatenated array,
 // so pages can keep doing client-side search/filter like a plain array.
