@@ -353,4 +353,42 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 
 ---
 
+## 12-BOSQICH — Chat funksiyasi (bemor ↔ doktor real-vaqt xabar almashish)
+
+**Boshlang'ich audit (2026-08-23):** hozircha chat mutlaqo yo'q — na backendda (`channels`/websocket/`Message` modeli yo'q), na frontendda (uchala portalda ham socket/chat komponenti yo'q). `catalog`/`appointments`даги `consultation_type` allaqachon `video`/`voice`/`chat`ni narxlanadigan variant sifatida modellagan, lekin uchalasi ham amalda faqat bitta ochiq Jitsi video-xona havolasiga olib keladi (`videoCall.js`) — ya'ni "chat" hozircha sotib olinadi, lekin ta'minlanmaydi. Admin paneldagi `/messages` route ham `Placeholder` ("under construction")ga ulangan.
+
+**Qamrov qarori (MVP):** chat har bir `Appointment`ga bog'langan (xuddi `prescriptions`/`rating` kabi — patternga mos, oddiy). Bir doktor-bemor juftligi orasidagi appointment'lardan tashqari umumiy/doimiy suhbat MVP'ga kirmaydi — kerak bo'lsa keyingi bosqichda kengaytiriladi. Real-vaqt uchun **Django Channels** (WebSocket) tanlandi — loyihada allaqachon Django/DRF bor, qo'shimcha til/freymvork shart emas. Channel layer sifatida boshida **`InMemoryChannelLayer`** (Redis shart emas, kurs ishi/bitta worker uchun yetarli) — production'da ko'p worker kerak bo'lsa Redis'ga o'tkaziladi (hozircha bloker emas).
+
+### Bajarilishi kerak — Backend (siz yozasiz, men tekshirib/tasdiqlab boraman)
+
+- [ ] **Paketlar** — `requirements.txt`ga `channels` (va ixtiyoriy `daphne` ASGI server uchun) qo'shish, `pip install`.
+- [ ] **`config/settings.py`** — `INSTALLED_APPS`ga `'channels'`, `ASGI_APPLICATION = 'config.asgi.application'`, `CHANNEL_LAYERS = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}`.
+- [ ] **Yangi `chat` app** (`python manage.py startapp chat`):
+  - `models.py` — `Conversation` (`appointment` — `Appointment`ga `OneToOneField`, `created_at`), `Message` (`conversation` FK, `sender` — `User`ga FK, `text`, `created_at`, `is_read=False`).
+  - `serializers.py` — `MessageSerializer` (tarix uchun, REST).
+  - `permissions.py` — faqat shu appointment'ning o'z doktori/bemori (va admin) kira olsin — mavjud `appointments/permissions.py`даги naqshga mos.
+  - `views.py` — `ConversationMessagesView(generics.ListAPIView)`: `GET /api/v1/chat/<appointment_id>/messages/` — sahifalangan xabar tarixi (websocket ulanishidan oldin frontend shu orqali eski xabarlarni yuklaydi).
+  - `consumers.py` — `ChatConsumer(AsyncJsonWebsocketConsumer)`: `connect()`da `scope['user']` orqali ruxsat tekshiradi (faqat shu appointment'ning doktori/bemori/admin), `receive_json()`da xabarni DB'ga yozadi (`sync_to_async`) va guruhga (`appointment_<id>`) tarqatadi, `disconnect()`.
+  - **`middleware.py`** — Channels'ning standart `AuthMiddlewareStack`i faqat session-cookie'ga ishonadi, bizda esa JWT bor. Shu sabab websocket ulanish so'rovidan (`?token=<access_token>` query-param) JWT'ni o'qib, `simplejwt`орqали tekshiradigan maxsus middleware yozish kerak (`scope['user']`ni shu orqali o'rnatish).
+  - `routing.py` — `websocket_urlpatterns = [re_path(r'ws/chat/(?P<appointment_id>\d+)/$', ChatConsumer.as_asgi())]`.
+  - `urls.py` — REST `messages/` endpoint uchun, `config/urls.py`ga ulash.
+  - `admin.py` — modellarni ro'yxatdan o'tkazish.
+  - `tests.py` — kamida: ruxsatsiz foydalanuvchi (boshqa doktor/bemor) ulana olmasligi, xabar to'g'ri saqlanishi/tarqatilishi, tarix endpoint'i to'g'ri filtrlanishi.
+- [ ] **`config/asgi.py`** — `ProtocolTypeRouter({'http': ..., 'websocket': JwtAuthMiddleware(URLRouter(chat.routing.websocket_urlpatterns))})` qilib qayta yozish (hozirgi holicha faqat `get_asgi_application()` bor, websocket'ga umuman tayyor emas).
+- [ ] **Migratsiya** — `makemigrations chat && migrate`.
+- [ ] **Xavfsizlik eslatmasi:** `django-cors-headers` websocket'ga ta'sir qilmaydi — agar kerak bo'lsa `channels`даги `OriginValidator` bilan alohida cheklash kerak bo'ladi (hozircha dev uchun shart emas).
+- [ ] `manage.py test chat` — yashil bo'lishi kerak, qolgan 94 ta test ham regressiyasiz o'tishi kerak.
+- Tayyor bo'lgach ayting — men real so'rov (websocket qo'lda ulanib) bilan tekshirib, so'ng frontend qismini boshlayman.
+
+### Bajarilishi kerak — Frontend (men to'g'ridan-to'g'ri yozaman, backend tayyor bo'lgach)
+
+- [ ] `patient-portal/src/lib/chatSocket.js` va `doctor-portal/src/lib/chatSocket.js` — native `WebSocket` API bilan `ws://127.0.0.1:8000/ws/chat/<appointmentId>/?token=<access>`ga ulanuvchi kichik wrapper (ulanish, qayta ulanish, xabar eventlari).
+- [ ] `ChatWindow` komponenti (ikkala portalda) — xabarlar ro'yxati (bubble'lar, o'z/begona farqlansin), input+yuborish, avtomatik scroll, vaqt belgisi. Ochilganda avval `GET /chat/<id>/messages/` orqali tarix yuklanadi, so'ng websocket orqali live xabarlar qo'shiladi.
+- [ ] Kirish nuqtasi: `patient-portal/src/pages/MyAppointments.jsx` va `doctor-portal/src/pages/Appointments.jsx`ga har bir appointment qatoriga "Chat" tugmasi (video/voice bilan bir qatorda, `consultationTypes.js`даги naqshga mos) — yangi route `/chat/:appointmentId`.
+- [ ] JWT muddati tugasa websocket qayta ulanishi (token yangilanganda qayta ulanish).
+- [ ] Tarjimalar (uz/ru) — `translations.js`.
+- Admin paneldagi `/messages` (`Placeholder`) — bu bosqichga kirmaydi (admin doktor-bemor chatiga aralashmaydi deb qaralmoqda; agar admin moderatsiya/ko'rish imkoniyati kerak bo'lsa, alohida band sifatida keyin qo'shiladi).
+
+---
+
 **Ishlash tartibi:** Backend — har bir bandni siz yozasiz, men tekshirib/tasdiqlab boraman (kerak bo'lsa real so'rov yuborib sinab ko'raman). Frontend (`patient-portal`, `doctor-portal`) — men to'g'ridan-to'g'ri yozaman, siz tekshirasiz.
