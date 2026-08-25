@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Prescriptions from './pages/Prescriptions';
 import Reviews from './pages/Reviews';
 import Payments from './pages/Payments';
+import Chat from './pages/Chat';
 
 // Non-patient roles (admin/doctor) are only known once GET /me/ resolves -
 // while that backend endpoint is missing, `role` stays null and this never blocks.
@@ -38,6 +39,7 @@ function App() {
         <Route path="/analytics" element={<Protected><Analytics /></Protected>} />
         <Route path="/doctor/:id" element={<Protected><DoctorProfile /></Protected>} />
         <Route path="/appointments" element={<Protected><MyAppointments /></Protected>} />
+        <Route path="/chat/:appointmentId" element={<Protected><Chat /></Protected>} />
         <Route path="/prescriptions" element={<Protected><Prescriptions /></Protected>} />
         <Route path="/reviews" element={<Protected><Reviews /></Protected>} />
         <Route path="/payments" element={<Protected><Payments /></Protected>} />

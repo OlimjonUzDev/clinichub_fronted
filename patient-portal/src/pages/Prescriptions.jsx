@@ -4,11 +4,15 @@ import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
 import { useLookup, resolveName } from '../lib/useLookup';
+import { cardCls, sectionLabelCls } from '../lib/formStyles';
 
 export default function Prescriptions() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const { token } = useAuth();
   const { t, lang } = useLang();
   const doctors = useLookup('/doctors/doctor/', token);
@@ -16,8 +20,14 @@ export default function Prescriptions() {
   useEffect(() => {
     fetchAll('/prescriptions/prescription/', token)
       .then((data) => { setPrescriptions(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [token]);
+      .catch(() => { setError(true); setLoading(false); });
+  }, [token, retryKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryKey((k) => k + 1);
+  };
 
   const sorted = prescriptions.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -30,9 +40,11 @@ export default function Prescriptions() {
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('prescriptions.no_data')}</p>
+        <EmptyState icon={ClipboardList} title={t('prescriptions.no_data')} />
       ) : (
         <div className="space-y-4">
           {sorted.map((p) => {
@@ -40,7 +52,7 @@ export default function Prescriptions() {
             const diagnosis = lang === 'ru' ? (p.diagnosis_ru || p.diagnosis_uz) : p.diagnosis_uz;
             const notes = lang === 'ru' ? (p.notes_ru || p.notes_uz) : p.notes_uz;
             return (
-              <div key={p.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+              <div key={p.id} className={cardCls}>
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
                     <Stethoscope size={14} className="text-indigo-500" />
@@ -54,7 +66,7 @@ export default function Prescriptions() {
                 <div className="flex items-start gap-1.5 text-sm text-gray-700 mb-3">
                   <ClipboardList size={14} className="text-gray-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase">{t('prescriptions.diagnosis')}</div>
+                    <div className={sectionLabelCls}>{t('prescriptions.diagnosis')}</div>
                     <p className="whitespace-pre-line">{diagnosis || '—'}</p>
                   </div>
                 </div>
@@ -64,7 +76,7 @@ export default function Prescriptions() {
                 )}
 
                 <div className="border-t border-gray-100 pt-3">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase mb-2">
+                  <div className={`flex items-center gap-1.5 ${sectionLabelCls} mb-2`}>
                     <Pill size={13} /> {t('prescriptions.medications')}
                   </div>
                   {(!p.items || p.items.length === 0) ? (

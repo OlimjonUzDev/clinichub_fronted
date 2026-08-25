@@ -8,6 +8,7 @@ import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
 import { useLookup, resolveName } from '../lib/useLookup';
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#9ca3af'];
@@ -20,7 +21,7 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
         <Icon size={18} />
       </div>
     </div>
-    <div className="text-3xl font-bold">{value}</div>
+    <div className="text-2xl sm:text-3xl font-bold truncate">{value}</div>
   </div>
 );
 
@@ -28,6 +29,8 @@ export default function Analytics() {
   const [appointments, setAppointments] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const { token } = useAuth();
   const { t, lang } = useLang();
   const doctors = useLookup('/doctors/doctor/', token);
@@ -42,8 +45,14 @@ export default function Analytics() {
         setPrescriptions(pres);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, [token]);
+      .catch(() => { setError(true); setLoading(false); });
+  }, [token, retryKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryKey((k) => k + 1);
+  };
 
   const statusCounts = useMemo(() => {
     const counts = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
@@ -96,10 +105,12 @@ export default function Analytics() {
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('analytics.title')}</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <StatCard label={t('analytics.total_appointments')} value={appointments.length} icon={CalendarDays} color="bg-indigo-500" />
             <StatCard label={t('analytics.upcoming')} value={upcomingCount} icon={Clock} color="bg-amber-500" />
             <StatCard label={t('analytics.completed')} value={statusCounts.completed} icon={CheckCircle2} color="bg-green-500" />
@@ -107,10 +118,10 @@ export default function Analytics() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h2 className="text-sm font-semibold text-gray-700 mb-4">{t('analytics.status_breakdown')}</h2>
               {appointments.length === 0 ? (
-                <p className="text-sm text-gray-400">{t('appointments.no_data')}</p>
+                <EmptyState icon={CalendarDays} title={t('appointments.no_data')} bare />
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
@@ -124,7 +135,7 @@ export default function Analytics() {
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h2 className="text-sm font-semibold text-gray-700 mb-4">{t('analytics.monthly_trend')}</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={monthlyData}>
@@ -138,10 +149,10 @@ export default function Analytics() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h2 className="text-sm font-semibold text-gray-700 mb-4">{t('analytics.top_doctors')}</h2>
             {topDoctors.length === 0 ? (
-              <p className="text-sm text-gray-400">{t('appointments.no_data')}</p>
+              <EmptyState icon={Stethoscope} title={t('appointments.no_data')} bare />
             ) : (
               <div className="space-y-2">
                 {topDoctors.map((d) => (

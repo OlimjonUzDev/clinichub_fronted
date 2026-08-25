@@ -4,7 +4,10 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState } from '../components/StateBlock';
+import Field from '../components/Field';
 import { phoneError } from '../lib/validators';
+import { sectionLabelCls } from '../lib/formStyles';
 
 const EMPTY_FORM = {
   name_uz: '', name_ru: '', gender: 'erkak', birth_date: '',
@@ -12,19 +15,6 @@ const EMPTY_FORM = {
 };
 
 const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
-
-function Field({ icon: Icon, label, error, children }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-      <div className="relative">
-        <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        {children}
-      </div>
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
-}
 
 export default function Profile() {
   const [form, setForm] = useState(EMPTY_FORM);
@@ -80,7 +70,7 @@ export default function Profile() {
   };
 
   if (loading) {
-    return <Layout><p className="text-sm text-gray-400">{t('common.loading')}</p></Layout>;
+    return <Layout><LoadingState text={t('common.loading')} /></Layout>;
   }
 
   const initials = (form.name_uz || '?').trim().slice(0, 1).toUpperCase();
@@ -110,31 +100,31 @@ export default function Profile() {
 
       <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-xl space-y-5">
         <div>
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('profile.section_personal')}</div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field icon={User} label={t('profile.name_uz')}>
+          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_personal')}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field icon={User} label={t('profile.name_uz')} required>
               <input type="text" required value={form.name_uz} onChange={handleChange('name_uz')} className={inputCls} />
             </Field>
-            <Field icon={User} label={t('profile.name_ru')}>
+            <Field icon={User} label={t('profile.name_ru')} required>
               <input type="text" required value={form.name_ru} onChange={handleChange('name_ru')} className={inputCls} />
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <Field icon={Users} label={t('profile.gender')}>
               <select value={form.gender} onChange={handleChange('gender')} className={`${inputCls} appearance-none bg-white`}>
                 <option value="erkak">{t('profile.gender.erkak')}</option>
                 <option value="ayol">{t('profile.gender.ayol')}</option>
               </select>
             </Field>
-            <Field icon={Calendar} label={t('profile.birth_date')}>
+            <Field icon={Calendar} label={t('profile.birth_date')} required>
               <input type="date" required value={form.birth_date} onChange={handleChange('birth_date')} className={inputCls} />
             </Field>
           </div>
         </div>
 
         <div className="border-t border-gray-100 pt-5">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('profile.section_contact')}</div>
+          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_contact')}</div>
           <div className="space-y-4">
             <Field icon={Phone} label={t('profile.phone')} error={fieldErrors.phone_number}>
               <input type="text" value={form.phone_number} onChange={handleChange('phone_number')} placeholder="+998901234567" className={inputCls} />

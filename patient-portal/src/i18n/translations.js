@@ -26,6 +26,8 @@ const translations = {
     'auth.signup_error': "Ro'yxatdan o'tishda xatolik yuz berdi",
     'auth.no_account': 'Hisobingiz yo\'qmi?',
     'auth.have_account': 'Hisobingiz bormi?',
+    'auth.show_password': "Parolni ko'rsatish",
+    'auth.hide_password': 'Parolni yashirish',
 
     // Validation
     'validation.phone': "Telefon raqami noto'g'ri (masalan: +998901234567)",
@@ -40,6 +42,8 @@ const translations = {
     'nav.payments': "To'lovlar",
     'nav.profile': 'Profil',
     'nav.logout': 'Chiqish',
+    'nav.expand_sidebar': 'Panelni kengaytirish',
+    'nav.collapse_sidebar': 'Panelni yig\'ish',
 
     // Home
     'home.title': 'Doktor tanlang',
@@ -47,6 +51,8 @@ const translations = {
     'home.all_specialities': 'Barcha mutaxassisliklar',
     'home.all_clinics': 'Barcha klinikalar',
     'home.no_data': 'Doktor topilmadi',
+    'home.no_data_hint': 'Qidiruv yoki filtrlarni o\'zgartirib ko\'ring',
+    'home.clear_filters': 'Filtrlarni tozalash',
     'home.experience': 'yillik tajriba',
     'home.view_profile': 'Profilni ko\'rish',
 
@@ -71,6 +77,10 @@ const translations = {
     'doctor.day_off': 'Doktor bu kuni ishlamaydi',
     'doctor.loading_slots': "Bo'sh vaqtlar yuklanmoqda...",
     'doctor.no_slots': "Bu kunda bo'sh vaqt qolmagan",
+    'doctor.time_reset_hint': 'Pastdan yangi vaqt tanlang',
+    'doctor.slot_available': "Bo'sh",
+    'doctor.slot_selected': 'Tanlangan',
+    'doctor.slot_busy': 'Band',
 
     'consultation.video': 'Video',
     'consultation.voice': 'Ovozli',
@@ -90,14 +100,19 @@ const translations = {
     // Appointments
     'appointments.title': 'Mening tashriflarim',
     'appointments.no_data': 'Hali tashrif band qilinmagan',
+    'appointments.browse_doctors': 'Doktor tanlash',
     'appointments.cancel': 'Bekor qilish',
+    'appointments.cancel_confirm_title': 'Tashrifni bekor qilish',
     'appointments.cancel_confirm': 'Ushbu tashrifni bekor qilishni tasdiqlaysizmi?',
+    'appointments.cancel_confirm_yes': 'Ha, bekor qilish',
+    'appointments.cancel_confirm_no': "Yo'q",
     'appointments.cancel_error': 'Bekor qilishda xatolik yuz berdi',
     'appointments.reschedule': 'Vaqtini o\'zgartirish',
     'appointments.reschedule_confirm': 'Tasdiqlash',
     'appointments.rescheduling': 'Saqlanmoqda...',
     'appointments.reschedule_error': 'Vaqtni o\'zgartirishda xatolik yuz berdi',
     'appointments.join_call': 'Video chatga qo\'shilish',
+    'appointments.open_chat': 'Yozishmani ochish',
     'status.pending': 'Kutilmoqda',
     'status.confirmed': 'Tasdiqlangan',
     'status.completed': 'Yakunlangan',
@@ -122,6 +137,7 @@ const translations = {
     'reviews.submitting': 'Yuborilmoqda...',
     'reviews.submit_error': 'Sharh yuborishda xatolik yuz berdi',
     'reviews.profile_required': 'Sharh qoldirish uchun avval profilingizni to\'ldiring',
+    'reviews.star_unit': 'yulduz',
 
     // Payments
     'payments.title': "To'lovlar",
@@ -155,7 +171,19 @@ const translations = {
     'profile.saved': "Ma'lumotlar saqlandi",
     'profile.save_error': 'Saqlashda xatolik yuz berdi',
 
+    // Chat
+    'chat.title': 'Yozishma',
+    'chat.placeholder': 'Xabar yozing...',
+    'chat.no_messages': 'Hali xabar yo\'q — birinchi bo\'lib yozing',
+    'chat.load_error': 'Xabarlarni yuklashda xatolik yuz berdi',
+    'chat.send_error': 'Xabar yuborishda xatolik yuz berdi',
+    'chat.poll_warning': "Aloqa vaqtincha uzildi, qayta urinilmoqda...",
+    'chat.send': 'Yuborish',
+
     'common.loading': 'Yuklanmoqda...',
+    'common.load_error': "Ma'lumotlarni yuklashda xatolik yuz berdi",
+    'common.retry': 'Qayta urinish',
+    'common.close': 'Yopish',
   },
   ru: {
     // Auth (SMS OTP — без пароля)
@@ -184,6 +212,8 @@ const translations = {
     'auth.signup_error': 'Ошибка при регистрации',
     'auth.no_account': 'Нет аккаунта?',
     'auth.have_account': 'Уже есть аккаунт?',
+    'auth.show_password': 'Показать пароль',
+    'auth.hide_password': 'Скрыть пароль',
 
     'validation.phone': 'Неверный формат номера (например: +998901234567)',
     'validation.letters_only': 'Это поле должно содержать только буквы',
@@ -196,12 +226,16 @@ const translations = {
     'nav.payments': 'Оплата',
     'nav.profile': 'Профиль',
     'nav.logout': 'Выйти',
+    'nav.expand_sidebar': 'Развернуть панель',
+    'nav.collapse_sidebar': 'Свернуть панель',
 
     'home.title': 'Выберите врача',
     'home.search': 'Поиск по имени...',
     'home.all_specialities': 'Все специальности',
     'home.all_clinics': 'Все клиники',
     'home.no_data': 'Врач не найден',
+    'home.no_data_hint': 'Попробуйте изменить поиск или фильтры',
+    'home.clear_filters': 'Сбросить фильтры',
     'home.experience': 'лет опыта',
     'home.view_profile': 'Смотреть профиль',
 
@@ -225,6 +259,10 @@ const translations = {
     'doctor.day_off': 'Врач не работает в этот день',
     'doctor.loading_slots': 'Загрузка свободного времени...',
     'doctor.no_slots': 'На этот день свободного времени не осталось',
+    'doctor.time_reset_hint': 'Выберите новое время ниже',
+    'doctor.slot_available': 'Свободно',
+    'doctor.slot_selected': 'Выбрано',
+    'doctor.slot_busy': 'Занято',
 
     'consultation.video': 'Видео',
     'consultation.voice': 'Голосовой',
@@ -243,14 +281,19 @@ const translations = {
 
     'appointments.title': 'Мои визиты',
     'appointments.no_data': 'Пока нет записанных визитов',
+    'appointments.browse_doctors': 'Выбрать врача',
     'appointments.cancel': 'Отменить',
+    'appointments.cancel_confirm_title': 'Отмена визита',
     'appointments.cancel_confirm': 'Подтвердите отмену этого визита',
+    'appointments.cancel_confirm_yes': 'Да, отменить',
+    'appointments.cancel_confirm_no': 'Нет',
     'appointments.cancel_error': 'Ошибка при отмене',
     'appointments.reschedule': 'Перенести',
     'appointments.reschedule_confirm': 'Подтвердить',
     'appointments.rescheduling': 'Сохранение...',
     'appointments.reschedule_error': 'Ошибка при переносе визита',
     'appointments.join_call': 'Присоединиться к видеозвонку',
+    'appointments.open_chat': 'Открыть переписку',
     'status.pending': 'Ожидание',
     'status.confirmed': 'Подтверждён',
     'status.completed': 'Завершён',
@@ -275,6 +318,7 @@ const translations = {
     'reviews.submitting': 'Отправка...',
     'reviews.submit_error': 'Ошибка при отправке отзыва',
     'reviews.profile_required': 'Заполните профиль, чтобы оставить отзыв',
+    'reviews.star_unit': 'звезда',
 
     // Payments
     'payments.title': 'Оплата',
@@ -307,7 +351,19 @@ const translations = {
     'profile.saved': 'Данные сохранены',
     'profile.save_error': 'Ошибка при сохранении',
 
+    // Chat
+    'chat.title': 'Переписка',
+    'chat.placeholder': 'Напишите сообщение...',
+    'chat.no_messages': 'Пока нет сообщений — напишите первым',
+    'chat.load_error': 'Ошибка при загрузке сообщений',
+    'chat.send_error': 'Ошибка при отправке сообщения',
+    'chat.poll_warning': 'Соединение временно потеряно, повторная попытка...',
+    'chat.send': 'Отправить',
+
     'common.loading': 'Загрузка...',
+    'common.load_error': 'Не удалось загрузить данные',
+    'common.retry': 'Повторить',
+    'common.close': 'Закрыть',
   },
 };
 

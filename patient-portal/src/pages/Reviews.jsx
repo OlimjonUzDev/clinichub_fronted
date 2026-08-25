@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Star, Stethoscope, Clock } from 'lucide-react';
+import { Star, Stethoscope, Clock, MessageSquareText } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
 import { useLookup, resolveName } from '../lib/useLookup';
+import { sectionLabelCls } from '../lib/formStyles';
 
 // A FK field may come back as a bare id or a nested object depending on the serializer.
 const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
 
-function StarPicker({ value, onChange }) {
+function StarPicker({ value, onChange, t }) {
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((i) => (
-        <button key={i} type="button" onClick={() => onChange(i)}>
+        <button
+          key={i}
+          type="button"
+          onClick={() => onChange(i)}
+          aria-label={`${i} ${t('reviews.star_unit')}`}
+          aria-pressed={i <= value}
+        >
           <Star size={20} className={i <= value ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'} />
         </button>
       ))}
@@ -69,7 +77,7 @@ function ReviewForm({ appointment, patientId, doctorName, onSubmitted, t }) {
         <Clock size={12} /> {new Date(appointment.start_time).toLocaleDateString()}
       </div>
 
-      <StarPicker value={score} onChange={setScore} />
+      <StarPicker value={score} onChange={setScore} t={t} />
 
       <textarea
         value={comment}
@@ -79,7 +87,7 @@ function ReviewForm({ appointment, patientId, doctorName, onSubmitted, t }) {
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
       />
 
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <p className="text-red-600 text-xs">{error}</p>}
 
       <button
         type="submit"
@@ -97,6 +105,7 @@ export default function Reviews() {
   const [ratings, setRatings] = useState([]);
   const [patientId, setPatientId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { token } = useAuth();
   const { t, lang } = useLang();
   const doctors = useLookup('/doctors/doctor/', token);
@@ -112,10 +121,16 @@ export default function Reviews() {
       setRatings(allRatings);
       setPatientId(patient?.id ?? null);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => { setError(true); setLoading(false); });
   };
 
   useEffect(load, [token]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    load();
+  };
 
   // The backend doesn't filter /appointments/rating/ to the current user, so we
   // narrow it down here to ratings tied to one of this patient's own appointments.
@@ -138,15 +153,17 @@ export default function Reviews() {
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('reviews.title')}</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : !patientId ? (
-        <p className="text-sm text-gray-400">{t('reviews.profile_required')}</p>
+        <EmptyState icon={Stethoscope} title={t('reviews.profile_required')} />
       ) : (
         <div className="space-y-8">
           <section>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{t('reviews.leave_title')}</h2>
+            <h2 className={`${sectionLabelCls} mb-3`}>{t('reviews.leave_title')}</h2>
             {eligible.length === 0 ? (
-              <p className="text-sm text-gray-400">{t('reviews.no_eligible')}</p>
+              <EmptyState icon={Star} title={t('reviews.no_eligible')} bare />
             ) : (
               <div className="space-y-3">
                 {eligible.map((a) => (
@@ -164,9 +181,9 @@ export default function Reviews() {
           </section>
 
           <section>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{t('reviews.my_reviews')}</h2>
+            <h2 className={`${sectionLabelCls} mb-3`}>{t('reviews.my_reviews')}</h2>
             {sortedRatings.length === 0 ? (
-              <p className="text-sm text-gray-400">{t('reviews.no_data')}</p>
+              <EmptyState icon={MessageSquareText} title={t('reviews.no_data')} bare />
             ) : (
               <div className="space-y-3">
                 {sortedRatings.map((r) => {

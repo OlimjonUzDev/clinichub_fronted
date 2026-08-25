@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('access_token') || null);
   const [role, setRole] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [roleLoading, setRoleLoading] = useState(!!localStorage.getItem('access_token'));
 
   // Requires a GET /me/ endpoint (IsAuthenticated) returning at least {role: ...}
@@ -15,8 +16,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
     api.get('/me/', { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => setRole(res.data.role))
-      .catch(() => setRole(null))
+      .then((res) => { setRole(res.data.role); setUserId(res.data.id); })
+      .catch(() => { setRole(null); setUserId(null); })
       .finally(() => setRoleLoading(false));
   }, [token]);
 
@@ -31,10 +32,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('refresh_token');
     setToken(null);
     setRole(null);
+    setUserId(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, role, roleLoading, login, logout }}>
+    <AuthContext.Provider value={{ token, role, userId, roleLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -5,11 +5,14 @@ import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 export default function Home() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [search, setSearch] = useState('');
   const [speciality, setSpeciality] = useState('');
   const [clinic, setClinic] = useState('');
@@ -23,8 +26,14 @@ export default function Home() {
   useEffect(() => {
     fetchAll('/doctors/doctor/', token)
       .then((data) => { setDoctors(data.filter((d) => d.is_active !== false)); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [token]);
+      .catch(() => { setError(true); setLoading(false); });
+  }, [token, retryKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryKey((k) => k + 1);
+  };
 
   const filtered = doctors.filter((d) => {
     const matchesSearch = (d.name_uz || '').toLowerCase().includes(search.toLowerCase())
@@ -33,6 +42,9 @@ export default function Home() {
     const matchesClinic = !clinic || String(resolveRef(d.clinic, clinics)?.id ?? d.clinic) === clinic;
     return matchesSearch && matchesSpeciality && matchesClinic;
   });
+
+  const hasFilters = Boolean(search || speciality || clinic);
+  const clearFilters = () => { setSearch(''); setSpeciality(''); setClinic(''); };
 
   return (
     <Layout>
@@ -71,9 +83,20 @@ export default function Home() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('home.no_data')}</p>
+        <EmptyState
+          icon={Search}
+          title={t('home.no_data')}
+          description={hasFilters ? t('home.no_data_hint') : undefined}
+          action={hasFilters && (
+            <button onClick={clearFilters} className="text-xs font-medium text-indigo-600 hover:underline">
+              {t('home.clear_filters')}
+            </button>
+          )}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {filtered.map((doc) => (

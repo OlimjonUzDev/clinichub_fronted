@@ -1,26 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Clock, X, CalendarClock, Video } from 'lucide-react';
+import { Stethoscope, Clock, X, CalendarClock, Video, MessageCircle, CalendarX2 } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
+import ConfirmDialog from '../components/ConfirmDialog';
+import Toast from '../components/Toast';
+import TimeSlotPicker from '../components/TimeSlotPicker';
 import { useLookup, resolveName } from '../lib/useLookup';
 import { jitsiUrlFor } from '../lib/videoCall';
+import { statusBadgeCls } from '../lib/statusBadge';
 
-const fieldCls = "border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
-
-const STATUS_STYLES = {
-  pending: 'bg-amber-50 text-amber-700',
-  confirmed: 'bg-blue-50 text-blue-700',
-  completed: 'bg-green-50 text-green-700',
-  cancelled: 'bg-gray-100 text-gray-500',
-};
+const iconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition disabled:opacity-50";
 
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
+  const [confirmCancelId, setConfirmCancelId] = useState(null);
+  const [toast, setToast] = useState('');
   const [reschedulingId, setReschedulingId] = useState(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTime, setRescheduleTime] = useState('');
@@ -33,13 +34,18 @@ export default function MyAppointments() {
   const load = () => {
     fetchAll('/appointments/appointment/', token)
       .then((data) => { setAppointments(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setError(true); setLoading(false); });
   };
 
   useEffect(load, [token]);
 
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    load();
+  };
+
   const handleCancel = async (id) => {
-    if (!confirm(t('appointments.cancel_confirm'))) return;
     setCancellingId(id);
     try {
       // Backend endi status'ni to'g'ridan-to'g'ri PATCH qilishga ruxsat bermaydi —
@@ -49,9 +55,10 @@ export default function MyAppointments() {
       });
       setAppointments((prev) => prev.map((a) => (a.id === id ? res.data : a)));
     } catch {
-      alert(t('appointments.cancel_error'));
+      setToast(t('appointments.cancel_error'));
     } finally {
       setCancellingId(null);
+      setConfirmCancelId(null);
     }
   };
 
@@ -62,6 +69,9 @@ export default function MyAppointments() {
     setRescheduleTime(start.toTimeString().slice(0, 5));
     setRescheduleError('');
   };
+
+  const durationMinutesOf = (a) => Math.round((new Date(a.end_time) - new Date(a.start_time)) / 60000);
+  const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
 
   const handleReschedule = async (a) => {
     if (!rescheduleDate || !rescheduleTime) return;
@@ -94,9 +104,19 @@ export default function MyAppointments() {
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('appointments.no_data')}</p>
+        <EmptyState
+          icon={CalendarX2}
+          title={t('appointments.no_data')}
+          action={(
+            <Link to="/" className="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg px-4 py-2 transition">
+              {t('appointments.browse_doctors')}
+            </Link>
+          )}
+        />
       ) : (
         <div className="space-y-3">
           {sorted.map((a) => {
@@ -120,7 +140,7 @@ export default function MyAppointments() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-500'}`}>
+                    <span className={statusBadgeCls(a.status)}>
                       {t(`status.${a.status}`)}
                     </span>
                     {a.status === 'confirmed' && (
@@ -129,26 +149,39 @@ export default function MyAppointments() {
                         target="_blank"
                         rel="noopener noreferrer"
                         title={t('appointments.join_call')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 transition"
+                        aria-label={t('appointments.join_call')}
+                        className={`${iconBtnCls} hover:border-green-400 hover:text-green-600`}
                       >
                         <Video size={13} />
                       </a>
+                    )}
+                    {a.status === 'confirmed' && (
+                      <Link
+                        to={`/chat/${a.id}`}
+                        title={t('appointments.open_chat')}
+                        aria-label={t('appointments.open_chat')}
+                        className={`${iconBtnCls} hover:border-indigo-400 hover:text-indigo-600`}
+                      >
+                        <MessageCircle size={13} />
+                      </Link>
                     )}
                     {canCancel && (
                       <button
                         onClick={() => (reschedulingId === a.id ? setReschedulingId(null) : openReschedule(a))}
                         title={t('appointments.reschedule')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                        aria-label={t('appointments.reschedule')}
+                        className={`${iconBtnCls} hover:border-indigo-400 hover:text-indigo-600`}
                       >
                         <CalendarClock size={13} />
                       </button>
                     )}
                     {canCancel && (
                       <button
-                        onClick={() => handleCancel(a.id)}
+                        onClick={() => setConfirmCancelId(a.id)}
                         disabled={cancellingId === a.id}
                         title={t('appointments.cancel')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition disabled:opacity-50"
+                        aria-label={t('appointments.cancel')}
+                        className={`${iconBtnCls} border-red-200 text-red-500 bg-red-50 hover:border-red-400 hover:text-red-600`}
                       >
                         <X size={13} />
                       </button>
@@ -157,34 +190,25 @@ export default function MyAppointments() {
                 </div>
 
                 {reschedulingId === a.id && (
-                  <div className="mt-3 pt-3 border-t border-gray-100 flex items-end gap-2 flex-wrap">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('doctor.date')}</label>
-                      <input
-                        type="date"
-                        min={new Date().toISOString().slice(0, 10)}
-                        value={rescheduleDate}
-                        onChange={(e) => setRescheduleDate(e.target.value)}
-                        className={fieldCls}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">{t('doctor.start_time')}</label>
-                      <input
-                        type="time"
-                        value={rescheduleTime}
-                        onChange={(e) => setRescheduleTime(e.target.value)}
-                        className={fieldCls}
-                      />
-                    </div>
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <TimeSlotPicker
+                      doctorId={idOf(a.doctor)}
+                      token={token}
+                      durationMinutes={durationMinutesOf(a)}
+                      date={rescheduleDate}
+                      onDateChange={setRescheduleDate}
+                      startTime={rescheduleTime}
+                      onStartTimeChange={setRescheduleTime}
+                      excludeInterval={{ start: a.start_time, end: a.end_time }}
+                    />
                     <button
                       onClick={() => handleReschedule(a)}
-                      disabled={rescheduleSaving}
-                      className="bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                      disabled={rescheduleSaving || !rescheduleDate || !rescheduleTime}
+                      className="mt-3 bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
                     >
                       {rescheduleSaving ? t('appointments.rescheduling') : t('appointments.reschedule_confirm')}
                     </button>
-                    {rescheduleError && <p className="text-red-500 text-xs w-full">{rescheduleError}</p>}
+                    {rescheduleError && <p className="text-red-600 text-xs w-full mt-2">{rescheduleError}</p>}
                   </div>
                 )}
               </div>
@@ -192,6 +216,17 @@ export default function MyAppointments() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmCancelId !== null}
+        title={t('appointments.cancel_confirm_title')}
+        message={t('appointments.cancel_confirm')}
+        confirmLabel={t('appointments.cancel_confirm_yes')}
+        cancelLabel={t('appointments.cancel_confirm_no')}
+        onConfirm={() => { const id = confirmCancelId; setConfirmCancelId(null); handleCancel(id); }}
+        onCancel={() => setConfirmCancelId(null)}
+      />
+      <Toast message={toast} onClose={() => setToast('')} closeLabel={t('common.close')} />
     </Layout>
   );
 }

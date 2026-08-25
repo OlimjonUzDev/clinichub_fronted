@@ -4,6 +4,10 @@ import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 import api from '../api/axios';
 import { useLang } from '../context/LangContext';
 import { phoneError } from '../lib/validators';
+import Field from '../components/Field';
+import { bannerCls } from '../lib/formStyles';
+
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -88,66 +92,51 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="mb-4 text-red-500 text-sm text-center bg-red-50 rounded-lg py-2 px-3">
+            <div className={`mb-4 text-center ${bannerCls.error}`}>
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-4 text-green-600 text-sm text-center bg-green-50 rounded-lg py-2 px-3">
+            <div className={`mb-4 text-center ${bannerCls.success}`}>
               {t('auth.signup_success')}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.username')}</label>
-              <div className="relative">
-                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  required
-                  value={form.username}
-                  onChange={handleChange('username')}
-                  placeholder={t('auth.username')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+            <Field label={t('auth.username')} required icon={User}>
+              <input
+                type="text"
+                required
+                value={form.username}
+                onChange={handleChange('username')}
+                placeholder={t('auth.username')}
+                className={inputCls}
+              />
+            </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.email')}</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={handleChange('email')}
-                  placeholder={t('auth.email')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+            <Field label={t('auth.email')} required icon={Mail}>
+              <input
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange('email')}
+                placeholder={t('auth.email')}
+                className={inputCls}
+              />
+            </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.phone')}</label>
-              <div className="relative">
-                <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={form.phone_number}
-                  onChange={handleChange('phone_number')}
-                  placeholder={t('auth.phone')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-              </div>
-              {fieldErrors.phone_number && <p className="text-red-500 text-xs mt-1">{fieldErrors.phone_number}</p>}
-            </div>
+            <Field label={t('auth.phone')} icon={Phone} error={fieldErrors.phone_number}>
+              <input
+                type="text"
+                value={form.phone_number}
+                onChange={handleChange('phone_number')}
+                placeholder={t('auth.phone')}
+                className={inputCls}
+              />
+            </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.password')}</label>
+            <Field label={t('auth.password')} required icon={Lock}>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
@@ -155,17 +144,18 @@ export default function Register() {
                   value={form.password}
                   onChange={handleChange('password')}
                   placeholder={t('auth.password')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                  className={`${inputCls} pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? t('auth.hide_password') : t('auth.show_password')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-            </div>
+            </Field>
 
             <button
               type="submit"

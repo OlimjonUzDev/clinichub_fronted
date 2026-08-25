@@ -1,31 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Stethoscope, Building2, User, Calendar, Clock, MessageSquare, Video } from 'lucide-react';
+import { Stethoscope, Building2, User, Calendar, MessageSquare, Video, Loader2 } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, ErrorState, RetryButton } from '../components/StateBlock';
+import TimeSlotPicker from '../components/TimeSlotPicker';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 import { CONSULTATION_TYPES } from '../lib/consultationTypes';
-
-// DoctorSchedule.weekday: 0=Dushanba ... 6=Yakshanba (backend bilan mos).
-// JS Date.getDay(): 0=Yakshanba ... 6=Shanba — shuning uchun aylantirish kerak.
-const toBackendWeekday = (jsDay) => (jsDay + 6) % 7;
-
-// Ish jadvali oralig'ini (masalan "09:00:00"–"18:00:00") berilgan davomiylikka
-// (daqiqa) bo'lib, sanaga bog'langan Date obyektlari ro'yxatiga aylantiradi.
-function buildCandidateSlots(dateStr, startHHMM, endHHMM, durationMin) {
-  const [sh, sm] = startHHMM.slice(0, 5).split(':').map(Number);
-  const [eh, em] = endHHMM.slice(0, 5).split(':').map(Number);
-  const slots = [];
-  let cursor = new Date(`${dateStr}T${String(sh).padStart(2, '0')}:${String(sm).padStart(2, '0')}:00`);
-  const end = new Date(`${dateStr}T${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}:00`);
-  while (cursor.getTime() + durationMin * 60000 <= end.getTime()) {
-    slots.push(new Date(cursor));
-    cursor = new Date(cursor.getTime() + durationMin * 60000);
-  }
-  return slots;
-}
+import { sectionLabelCls } from '../lib/formStyles';
 
 const WEEKDAY_LABELS = [
   { uz: 'Dushanba', ru: 'Понедельник' },
@@ -42,10 +26,13 @@ const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
 
 const fieldCls = "w-full border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 
-function BookField({ icon: Icon, label, children }) {
+function BookField({ icon: Icon, label, required, children }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        {label}
+        {required && <span className="text-red-500" aria-hidden="true"> *</span>}
+      </label>
       <div className="relative">
         <Icon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         {children}
@@ -64,6 +51,8 @@ export default function DoctorProfile() {
   const [schedule, setSchedule] = useState([]);
   const [rankPrices, setRankPrices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const [consultationType, setConsultationType] = useState('video');
   const [date, setDate] = useState('');
@@ -72,12 +61,6 @@ export default function DoctorProfile() {
   const [booking, setBooking] = useState(false);
   const [bookError, setBookError] = useState('');
   const [bookSuccess, setBookSuccess] = useState(false);
-
-  // { key: "<doctorId>:<date>", slots: [...] } — key orqali "shu ma'lumot
-  // aynan hozirgi tanlovga tegishlimi" solishtiriladi, alohida "loading"
-  // state kerak bo'lmaydi (sana tez-tez almashtirilganda eski natija
-  // chaqnab ketmasligi uchun ham foydali).
-  const [busySlotsData, setBusySlotsData] = useState({ key: null, slots: [] });
 
   const specialities = useLookup('/catalog/specialities/', token);
   const clinics = useLookup('/clinics/clinics/', token);
@@ -93,8 +76,14 @@ export default function DoctorProfile() {
       setSchedule(scheduleData.filter((s) => idOf(s.doctor) === docRes.data.id));
       setRankPrices(priceData);
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [id, token]);
+    }).catch(() => { setError(true); setLoading(false); });
+  }, [id, token, retryKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryKey((k) => k + 1);
+  };
 
   const priceFor = (type) => {
     if (!doctor) return null;
@@ -110,52 +99,6 @@ export default function DoctorProfile() {
 
   const selectedPrice = priceFor(consultationType);
   const duration = selectedPrice?.duration_min ?? 30;
-
-  // Tanlangan sanaga mos ish jadvali yozuvi (bo'lmasa — doktor shu kuni ishlamaydi).
-  const daySchedule = useMemo(() => {
-    if (!date) return null;
-    const jsDay = new Date(`${date}T00:00:00`).getDay();
-    const backendWeekday = toBackendWeekday(jsDay);
-    return schedule.find((s) => s.weekday === backendWeekday) || null;
-  }, [date, schedule]);
-
-  // Sana o'zgarganda — shu doktorning o'sha kundagi band vaqtlarini (boshqa
-  // bemorlar ma'lumotisiz) backend'dan olib kelamiz.
-  const slotsKey = date && doctor ? `${doctor.id}:${date}` : null;
-
-  useEffect(() => {
-    if (!date || !doctor) return;
-    const key = `${doctor.id}:${date}`;
-    api.get('/appointments/busy-slots/', { params: { doctor: doctor.id, date } })
-      .then((res) => setBusySlotsData({ key, slots: res.data }))
-      .catch(() => setBusySlotsData({ key, slots: [] }));
-  }, [date, doctor]);
-
-  const slotsLoading = slotsKey !== null && busySlotsData.key !== slotsKey;
-  const busySlots = useMemo(
-    () => (busySlotsData.key === slotsKey ? busySlotsData.slots : []),
-    [busySlotsData, slotsKey],
-  );
-
-  // Ish jadvali + band vaqtlar + tanlangan xizmat davomiyligi asosida
-  // bo'sh/band slotlar ro'yxati hisoblanadi.
-  const daySlots = useMemo(() => {
-    if (!daySchedule || !date || slotsLoading) return [];
-    const candidates = buildCandidateSlots(date, daySchedule.start_time, daySchedule.end_time, duration);
-    const now = new Date();
-    return candidates.map((slotStart) => {
-      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
-      const isBusy = busySlots.some((b) => {
-        const bStart = new Date(b.start_time);
-        const bEnd = new Date(b.end_time);
-        return slotStart < bEnd && slotEnd > bStart;
-      });
-      const isPast = slotStart <= now;
-      const hh = String(slotStart.getHours()).padStart(2, '0');
-      const mm = String(slotStart.getMinutes()).padStart(2, '0');
-      return { value: `${hh}:${mm}`, label: `${hh}:${mm}`, disabled: isBusy || isPast };
-    });
-  }, [daySchedule, busySlots, duration, date, slotsLoading]);
 
   const handleBook = async (e) => {
     e.preventDefault();
@@ -191,9 +134,18 @@ export default function DoctorProfile() {
   };
 
   if (loading) {
-    return <Layout><p className="text-sm text-gray-400">{t('common.loading')}</p></Layout>;
+    return <Layout><LoadingState text={t('common.loading')} /></Layout>;
   }
-  if (!doctor) return <Layout><p className="text-sm text-gray-400">{t('home.no_data')}</p></Layout>;
+  if (error || !doctor) {
+    return (
+      <Layout>
+        <ErrorState
+          text={t('common.load_error')}
+          action={<RetryButton onClick={handleRetry} label={t('common.retry')} />}
+        />
+      </Layout>
+    );
+  }
 
   const bio = lang === 'ru' ? (doctor.bio_ru || doctor.bio_uz) : doctor.bio_uz;
 
@@ -213,7 +165,7 @@ export default function DoctorProfile() {
                   : <User size={26} className="text-indigo-400" />}
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-800">{lang === 'ru' ? (doctor.name_ru || doctor.name_uz) : doctor.name_uz}</div>
+                <h1 className="text-lg font-bold text-gray-800">{lang === 'ru' ? (doctor.name_ru || doctor.name_uz) : doctor.name_uz}</h1>
                 <div className="text-xs text-gray-400">{doctor.experience_years ?? 0} {t('home.experience')}</div>
               </div>
             </div>
@@ -225,14 +177,14 @@ export default function DoctorProfile() {
 
             {bio && (
               <div className="mt-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('doctor.about')}</div>
+                <div className={`${sectionLabelCls} mb-1`}>{t('doctor.about')}</div>
                 <p className="text-sm text-gray-700 whitespace-pre-line">{bio}</p>
               </div>
             )}
           </div>
 
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase mb-3">
+            <div className={`flex items-center gap-1.5 ${sectionLabelCls} mb-3`}>
               <Calendar size={14} /> {t('doctor.schedule')}
             </div>
             {schedule.length === 0 ? (
@@ -270,6 +222,9 @@ export default function DoctorProfile() {
                   <option key={c} value={c}>{t(`consultation.${c}`)}</option>
                 ))}
               </select>
+              {startTime === '' && date !== '' && (
+                <p className="text-[11px] text-gray-400 mt-1">{t('doctor.time_reset_hint')}</p>
+              )}
             </BookField>
 
             <div className="flex items-center justify-between bg-indigo-50 rounded-lg px-3.5 py-2.5">
@@ -279,56 +234,15 @@ export default function DoctorProfile() {
               </span>
             </div>
 
-            <BookField icon={Calendar} label={t('doctor.date')}>
-              <input
-                type="date"
-                required
-                min={new Date().toISOString().slice(0, 10)}
-                value={date}
-                onChange={(e) => { setDate(e.target.value); setStartTime(''); }}
-                className={fieldCls}
-              />
-            </BookField>
-
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
-                <Clock size={14} /> {t('doctor.start_time')}
-              </label>
-
-              {!date && (
-                <p className="text-xs text-gray-400">{t('doctor.pick_date_first')}</p>
-              )}
-              {date && slotsLoading && (
-                <p className="text-xs text-gray-400">{t('doctor.loading_slots')}</p>
-              )}
-              {date && !slotsLoading && !daySchedule && (
-                <p className="text-xs text-amber-600">{t('doctor.day_off')}</p>
-              )}
-              {date && !slotsLoading && daySchedule && daySlots.length === 0 && (
-                <p className="text-xs text-amber-600">{t('doctor.no_slots')}</p>
-              )}
-              {date && !slotsLoading && daySchedule && daySlots.length > 0 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {daySlots.map((slot) => (
-                    <button
-                      key={slot.value}
-                      type="button"
-                      disabled={slot.disabled}
-                      onClick={() => setStartTime(slot.value)}
-                      className={`text-xs font-medium rounded-lg py-2 transition-colors ${
-                        slot.disabled
-                          ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
-                          : startTime === slot.value
-                            ? 'bg-indigo-600 text-white'
-                            : 'bg-white border border-gray-200 text-gray-700 hover:border-indigo-300'
-                      }`}
-                    >
-                      {slot.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <TimeSlotPicker
+              doctorId={doctor.id}
+              token={token}
+              durationMinutes={duration}
+              date={date}
+              onDateChange={setDate}
+              startTime={startTime}
+              onStartTimeChange={setStartTime}
+            />
 
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">{t('doctor.notes')}</label>
@@ -346,8 +260,9 @@ export default function DoctorProfile() {
             <button
               type="submit"
               disabled={booking || !date || !startTime}
-              className="w-full bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
             >
+              {booking && <Loader2 size={15} className="animate-spin" />}
               {booking ? t('doctor.booking') : t('doctor.book_button')}
             </button>
           </form>

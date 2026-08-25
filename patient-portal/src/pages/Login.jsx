@@ -4,6 +4,10 @@ import { User, Lock } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import Field from '../components/Field';
+import { bannerCls } from '../lib/formStyles';
+
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,50 +90,38 @@ export default function Login() {
           </div>
 
           {blocked && !error && (
-            <div className="mb-4 text-amber-700 text-sm text-center bg-amber-50 rounded-lg py-2 px-3">
+            <div className="mb-4 border border-amber-100 bg-amber-50 text-amber-700 rounded-lg py-2.5 px-4 text-sm text-center">
               {t('auth.patient_only')}
             </div>
           )}
 
           {error && (
-            <div className="mb-4 text-red-500 text-sm text-center bg-red-50 rounded-lg py-2 px-3">
+            <div className={`mb-4 text-center ${bannerCls.error}`}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('auth.username')}
-              </label>
-              <div className="relative">
-                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+            <Field label={t('auth.username')} required icon={User}>
+              <input
+                type="text"
+                required
+                autoFocus
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={inputCls}
+              />
+            </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('auth.password')}
-              </label>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+            <Field label={t('auth.password')} required icon={Lock}>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputCls}
+              />
+            </Field>
 
             <button
               type="submit"

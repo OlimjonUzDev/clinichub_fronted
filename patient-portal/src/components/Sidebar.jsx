@@ -62,6 +62,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               key={item.path}
               onClick={() => navigate(item.path)}
               title={collapsed ? item.label : ''}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors
                 ${active ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'}`}
             >
@@ -76,6 +78,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         <button
           onClick={handleLogout}
           title={collapsed ? t('nav.logout') : ''}
+          aria-label={t('nav.logout')}
           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
         >
           <LogOut size={17} />
@@ -86,6 +89,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       <div className="p-2 border-t border-gray-100">
         <button
           onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? t('nav.expand_sidebar') : t('nav.collapse_sidebar')}
+          title={collapsed ? t('nav.expand_sidebar') : t('nav.collapse_sidebar')}
           className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
         >
           {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}

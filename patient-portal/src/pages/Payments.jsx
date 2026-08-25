@@ -6,19 +6,13 @@ import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState, EmptyState, ErrorState, RetryButton } from '../components/StateBlock';
+import { statusBadgeCls } from '../lib/statusBadge';
 
 // Requires VITE_STRIPE_PUBLISHABLE_KEY in patient-portal/.env (see .env.example).
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
   : null;
-
-const STATUS_STYLES = {
-  pending: 'bg-amber-50 text-amber-700',
-  paid: 'bg-green-50 text-green-700',
-  failed: 'bg-red-50 text-red-600',
-  cancelled: 'bg-gray-100 text-gray-500',
-  refunded: 'bg-gray-100 text-gray-500',
-};
 
 function CheckoutForm({ invoice, token, onPaid, t }) {
   const stripe = useStripe();
@@ -68,7 +62,7 @@ function CheckoutForm({ invoice, token, onPaid, t }) {
       <div className="border border-gray-200 rounded-lg px-3 py-2.5">
         <CardElement options={{ style: { base: { fontSize: '14px' } } }} />
       </div>
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <p className="text-red-600 text-xs">{error}</p>}
       <button
         type="submit"
         disabled={!stripe || processing}
@@ -83,6 +77,8 @@ function CheckoutForm({ invoice, token, onPaid, t }) {
 export default function Payments() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [payingId, setPayingId] = useState(null);
   const { token } = useAuth();
   const { t, lang } = useLang();
@@ -90,8 +86,14 @@ export default function Payments() {
   useEffect(() => {
     fetchAll('/billing/invoice/', token)
       .then((data) => { setInvoices(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [token]);
+      .catch(() => { setError(true); setLoading(false); });
+  }, [token, retryKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryKey((k) => k + 1);
+  };
 
   const sorted = invoices.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -115,9 +117,11 @@ export default function Payments() {
       )}
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('common.load_error')} action={<RetryButton onClick={handleRetry} label={t('common.retry')} />} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('payments.no_data')}</p>
+        <EmptyState icon={Receipt} title={t('payments.no_data')} />
       ) : (
         <div className="space-y-3">
           {sorted.map((inv) => (
@@ -133,7 +137,7 @@ export default function Payments() {
                   <span className="text-sm font-semibold text-gray-800">
                     {Number(inv.amount).toLocaleString()} {inv.currency}
                   </span>
-                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_STYLES[inv.status] || 'bg-gray-100 text-gray-500'}`}>
+                  <span className={statusBadgeCls(inv.status)}>
                     {t(`payments.status.${inv.status}`)}
                   </span>
                   {inv.status === 'pending' && stripePromise && (
