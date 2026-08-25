@@ -9,6 +9,7 @@ import Prescriptions from './pages/Prescriptions';
 import Schedule from './pages/Schedule';
 import Reviews from './pages/Reviews';
 import Payouts from './pages/Payouts';
+import Chat from './pages/Chat';
 import Profile from './pages/Profile';
 
 const Protected = ({ children }) => {
@@ -32,6 +33,7 @@ function App() {
 
         <Route path="/" element={<Protected><Dashboard /></Protected>} />
         <Route path="/appointments" element={<Protected><Appointments /></Protected>} />
+        <Route path="/chat/:appointmentId" element={<Protected><Chat /></Protected>} />
         <Route path="/patients" element={<Protected><Patients /></Protected>} />
         <Route path="/prescriptions" element={<Protected><Prescriptions /></Protected>} />
         <Route path="/schedule" element={<Protected><Schedule /></Protected>} />

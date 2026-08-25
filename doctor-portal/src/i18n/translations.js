@@ -49,7 +49,12 @@ const translations = {
     'appointments.cancel_confirm': 'Ushbu tashrifni bekor qilishni tasdiqlaysizmi?',
     'appointments.action_error': 'Amalni bajarishda xatolik yuz berdi',
     'appointments.join_call': 'Video chatga qo\'shilish',
+    'appointments.open_chat': 'Yozishmani ochish',
     'appointments.patient': 'Bemor',
+    'appointments.cancel_title': 'Tashrifni bekor qilish',
+    'appointments.complete_title': 'Tashrifni yakunlash',
+    'appointments.complete_confirm': "Ushbu tashrifni yakunlagach, holatini qaytarib bo'lmaydi. Davom etasizmi?",
+    'appointments.acting': 'Bajarilmoqda...',
 
     // Patients
     'patients.title': 'Bemorlarim',
@@ -61,6 +66,7 @@ const translations = {
     // Prescriptions
     'prescriptions.title': 'Retseptlar',
     'prescriptions.write_new': 'Yangi retsept yozish',
+    'prescriptions.collapse': 'Yashirish',
     'prescriptions.eligible_title': 'Retsept yozish mumkin bo\'lgan tashriflar',
     'prescriptions.no_eligible': "Hozircha retsept yozish mumkin bo'lgan yakunlangan tashrif yo'q",
     'prescriptions.issued_title': 'Yozilgan retseptlar',
@@ -96,7 +102,10 @@ const translations = {
     'schedule.delete_confirm': 'Ushbu kunni ish jadvalidan o\'chirishni tasdiqlaysizmi?',
     'schedule.no_data': 'Ish jadvali hali kiritilmagan',
     'schedule.save_error': 'Saqlashda xatolik yuz berdi',
+    'schedule.delete_error': "O'chirishda xatolik yuz berdi",
+    'schedule.delete_title': "Kunni ish jadvalidan o'chirish",
     'schedule.time_order_error': 'Tugash vaqti boshlanish vaqtidan keyin bo\'lishi kerak',
+    'schedule.day_off': 'Dam olish kuni',
 
     // Reviews
     'reviews.title': 'Sharhlarim',
@@ -133,8 +142,24 @@ const translations = {
     'profile.saved': "Ma'lumotlar saqlandi",
     'profile.save_error': 'Saqlashda xatolik yuz berdi',
 
+    // Chat
+    'chat.title': 'Yozishma',
+    'chat.placeholder': 'Xabar yozing...',
+    'chat.no_messages': 'Hali xabar yo\'q — birinchi bo\'lib yozing',
+    'chat.load_error': 'Xabarlarni yuklashda xatolik yuz berdi',
+    'chat.send_error': 'Xabar yuborishda xatolik yuz berdi',
+    'chat.poll_warning': "Aloqa vaqtincha uzildi, qayta urinilmoqda...",
+    'chat.send': 'Yuborish',
+
     'common.loading': 'Yuklanmoqda...',
     'common.close': 'Yopish',
+    'common.confirm': 'Tasdiqlash',
+    'common.cancel': 'Bekor qilish',
+    'common.back': 'Orqaga',
+    'auth.show_password': "Parolni ko'rsatish",
+    'auth.hide_password': 'Parolni berkitish',
+    'sidebar.collapse': 'Panelni yig\'ish',
+    'sidebar.expand': 'Panelni yoyish',
   },
   ru: {
     'auth.username': 'Имя пользователя',
@@ -182,7 +207,12 @@ const translations = {
     'appointments.cancel_confirm': 'Подтвердите отмену этого приёма',
     'appointments.action_error': 'Ошибка при выполнении действия',
     'appointments.join_call': 'Присоединиться к видеозвонку',
+    'appointments.open_chat': 'Открыть переписку',
     'appointments.patient': 'Пациент',
+    'appointments.cancel_title': 'Отмена приёма',
+    'appointments.complete_title': 'Завершение приёма',
+    'appointments.complete_confirm': 'После завершения статус приёма нельзя будет изменить. Продолжить?',
+    'appointments.acting': 'Выполняется...',
 
     'patients.title': 'Мои пациенты',
     'patients.no_data': 'Пока нет пациентов',
@@ -192,6 +222,7 @@ const translations = {
 
     'prescriptions.title': 'Рецепты',
     'prescriptions.write_new': 'Выписать новый рецепт',
+    'prescriptions.collapse': 'Скрыть',
     'prescriptions.eligible_title': 'Приёмы, для которых можно выписать рецепт',
     'prescriptions.no_eligible': 'Пока нет завершённых приёмов без рецепта',
     'prescriptions.issued_title': 'Выписанные рецепты',
@@ -226,7 +257,10 @@ const translations = {
     'schedule.delete_confirm': 'Подтвердите удаление этого дня из графика',
     'schedule.no_data': 'График работы ещё не заполнен',
     'schedule.save_error': 'Ошибка при сохранении',
+    'schedule.delete_error': 'Ошибка при удалении',
+    'schedule.delete_title': 'Удаление дня из графика',
     'schedule.time_order_error': 'Время окончания должно быть позже времени начала',
+    'schedule.day_off': 'Выходной день',
 
     'reviews.title': 'Мои отзывы',
     'reviews.no_data': 'Вам ещё не оставили отзывов',
@@ -261,8 +295,24 @@ const translations = {
     'profile.saved': 'Данные сохранены',
     'profile.save_error': 'Ошибка при сохранении',
 
+    // Chat
+    'chat.title': 'Переписка',
+    'chat.placeholder': 'Напишите сообщение...',
+    'chat.no_messages': 'Пока нет сообщений — напишите первым',
+    'chat.load_error': 'Ошибка при загрузке сообщений',
+    'chat.send_error': 'Ошибка при отправке сообщения',
+    'chat.poll_warning': 'Соединение временно потеряно, повторная попытка...',
+    'chat.send': 'Отправить',
+
     'common.loading': 'Загрузка...',
     'common.close': 'Закрыть',
+    'common.confirm': 'Подтвердить',
+    'common.cancel': 'Отмена',
+    'common.back': 'Назад',
+    'auth.show_password': 'Показать пароль',
+    'auth.hide_password': 'Скрыть пароль',
+    'sidebar.collapse': 'Свернуть панель',
+    'sidebar.expand': 'Развернуть панель',
   },
 };
 

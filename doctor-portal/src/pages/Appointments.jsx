@@ -1,26 +1,31 @@
 import { useEffect, useState } from 'react';
-import { User, Clock, Check, X, CheckCheck, Video } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User, Clock, Check, X, CheckCheck, Video, MessageCircle, Loader2, CalendarX } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
 import { jitsiUrlFor } from '../lib/videoCall';
-
-const STATUS_STYLES = {
-  pending: 'bg-amber-50 text-amber-700',
-  confirmed: 'bg-blue-50 text-blue-700',
-  completed: 'bg-green-50 text-green-700',
-  cancelled: 'bg-gray-100 text-gray-500',
-};
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { statusBadgeCls } from '../lib/statusBadge';
 
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'];
+
+const actionIconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [actingId, setActingId] = useState(null);
+  // `acting` — { id, status } shaklida: qaysi tashrifning qaysi amali hozir
+  // bajarilayotganini aniq bilish uchun (bir nechta tugma bo'lgani sabab shart).
+  const [acting, setActing] = useState(null);
+  const [rowErrors, setRowErrors] = useState({});
+  // { id, status: 'cancelled' | 'completed' } — ikkalasi ham geri qaytarib
+  // bo'lmaydigan amal, shuning uchun ikkalasi ham tasdiqlashni talab qiladi.
+  const [confirmTarget, setConfirmTarget] = useState(null);
   const { token, doctor } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
@@ -39,8 +44,8 @@ export default function Appointments() {
   const ACTION_ENDPOINTS = { confirmed: 'confirm', completed: 'complete', cancelled: 'cancel' };
 
   const updateStatus = async (id, status) => {
-    if (status === 'cancelled' && !confirm(t('appointments.cancel_confirm'))) return;
-    setActingId(id);
+    setRowErrors((prev) => ({ ...prev, [id]: '' }));
+    setActing({ id, status });
     try {
       const action = ACTION_ENDPOINTS[status];
       const res = await api.post(`/appointments/appointment/${id}/${action}/`, {}, {
@@ -50,10 +55,17 @@ export default function Appointments() {
     } catch (err) {
       const data = err?.response?.data;
       const firstError = data && typeof data === 'object' ? Object.values(data).flat()[0] : null;
-      alert(firstError || t('appointments.action_error'));
+      setRowErrors((prev) => ({ ...prev, [id]: firstError || t('appointments.action_error') }));
     } finally {
-      setActingId(null);
+      setActing(null);
     }
+  };
+
+  const requestAction = (id, status) => setConfirmTarget({ id, status });
+  const confirmAction = () => {
+    const target = confirmTarget;
+    setConfirmTarget(null);
+    updateStatus(target.id, target.status);
   };
 
   const filtered = appointments
@@ -70,7 +82,8 @@ export default function Appointments() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+            aria-pressed={filter === f}
+            className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1 ${
               filter === f ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-gray-600 border-gray-200 hover:border-teal-300'
             }`}
           >
@@ -80,17 +93,18 @@ export default function Appointments() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
       ) : !doctor ? (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
+        <WarningState text={t('auth.no_doctor_profile')} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('appointments.no_data')}</p>
+        <EmptyState icon={CalendarX} text={t('appointments.no_data')} />
       ) : (
         <div className="space-y-3">
           {filtered.map((a) => {
             const patientName = resolveName(a.patient, patients, lang);
             const start = new Date(a.start_time);
-            const acting = actingId === a.id;
+            const rowActing = acting?.id === a.id;
+            const isActing = (status) => rowActing && acting.status === status;
             return (
               <div key={a.id} className="bg-white border border-gray-200 rounded-xl p-4">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -106,58 +120,89 @@ export default function Appointments() {
                     {a.notes && <div className="text-xs text-gray-500 mt-1">{a.notes}</div>}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-500'}`}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={statusBadgeCls(a.status)}>
                       {t(`status.${a.status}`)}
                     </span>
+                    {rowActing && (
+                      <span className="flex items-center gap-1 text-xs text-teal-600" role="status">
+                        <Loader2 size={12} className="animate-spin" /> {t('appointments.acting')}
+                      </span>
+                    )}
                     {a.status === 'confirmed' && (
                       <a
                         href={jitsiUrlFor(a)}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={t('appointments.join_call')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 transition"
+                        aria-label={t('appointments.join_call')}
+                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 focus-visible:ring-green-400`}
                       >
                         <Video size={13} />
                       </a>
                     )}
+                    {a.status === 'confirmed' && (
+                      <Link
+                        to={`/chat/${a.id}`}
+                        title={t('appointments.open_chat')}
+                        aria-label={t('appointments.open_chat')}
+                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-teal-400 hover:text-teal-600 focus-visible:ring-teal-400`}
+                      >
+                        <MessageCircle size={13} />
+                      </Link>
+                    )}
                     {a.status === 'pending' && (
                       <button
                         onClick={() => updateStatus(a.id, 'confirmed')}
-                        disabled={acting}
+                        disabled={rowActing}
                         title={t('appointments.confirm')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition disabled:opacity-50"
+                        aria-label={t('appointments.confirm')}
+                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 focus-visible:ring-blue-400`}
                       >
-                        <Check size={13} />
+                        {isActing('confirmed') ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                       </button>
                     )}
                     {a.status === 'confirmed' && (
                       <button
-                        onClick={() => updateStatus(a.id, 'completed')}
-                        disabled={acting}
+                        onClick={() => requestAction(a.id, 'completed')}
+                        disabled={rowActing}
                         title={t('appointments.complete')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 transition disabled:opacity-50"
+                        aria-label={t('appointments.complete')}
+                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600 focus-visible:ring-green-400`}
                       >
-                        <CheckCheck size={13} />
+                        {isActing('completed') ? <Loader2 size={13} className="animate-spin" /> : <CheckCheck size={13} />}
                       </button>
                     )}
                     {(a.status === 'pending' || a.status === 'confirmed') && (
                       <button
-                        onClick={() => updateStatus(a.id, 'cancelled')}
-                        disabled={acting}
+                        onClick={() => requestAction(a.id, 'cancelled')}
+                        disabled={rowActing}
                         title={t('appointments.cancel')}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition disabled:opacity-50"
+                        aria-label={t('appointments.cancel')}
+                        className={`${actionIconBtnCls} border-red-200 text-red-500 bg-red-50 hover:bg-red-100 hover:border-red-300 focus-visible:ring-red-400`}
                       >
-                        <X size={13} />
+                        {isActing('cancelled') ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
                       </button>
                     )}
                   </div>
                 </div>
+                {rowErrors[a.id] && <ErrorState text={rowErrors[a.id]} compact className="mt-3" />}
               </div>
             );
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmTarget != null}
+        title={confirmTarget?.status === 'cancelled' ? t('appointments.cancel_title') : t('appointments.complete_title')}
+        message={confirmTarget?.status === 'cancelled' ? t('appointments.cancel_confirm') : t('appointments.complete_confirm')}
+        confirmLabel={confirmTarget?.status === 'cancelled' ? t('appointments.cancel') : t('appointments.complete')}
+        cancelLabel={t('common.cancel')}
+        danger={confirmTarget?.status === 'cancelled'}
+        onConfirm={confirmAction}
+        onCancel={() => setConfirmTarget(null)}
+      />
     </Layout>
   );
 }

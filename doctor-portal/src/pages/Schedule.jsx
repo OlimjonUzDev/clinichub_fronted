@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Clock, Pencil, Trash2, Plus, Check, X } from 'lucide-react';
+import { Clock, Pencil, Trash2, Plus, Check, X, Loader2 } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { weekdayLabel } from '../lib/weekdays';
 import { idOf } from '../lib/useLookup';
+import { LoadingState, WarningState, ErrorState } from '../components/ui/StateMessage';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { fieldCls } from '../lib/formStyles';
 
-const fieldCls = "border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
+const iconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function Schedule() {
   const [schedule, setSchedule] = useState([]);
@@ -17,6 +20,8 @@ export default function Schedule() {
   const [endTime, setEndTime] = useState('18:00');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [rowError, setRowError] = useState({});
   const { token, doctor, doctorLoading } = useAuth();
   const { t, lang } = useLang();
 
@@ -66,36 +71,49 @@ export default function Schedule() {
     }
   };
 
-  const handleDelete = async (existing) => {
-    if (!confirm(t('schedule.delete_confirm'))) return;
+  const requestDelete = (existing) => {
+    setRowError((prev) => ({ ...prev, [existing.weekday]: '' }));
+    setDeleteTarget(existing);
+  };
+
+  const confirmDelete = async () => {
+    const existing = deleteTarget;
+    if (!existing) return;
+    setDeleteTarget(null);
     try {
       await api.delete(`/doctors/doctorschedule/${existing.id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setSchedule((prev) => prev.filter((s) => s.id !== existing.id));
     } catch {
-      alert(t('schedule.save_error'));
+      setRowError((prev) => ({ ...prev, [existing.weekday]: t('schedule.delete_error') }));
     }
   };
 
   if (doctorLoading || loading) {
-    return <Layout><p className="text-sm text-gray-400">{t('common.loading')}</p></Layout>;
+    return <Layout><LoadingState text={t('common.loading')} /></Layout>;
   }
 
   if (!doctor) {
-    return <Layout><p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p></Layout>;
+    return <Layout><WarningState text={t('auth.no_doctor_profile')} /></Layout>;
   }
 
   return (
     <Layout>
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('schedule.title')}</h1>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm divide-y divide-gray-100">
+      <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
         {[0, 1, 2, 3, 4, 5, 6].map((weekday) => {
           const existing = byWeekday[weekday];
           const editing = editingWeekday === weekday;
           return (
             <div key={weekday} className="p-4">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div className="text-sm font-medium text-gray-800 w-32">{weekdayLabel(weekday, lang)}</div>
+              <div className={editing ? 'space-y-3' : 'flex items-center justify-between gap-3 flex-wrap'}>
+                <div className="flex items-center gap-2 w-36 shrink-0">
+                  <span
+                    aria-hidden="true"
+                    className={`w-2 h-2 rounded-full shrink-0 ${existing ? 'bg-teal-500' : 'bg-gray-300'}`}
+                  />
+                  <span className="text-sm font-medium text-gray-800">{weekdayLabel(weekday, lang)}</span>
+                </div>
 
                 {!editing && (
                   <>
@@ -105,14 +123,24 @@ export default function Schedule() {
                         {existing.start_time.slice(0, 5)} – {existing.end_time.slice(0, 5)}
                       </div>
                     ) : (
-                      <div className="flex-1 text-sm text-gray-400">{t('schedule.no_data')}</div>
+                      <div className="flex-1 text-sm text-gray-400">{t('schedule.day_off')}</div>
                     )}
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openEditor(weekday, existing)} title={existing ? t('schedule.edit') : t('schedule.add')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-teal-400 hover:text-teal-600 transition">
+                      <button
+                        onClick={() => openEditor(weekday, existing)}
+                        title={existing ? t('schedule.edit') : t('schedule.add')}
+                        aria-label={`${existing ? t('schedule.edit') : t('schedule.add')} — ${weekdayLabel(weekday, lang)}`}
+                        className={`${iconBtnCls} hover:border-teal-400 hover:text-teal-600 focus-visible:ring-teal-400`}
+                      >
                         {existing ? <Pencil size={13} /> : <Plus size={13} />}
                       </button>
                       {existing && (
-                        <button onClick={() => handleDelete(existing)} title={t('schedule.delete')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
+                        <button
+                          onClick={() => requestDelete(existing)}
+                          title={t('schedule.delete')}
+                          aria-label={`${t('schedule.delete')} — ${weekdayLabel(weekday, lang)}`}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 bg-red-50 hover:bg-red-100 hover:border-red-300 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+                        >
                           <Trash2 size={13} />
                         </button>
                       )}
@@ -121,37 +149,52 @@ export default function Schedule() {
                 )}
 
                 {editing && (
-                  <div className="flex items-end gap-2 flex-wrap flex-1">
+                  <div className="flex items-end gap-2 flex-wrap">
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">{t('schedule.start_time')}</label>
-                      <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={fieldCls} />
+                      <input type="time" value={startTime} max={endTime} onChange={(e) => setStartTime(e.target.value)} className={fieldCls} />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">{t('schedule.end_time')}</label>
-                      <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={fieldCls} />
+                      <input type="time" value={endTime} min={startTime} onChange={(e) => setEndTime(e.target.value)} className={fieldCls} />
                     </div>
                     <button
                       onClick={() => handleSave(weekday)}
                       disabled={saving}
                       title={saving ? t('schedule.saving') : t('schedule.save')}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition disabled:opacity-60"
+                      aria-label={saving ? t('schedule.saving') : t('schedule.save')}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
                     >
-                      <Check size={15} />
+                      {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
                     </button>
                     <button
                       onClick={() => setEditingWeekday(null)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition"
+                      title={t('common.cancel')}
+                      aria-label={t('common.cancel')}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-1"
                     >
                       <X size={15} />
                     </button>
                   </div>
                 )}
               </div>
-              {editing && error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+              {editing && error && <ErrorState text={error} compact className="mt-2" />}
+              {!editing && rowError[weekday] && <ErrorState text={rowError[weekday]} compact className="mt-2" />}
             </div>
           );
         })}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t('schedule.delete_title')}
+        message={t('schedule.delete_confirm')}
+        confirmLabel={t('schedule.delete')}
+        cancelLabel={t('common.cancel')}
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </Layout>
   );
 }

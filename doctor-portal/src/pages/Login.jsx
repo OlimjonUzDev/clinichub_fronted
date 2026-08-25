@@ -4,6 +4,10 @@ import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import Field from '../components/Field';
+import { bannerCls } from '../lib/formStyles';
+
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,13 +52,15 @@ export default function Login() {
         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden text-xs font-medium">
           <button
             onClick={() => setLang('uz')}
-            className={`px-3 py-1.5 transition-colors ${lang === 'uz' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+            aria-pressed={lang === 'uz'}
+            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'uz' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             O'zbek
           </button>
           <button
             onClick={() => setLang('ru')}
-            className={`px-3 py-1.5 transition-colors ${lang === 'ru' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+            aria-pressed={lang === 'ru'}
+            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'ru' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             Русский
           </button>
@@ -72,63 +78,55 @@ export default function Login() {
           </div>
 
           {blocked && !error && (
-            <div className="mb-4 text-amber-700 text-sm text-center bg-amber-50 rounded-lg py-2 px-3">
+            <div role="status" className="mb-4 border border-amber-100 bg-amber-50 text-amber-700 rounded-lg py-2.5 px-4 text-sm text-center">
               {t('auth.doctor_only')}
             </div>
           )}
 
           {error && (
-            <div className="mb-4 text-red-500 text-sm text-center bg-red-50 rounded-lg py-2 px-3">
+            <div role="alert" className={`mb-4 text-center ${bannerCls.error}`}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('auth.username')}
-              </label>
-              <div className="relative">
-                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder={t('auth.username')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+            <Field label={t('auth.username')} required icon={User}>
+              <input
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={t('auth.username')}
+                className={inputCls}
+              />
+            </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('auth.password')}
-              </label>
+            <Field label={t('auth.password')} required icon={Lock}>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('auth.password')}
-                  className="w-full border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
+                  className={`${inputCls} pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={showPassword ? t('auth.hide_password') : t('auth.show_password')}
+                  aria-pressed={showPassword}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded"
                 >
-                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-            </div>
+            </Field>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-teal-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-60 mt-2"
+              className="w-full bg-teal-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
             >
               {loading ? t('auth.signing_in') : t('auth.signin')}
             </button>

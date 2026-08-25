@@ -4,18 +4,8 @@ import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
-
-function StatusBadge({ status, t }) {
-  const styles = {
-    pending: 'bg-amber-50 text-amber-700 border-amber-100',
-    paid: 'bg-green-50 text-green-700 border-green-100',
-  };
-  return (
-    <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${styles[status] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>
-      {t(`payouts.status.${status}`) || status}
-    </span>
-  );
-}
+import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
+import { statusBadgeCls } from '../lib/statusBadge';
 
 export default function Payouts() {
   const [payouts, setPayouts] = useState([]);
@@ -53,11 +43,11 @@ export default function Payouts() {
       )}
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
       ) : !doctor ? (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
+        <WarningState text={t('auth.no_doctor_profile')} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('payouts.no_data')}</p>
+        <EmptyState icon={Wallet} text={t('payouts.no_data')} />
       ) : (
         <div className="space-y-3">
           {sorted.map((p) => (
@@ -67,7 +57,7 @@ export default function Payouts() {
                   <Wallet size={14} className="text-teal-500" />
                   {Number(p.amount).toLocaleString()}
                 </div>
-                <StatusBadge status={p.status} t={t} />
+                <span className={statusBadgeCls(p.status)}>{t(`payouts.status.${p.status}`) || p.status}</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-1">
                 <Calendar size={12} /> {p.period_from} – {p.period_to}

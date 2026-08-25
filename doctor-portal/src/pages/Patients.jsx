@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveRef, idOf } from '../lib/useLookup';
+import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
 
 export default function Patients() {
   const [appointments, setAppointments] = useState([]);
@@ -56,11 +57,11 @@ export default function Patients() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
       ) : !doctor ? (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
+        <WarningState text={t('auth.no_doctor_profile')} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('patients.no_data')}</p>
+        <EmptyState icon={User} text={t('patients.no_data')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {filtered.map(({ id, visits, patient }) => {

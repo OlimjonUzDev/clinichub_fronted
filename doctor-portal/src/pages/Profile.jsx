@@ -5,20 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
+import { LoadingState, WarningState } from '../components/ui/StateMessage';
+import Field from '../components/Field';
+import { sectionLabelCls } from '../lib/formStyles';
 
 const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
-
-function Field({ icon: Icon, label, children }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-      <div className="relative">
-        <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        {children}
-      </div>
-    </div>
-  );
-}
 
 const formFromDoctor = (doctor) => ({
   name_uz: doctor.name_uz || '', name_ru: doctor.name_ru || '',
@@ -81,23 +72,27 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
       </div>
 
       {message.text && (
-        <div className={`mb-4 text-sm rounded-lg py-2.5 px-4 border ${message.type === 'success' ? 'text-green-700 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100'}`}>
+        <div
+          role="status"
+          aria-live="polite"
+          className={`mb-4 text-sm rounded-lg py-2.5 px-4 border ${message.type === 'success' ? 'text-green-700 bg-green-50 border-green-100' : 'text-red-600 bg-red-50 border-red-100'}`}
+        >
           {message.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-xl space-y-5">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-8 max-w-xl space-y-5">
         <div>
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('profile.section_personal')}</div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field icon={User} label={t('profile.name_uz')}>
+          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_personal')}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field icon={User} label={t('profile.name_uz')} required>
               <input type="text" required value={form.name_uz} onChange={handleChange('name_uz')} className={inputCls} />
             </Field>
-            <Field icon={User} label={t('profile.name_ru')}>
+            <Field icon={User} label={t('profile.name_ru')} required>
               <input type="text" required value={form.name_ru} onChange={handleChange('name_ru')} className={inputCls} />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <Field icon={Users} label={t('profile.gender')}>
               <select value={form.gender} onChange={handleChange('gender')} className={`${inputCls} appearance-none bg-white`}>
                 <option value="erkak">{t('profile.gender.erkak')}</option>
@@ -111,7 +106,7 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
         </div>
 
         <div className="border-t border-gray-100 pt-5">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('profile.section_professional')}</div>
+          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_professional')}</div>
           <div className="space-y-4">
             <Field icon={FileText} label={t('profile.bio_uz')}>
               <textarea rows={3} value={form.bio_uz} onChange={handleChange('bio_uz')} className={`${inputCls} pt-2.5`} />
@@ -129,8 +124,8 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
         </div>
 
         <div className="border-t border-gray-100 pt-5">
-          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('profile.section_payout')}</div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_payout')}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field icon={Landmark} label={t('profile.bank_name')}>
               <input type="text" value={form.bank_name} onChange={handleChange('bank_name')} className={inputCls} />
             </Field>
@@ -157,10 +152,10 @@ export default function Profile() {
   const { t, lang } = useLang();
 
   if (doctorLoading) {
-    return <Layout><p className="text-sm text-gray-400">{t('common.loading')}</p></Layout>;
+    return <Layout><LoadingState text={t('common.loading')} /></Layout>;
   }
   if (!doctor) {
-    return <Layout><p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p></Layout>;
+    return <Layout><WarningState text={t('auth.no_doctor_profile')} /></Layout>;
   }
 
   return <ProfileForm key={doctor.id} doctor={doctor} token={token} refreshDoctor={refreshDoctor} t={t} lang={lang} />;

@@ -5,12 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
-
-const fieldCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
+import { fieldCls, sectionLabelCls, cardCls } from '../lib/formStyles';
 
 const EMPTY_ITEM = { medication_name_uz: '', medication_name_ru: '', dosage: '', frequency_uz: '', duration_days: '' };
 
-function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
+function PrescriptionForm({ appointment, doctorId, onSaved, t }) {
   const { token } = useAuth();
   const [diagnosisUz, setDiagnosisUz] = useState('');
   const [diagnosisRu, setDiagnosisRu] = useState('');
@@ -57,14 +57,7 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-      <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-        <User size={14} className="text-teal-500" /> {patientName || `#${idOf(appointment.patient)}`}
-      </div>
-      <div className="flex items-center gap-1.5 text-xs text-gray-400">
-        <Calendar size={12} /> {new Date(appointment.start_time).toLocaleDateString()}
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.diagnosis_uz')}</label>
@@ -83,10 +76,10 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
 
       <div className="border-t border-gray-100 pt-3">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase">
+          <div className={`flex items-center gap-1.5 ${sectionLabelCls}`}>
             <Pill size={13} /> {t('prescriptions.medications')}
           </div>
-          <button type="button" onClick={addItem} className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700">
+          <button type="button" onClick={addItem} className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded px-1">
             <Plus size={13} /> {t('prescriptions.add_medication')}
           </button>
         </div>
@@ -95,30 +88,51 @@ function PrescriptionForm({ appointment, doctorId, patientName, onSaved, t }) {
           {items.map((item, i) => (
             <div key={i} className="bg-gray-50 rounded-lg p-3 space-y-2 relative">
               {items.length > 1 && (
-                <button type="button" onClick={() => removeItem(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                <button
+                  type="button"
+                  onClick={() => removeItem(i)}
+                  aria-label={t('prescriptions.remove')}
+                  title={t('prescriptions.remove')}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 rounded"
+                >
                   <X size={14} />
                 </button>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-6">
-                <input required placeholder={t('prescriptions.medication_name_uz')} value={item.medication_name_uz} onChange={(e) => updateItem(i, 'medication_name_uz', e.target.value)} className={fieldCls} />
-                <input placeholder={t('prescriptions.medication_name_ru')} value={item.medication_name_ru} onChange={(e) => updateItem(i, 'medication_name_ru', e.target.value)} className={fieldCls} />
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.medication_name_uz')}</label>
+                  <input required value={item.medication_name_uz} onChange={(e) => updateItem(i, 'medication_name_uz', e.target.value)} className={fieldCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.medication_name_ru')}</label>
+                  <input value={item.medication_name_ru} onChange={(e) => updateItem(i, 'medication_name_ru', e.target.value)} className={fieldCls} />
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input required placeholder={t('prescriptions.dosage')} value={item.dosage} onChange={(e) => updateItem(i, 'dosage', e.target.value)} className={fieldCls} />
-                <input required placeholder={t('prescriptions.frequency_uz')} value={item.frequency_uz} onChange={(e) => updateItem(i, 'frequency_uz', e.target.value)} className={fieldCls} />
-                <input required type="number" min="1" placeholder={t('prescriptions.duration_days')} value={item.duration_days} onChange={(e) => updateItem(i, 'duration_days', e.target.value)} className={fieldCls} />
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.dosage')}</label>
+                  <input required value={item.dosage} onChange={(e) => updateItem(i, 'dosage', e.target.value)} className={fieldCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.frequency_uz')}</label>
+                  <input required value={item.frequency_uz} onChange={(e) => updateItem(i, 'frequency_uz', e.target.value)} className={fieldCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{t('prescriptions.duration_days')}</label>
+                  <input required type="number" min="1" value={item.duration_days} onChange={(e) => updateItem(i, 'duration_days', e.target.value)} className={fieldCls} />
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <ErrorState text={error} compact />}
 
       <button
         type="submit"
         disabled={saving}
-        className="bg-teal-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60"
+        className="bg-teal-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
       >
         {saving ? t('prescriptions.saving') : t('prescriptions.save')}
       </button>
@@ -130,6 +144,7 @@ export default function Prescriptions() {
   const [appointments, setAppointments] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
   const { token, doctor } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
@@ -156,6 +171,7 @@ export default function Prescriptions() {
 
   const handleSaved = (newPrescription) => {
     setPrescriptions((prev) => [...prev, newPrescription]);
+    setExpandedId(null);
   };
 
   const fmtDate = (dt) => dt
@@ -167,42 +183,68 @@ export default function Prescriptions() {
       <h1 className="text-xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
       ) : !doctor ? (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
+        <WarningState text={t('auth.no_doctor_profile')} />
       ) : (
         <div className="space-y-8">
           <section>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{t('prescriptions.eligible_title')}</h2>
+            <h2 className={`${sectionLabelCls} mb-3`}>{t('prescriptions.eligible_title')}</h2>
             {eligible.length === 0 ? (
-              <p className="text-sm text-gray-400">{t('prescriptions.no_eligible')}</p>
+              <EmptyState icon={ClipboardList} text={t('prescriptions.no_eligible')} />
             ) : (
               <div className="space-y-3">
-                {eligible.map((a) => (
-                  <PrescriptionForm
-                    key={a.id}
-                    appointment={a}
-                    doctorId={doctor.id}
-                    patientName={resolveName(a.patient, patients, lang)}
-                    onSaved={handleSaved}
-                    t={t}
-                  />
-                ))}
+                {eligible.map((a) => {
+                  const isOpen = expandedId === a.id;
+                  const patientName = resolveName(a.patient, patients, lang);
+                  return (
+                    <div key={a.id} className={cardCls}>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedId(isOpen ? null : a.id)}
+                        aria-expanded={isOpen}
+                        className="w-full flex items-center justify-between gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
+                            <User size={14} className="text-teal-500" /> {patientName || `#${idOf(a.patient)}`}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
+                            <Calendar size={12} /> {new Date(a.start_time).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <span className="text-xs font-medium text-teal-600 shrink-0">
+                          {isOpen ? t('prescriptions.collapse') : t('prescriptions.write_new')}
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <PrescriptionForm
+                            appointment={a}
+                            doctorId={doctor.id}
+                            onSaved={handleSaved}
+                            t={t}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
 
           <section>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{t('prescriptions.issued_title')}</h2>
+            <h2 className={`${sectionLabelCls} mb-3`}>{t('prescriptions.issued_title')}</h2>
             {sortedPrescriptions.length === 0 ? (
-              <p className="text-sm text-gray-400">{t('prescriptions.no_data')}</p>
+              <EmptyState icon={ClipboardList} text={t('prescriptions.no_data')} />
             ) : (
               <div className="space-y-4">
                 {sortedPrescriptions.map((p) => {
                   const patientName = resolveName(p.patient, patients, lang);
                   const diagnosis = lang === 'ru' ? (p.diagnosis_ru || p.diagnosis_uz) : p.diagnosis_uz;
                   return (
-                    <div key={p.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+                    <div key={p.id} className={cardCls}>
                       <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                         <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
                           <User size={14} className="text-teal-500" />
@@ -216,13 +258,13 @@ export default function Prescriptions() {
                       <div className="flex items-start gap-1.5 text-sm text-gray-700 mb-3">
                         <ClipboardList size={14} className="text-gray-400 mt-0.5 shrink-0" />
                         <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase">{t('prescriptions.diagnosis_uz')}</div>
+                          <div className={sectionLabelCls}>{t('prescriptions.diagnosis_uz')}</div>
                           <p className="whitespace-pre-line">{diagnosis || '—'}</p>
                         </div>
                       </div>
 
                       <div className="border-t border-gray-100 pt-3">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase mb-2">
+                        <div className={`flex items-center gap-1.5 ${sectionLabelCls} mb-2`}>
                           <Pill size={13} /> {t('prescriptions.medications')}
                         </div>
                         {(!p.items || p.items.length === 0) ? (

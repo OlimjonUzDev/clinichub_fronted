@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
+import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
 
 function Stars({ score }) {
   return (
@@ -47,11 +48,11 @@ export default function Reviews() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-gray-400">{t('common.loading')}</p>
+        <LoadingState text={t('common.loading')} />
       ) : !doctor ? (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl py-3 px-4">{t('auth.no_doctor_profile')}</p>
+        <WarningState text={t('auth.no_doctor_profile')} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-gray-400">{t('reviews.no_data')}</p>
+        <EmptyState icon={Star} text={t('reviews.no_data')} />
       ) : (
         <div className="space-y-3">
           {sorted.map((r) => {
