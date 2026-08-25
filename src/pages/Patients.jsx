@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 import PatientEditModal from '../components/PatientEditModal';
 import { useLookup, resolveRef } from '../lib/useLookup';
@@ -39,7 +39,7 @@ export default function Patients() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.patients_encounters') }, { label: t('menu.patients') }]}
           title={t('patients.title')}
@@ -70,12 +70,8 @@ export default function Patients() {
                 <td className="px-5 py-4 text-sm text-gray-500">{p.national_id || '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => setViewItem(p)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
-                      <Eye size={13} />
-                    </button>
-                    <button onClick={() => setEditItem(p)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
-                      <Pencil size={13} />
-                    </button>
+                    <IconButton icon={Eye} label={t('common.view')} onClick={() => setViewItem(p)} />
+                    <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => setEditItem(p)} />
                   </div>
                 </td>
               </tr>

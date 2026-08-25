@@ -10,7 +10,7 @@ export default function DetailModal({ title, rows, onClose }) {
       footer={
         <button
           onClick={onClose}
-          className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+          className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition"
         >
           {t('common.close')}
         </button>

@@ -33,7 +33,7 @@ export default function AppointmentCancelModal({ item, onClose, onCancelled }) {
       title={t('appt.cancel_title')}
       footer={
         <>
-          <button onClick={onClose} className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+          <button onClick={onClose} className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition">
             {t('common.cancel')}
           </button>
           <button

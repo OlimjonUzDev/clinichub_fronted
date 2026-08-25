@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, StatusBadge, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import RankPriceEditModal from '../components/RankPriceEditModal';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
@@ -55,7 +55,7 @@ export default function RankPrices() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.pricing_ranks') }, { label: t('menu.rank_prices') }]}
           title={t('rank_prices.title')}
@@ -106,15 +106,8 @@ export default function RankPrices() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => setEditItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
-                        <Pencil size={13} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition"
-                      >
-                        <Trash2 size={13} />
-                      </button>
+                      <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => setEditItem(item)} />
+                      <IconButton icon={Trash2} label={t('common.delete')} variant="danger" onClick={() => handleDelete(item.id)} />
                     </div>
                   </td>
                 </tr>

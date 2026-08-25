@@ -8,6 +8,7 @@ import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
+import { LoadingState } from '../components/DataTable';
 
 const inputCls    = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white transition";
 const selectCls   = `${inputCls} appearance-none`;
@@ -346,8 +347,8 @@ export default function GettingStarted() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-          {t('common.loading')}
+        <div className="flex items-center justify-center h-64">
+          <LoadingState />
         </div>
       </Layout>
     );
@@ -355,7 +356,7 @@ export default function GettingStarted() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
 
         {/* ── Page header ── */}
         <div className="flex flex-col items-center text-center mb-8">
@@ -389,12 +390,13 @@ export default function GettingStarted() {
               <button
                 key={i}
                 onClick={() => setActiveStep(activeStep === i ? -1 : i)}
-                className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition
+                aria-current={activeStep === i ? 'step' : undefined}
+                className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300
                   ${done[i]
                     ? 'border-green-200 text-green-700 bg-green-50'
                     : activeStep === i
                       ? 'border-indigo-300 text-indigo-700 bg-indigo-50'
-                      : 'border-gray-200 text-gray-400 bg-gray-50 hover:border-gray-300'
+                      : 'border-gray-200 text-gray-500 bg-gray-50 hover:border-gray-300'
                   }`}
               >
                 {done[i]
@@ -415,7 +417,7 @@ export default function GettingStarted() {
             <p className="text-sm text-green-600 mb-4">{t('gs.success_msg')}</p>
             <button
               onClick={() => navigate('/dashboard')}
-              className="px-6 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+              className="px-6 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-1 transition"
             >
               {t('gs.go_dashboard')}
             </button>
@@ -502,7 +504,7 @@ export default function GettingStarted() {
                         <button
                           onClick={() => setActiveStep(i - 1)}
                           disabled={i === 0}
-                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <ChevronLeft size={13} />
                           {t('gs.previous')}
@@ -511,7 +513,7 @@ export default function GettingStarted() {
                         {step.viewPath && (
                           <button
                             onClick={() => navigate(step.viewPath)}
-                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition"
                           >
                             <Eye size={13} />
                             {t('gs.view')}
@@ -521,7 +523,7 @@ export default function GettingStarted() {
                         <button
                           onClick={() => setActiveStep(i + 1)}
                           disabled={i === STEPS.length - 1}
-                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <SkipForward size={13} />
                           {t('gs.skip')}
@@ -533,7 +535,7 @@ export default function GettingStarted() {
                         <button
                           disabled={saving}
                           onClick={() => submit(i, false)}
-                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition disabled:opacity-60"
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 transition disabled:opacity-60"
                         >
                           <Plus size={13} />
                           {t('gs.save_add')}
@@ -542,7 +544,7 @@ export default function GettingStarted() {
                         <button
                           disabled={saving}
                           onClick={() => submit(i, true)}
-                          className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-60"
+                          className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition disabled:opacity-60"
                         >
                           {saving ? t('gs.saving') : t('gs.next_step')}
                           {!saving && <ChevronRight size={13} />}
@@ -559,12 +561,13 @@ export default function GettingStarted() {
         {/* ── All Setup Steps grid ── */}
         <div className="max-w-3xl mx-auto mt-8">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('gs.all_steps')}</h3>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {STEPS.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveStep(i)}
-                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-left text-xs font-medium transition
+                aria-current={activeStep === i ? 'step' : undefined}
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300
                   ${done[i]
                     ? 'border-green-200 bg-green-50 text-green-700 hover:border-green-300'
                     : activeStep === i

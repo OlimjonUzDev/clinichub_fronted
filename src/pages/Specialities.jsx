@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import SpecialityEditModal from '../components/SpecialityEditModal';
 
 const PAGE_SIZE = 6;
@@ -41,7 +41,7 @@ export default function Specialities() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.doctors_staff') }, { label: t('menu.specialities') }]}
           title={t('specialities.title')}
@@ -65,15 +65,8 @@ export default function Specialities() {
                 </td>
                 <td className="pl-5 pr-16 py-4 text-right">
                   <div className="flex items-center justify-end gap-1.5">
-                    <button
-                      onClick={() => setEditItem(item)}
-                      className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
-                    >
-                      <Pencil size={13} />
-                    </button>
-                    <button onClick={() => handleDelete(item.id)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
-                      <Trash2 size={13} />
-                    </button>
+                    <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => setEditItem(item)} />
+                    <IconButton icon={Trash2} label={t('common.delete')} variant="danger" onClick={() => handleDelete(item.id)} />
                   </div>
                 </td>
               </tr>

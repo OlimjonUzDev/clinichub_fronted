@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { StatusBadge } from '../components/DataTable';
+import { StatusBadge, LoadingState } from '../components/DataTable';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
 const Row = ({ label, value }) => (
@@ -43,7 +43,7 @@ export default function DoctorView() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.doctors_staff'), path: '/doctors' },
@@ -54,16 +54,16 @@ export default function DoctorView() {
         />
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-400">
-            {t('common.loading')}
+          <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <LoadingState />
           </div>
         ) : error || !doctor ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-400">
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-500">
             {t('doctor_view.not_found')}
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-gray-100 p-8">
-            <div className="flex items-start justify-between mb-8">
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center overflow-hidden shrink-0">
                   {doctor.avatar
@@ -82,14 +82,14 @@ export default function DoctorView() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate('/doctors')}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition"
                 >
                   <ArrowLeft size={14} />
                   {t('doctor_view.back')}
                 </button>
                 <button
                   onClick={() => navigate(`/doctors/${doctor.id}/edit`)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition"
                 >
                   <Pencil size={14} />
                   {t('common.edit')}

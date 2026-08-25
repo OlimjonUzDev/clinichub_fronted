@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 6;
@@ -59,7 +59,7 @@ export default function Users() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.administration') }, { label: t('menu.users') }]}
           title={t('users.title')}
@@ -101,9 +101,7 @@ export default function Users() {
                 <td className="px-5 py-4 text-sm text-gray-500">{item.phone_number || '—'}</td>
                 <td className="px-5 py-4 text-sm text-gray-400">{fmtDate(item.created_at)}</td>
                 <td className="px-5 py-4">
-                  <button onClick={() => setViewItem(item)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
-                    <Eye size={13} />
-                  </button>
+                  <IconButton icon={Eye} label={t('common.view')} onClick={() => setViewItem(item)} />
                 </td>
               </tr>
             ))

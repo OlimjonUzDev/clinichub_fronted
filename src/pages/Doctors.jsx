@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import DoctorScheduleModal from '../components/DoctorScheduleModal';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 
@@ -64,7 +64,7 @@ export default function Doctors() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.doctors_staff') }, { label: t('menu.doctors') }]}
           title={t('doctors.title')}
@@ -100,29 +100,16 @@ export default function Doctors() {
                 <td className="px-5 py-4 text-sm text-gray-500">{doc.experience_years ?? '—'}</td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => navigate(`/doctors/${doc.id}`)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
-                      <Eye size={13} />
-                    </button>
-                    <button onClick={() => navigate(`/doctors/${doc.id}/edit`)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition">
-                      <Pencil size={13} />
-                    </button>
-                    <button onClick={() => handleDelete(doc.id)} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition">
-                      <Trash2 size={13} />
-                    </button>
-                    <button
-                      onClick={() => setScheduleDoctorId(doc.id)}
-                      title={t('doctor_schedule.title')}
-                      className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
-                    >
-                      <Calendar size={13} />
-                    </button>
-                    <button
+                    <IconButton icon={Eye} label={t('common.view')} onClick={() => navigate(`/doctors/${doc.id}`)} />
+                    <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => navigate(`/doctors/${doc.id}/edit`)} />
+                    <IconButton icon={Trash2} label={t('common.delete')} variant="danger" onClick={() => handleDelete(doc.id)} />
+                    <IconButton icon={Calendar} label={t('doctor_schedule.title')} onClick={() => setScheduleDoctorId(doc.id)} />
+                    <IconButton
+                      icon={doc.is_active ? Ban : CheckCircle2}
+                      label={doc.is_active ? t('doctors.deactivate') : t('doctors.activate')}
+                      variant={doc.is_active ? 'danger' : 'success'}
                       onClick={() => handleToggleActive(doc)}
-                      title={doc.is_active ? t('doctors.deactivate') : t('doctors.activate')}
-                      className={`w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 transition ${doc.is_active ? 'hover:border-red-400 hover:text-red-500' : 'hover:border-green-400 hover:text-green-600'}`}
-                    >
-                      {doc.is_active ? <Ban size={13} /> : <CheckCircle2 size={13} />}
-                    </button>
+                    />
                   </div>
                 </td>
               </tr>

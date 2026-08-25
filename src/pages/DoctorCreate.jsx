@@ -91,7 +91,7 @@ export default function DoctorCreate() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.doctors_staff'), path: '/doctors' },
@@ -192,7 +192,7 @@ export default function DoctorCreate() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
               >
                 {loading ? t('doctor_create.saving') : t('doctor_create.save')}
               </button>

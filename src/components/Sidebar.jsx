@@ -135,7 +135,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                 key={idx}
                 onClick={() => navigate(item.path)}
                 title={collapsed ? item.label : ''}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors
+                aria-label={item.label}
+                aria-current={active ? 'page' : undefined}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:bg-indigo-50 focus-visible:text-indigo-600
                   ${active
                     ? 'text-indigo-600 bg-indigo-50'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
@@ -156,7 +158,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               <button
                 onClick={() => !collapsed && toggleGroup(idx)}
                 title={collapsed ? item.label : ''}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors
+                aria-label={item.label}
+                aria-expanded={!collapsed && isOpen}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:bg-gray-50
                   ${hasActiveChild
                     ? 'text-indigo-600'
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
@@ -182,7 +186,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                   <button
                     key={ci}
                     onClick={() => navigate(child.path)}
-                    className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 text-sm transition-colors
+                    aria-current={childActive ? 'page' : undefined}
+                    className={`w-full flex items-center gap-3 pl-11 pr-4 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:bg-gray-50
                       ${childActive
                         ? 'text-indigo-600 bg-indigo-50 font-medium'
                         : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
@@ -203,7 +208,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         <button
           onClick={handleLogout}
           title={collapsed ? t('menu.logout') : ''}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          aria-label={t('menu.logout')}
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 focus-visible:outline-none focus-visible:bg-red-50 rounded-lg transition-colors"
         >
           <LogOut size={17} />
           {!collapsed && <span>{t('menu.logout')}</span>}
@@ -214,7 +220,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       <div className="p-2 border-t border-gray-100">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+          aria-label={collapsed ? t('menu.expand') : t('menu.collapse')}
+          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:text-gray-600 focus-visible:bg-gray-50 rounded-lg transition-colors"
         >
           {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>

@@ -13,7 +13,11 @@ import { Users, CalendarDays, Activity, TrendingUp, ArrowUpRight } from 'lucide-
 const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'];
 
 const StatCard = ({ label, value, icon: Icon, color, onClick }) => (
-  <div onClick={onClick} className={`rounded-xl p-5 text-white cursor-pointer hover:opacity-90 transition ${color}`}>
+  <button
+    type="button"
+    onClick={onClick}
+    className={`rounded-xl p-5 text-white text-left cursor-pointer hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-400 transition ${color}`}
+  >
     <div className="flex items-center justify-between mb-3">
       <span className="text-sm font-medium opacity-80">{label}</span>
       <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
@@ -21,7 +25,7 @@ const StatCard = ({ label, value, icon: Icon, color, onClick }) => (
       </div>
     </div>
     <div className="text-3xl font-bold">{value ?? '...'}</div>
-  </div>
+  </button>
 );
 
 export default function Dashboard() {
@@ -59,7 +63,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('dashboard.title')}</h1>
 
         {/* Organisation Overview */}
@@ -106,7 +110,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <h2 className="text-sm font-semibold text-gray-700 mb-4">{t('dashboard.appt_status')}</h2>
             <ResponsiveContainer width="100%" height={220}>
@@ -136,11 +140,16 @@ export default function Dashboard() {
 
         {/* Appointments by Doctor */}
         <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h2 className="text-sm font-semibold text-gray-700">{t('dashboard.appt_by_doctor')}</h2>
-            <div className="flex gap-1 text-xs text-gray-500">
+            <div className="flex flex-wrap gap-1 text-xs text-gray-500">
               {[t('dashboard.today'), t('dashboard.this_week'), t('dashboard.this_month'), t('dashboard.year_to_date')].map((label, i) => (
-                <button key={i} className={`px-2 py-1 rounded transition-colors ${i === 2 ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-gray-100'}`}>
+                <button
+                  key={i}
+                  type="button"
+                  aria-pressed={i === 2}
+                  className={`px-2 py-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 ${i === 2 ? 'bg-indigo-50 text-indigo-600 font-medium' : 'hover:bg-gray-100'}`}
+                >
                   {label}
                 </button>
               ))}
@@ -158,7 +167,7 @@ export default function Dashboard() {
         </div>
 
         {/* Top Performers */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-gray-700">{t('dashboard.top_doctors')}</h2>

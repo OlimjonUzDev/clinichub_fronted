@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
+import { LoadingState } from '../components/DataTable';
 import { lettersOnlyError, urlFormatError, nonNegativeNumberError, validateForm, hasErrors } from '../lib/validators';
 import { useLookup, resolveRef } from '../lib/useLookup';
 
@@ -105,7 +106,7 @@ export default function DoctorEdit() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl">
+      <div className="p-4 sm:p-8 max-w-4xl">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.doctors_staff'), path: '/doctors' },
@@ -116,11 +117,11 @@ export default function DoctorEdit() {
         />
 
         {fetching ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-400">
-            {t('common.loading')}
+          <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <LoadingState />
           </div>
         ) : notFound || !form ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-400">
+          <div className="bg-white rounded-xl border border-gray-100 p-8 text-sm text-gray-500">
             {t('doctor_view.not_found')}
           </div>
         ) : (
@@ -227,14 +228,14 @@ export default function DoctorEdit() {
                 <button
                   type="button"
                   onClick={() => navigate(`/doctors/${id}`)}
-                  className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                  className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
                 >
                   {loading ? t('doctor_edit.saving') : t('common.save')}
                 </button>

@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, StatusBadge, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import DetailModal from '../components/DetailModal';
 
 const PAGE_SIZE = 6;
@@ -40,7 +40,7 @@ export default function MedicalCenters() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.clinics_centers') },
@@ -87,20 +87,8 @@ export default function MedicalCenters() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button
-                        title={t('common.view')}
-                        onClick={() => setViewItem(item)}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
-                      >
-                        <Eye size={13} />
-                      </button>
-                      <button
-                        title={t('common.edit')}
-                        onClick={() => navigate(`/medical-centers/create?edit=${item.id}`)}
-                        className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
-                      >
-                        <Pencil size={13} />
-                      </button>
+                      <IconButton icon={Eye} label={t('common.view')} onClick={() => setViewItem(item)} />
+                      <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => navigate(`/medical-centers/create?edit=${item.id}`)} />
                     </div>
                   </td>
                 </tr>

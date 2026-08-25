@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, StatusBadge, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, StatusBadge, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import AppointmentDetailModal from '../components/AppointmentDetailModal';
 import AppointmentCreateModal from '../components/AppointmentCreateModal';
 import AppointmentCancelModal from '../components/AppointmentCancelModal';
@@ -61,7 +61,7 @@ export default function Appointments() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.patients_encounters') }, { label: t('menu.appointments') }]}
           title={t('appt.title')}
@@ -124,26 +124,12 @@ export default function Appointments() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => setViewItem(item)} title={t('appt.tab_info')} className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition">
-                        <Eye size={13} />
-                      </button>
+                      <IconButton icon={Eye} label={t('appt.tab_info')} onClick={() => setViewItem(item)} />
                       {item.status !== 'cancelled' && item.status !== 'completed' && (
-                        <button
-                          onClick={() => setRescheduleItem(item)}
-                          title={t('appt.reschedule')}
-                          className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 transition"
-                        >
-                          <CalendarClock size={13} />
-                        </button>
+                        <IconButton icon={CalendarClock} label={t('appt.reschedule')} onClick={() => setRescheduleItem(item)} />
                       )}
                       {item.status !== 'cancelled' && (
-                        <button
-                          onClick={() => setCancelItem(item)}
-                          title={t('appt.cancel_action')}
-                          className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 transition"
-                        >
-                          <Ban size={13} />
-                        </button>
+                        <IconButton icon={Ban} label={t('appt.cancel_action')} variant="danger" onClick={() => setCancelItem(item)} />
                       )}
                     </div>
                   </td>

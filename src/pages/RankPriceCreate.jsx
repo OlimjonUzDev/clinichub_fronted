@@ -80,7 +80,7 @@ export default function RankPriceCreate() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-2xl">
+      <div className="p-4 sm:p-8 max-w-2xl">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.pricing_ranks') },
@@ -135,14 +135,14 @@ export default function RankPriceCreate() {
               <button
                 type="button"
                 onClick={() => navigate('/rank-prices')}
-                className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                className="px-5 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 transition"
               >
                 {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-60"
+                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition disabled:opacity-60"
               >
                 {loading ? t('doctor_create.saving') : t('common.save')}
               </button>

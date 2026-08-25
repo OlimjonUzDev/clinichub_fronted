@@ -18,6 +18,8 @@ const translations = {
     'auth.role.admin': 'Admin',
     'auth.signup_success': 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz. Endi kirishingiz mumkin.',
     'auth.signup_error': 'Ro\'yxatdan o\'tishda xatolik yuz berdi',
+    'auth.show_password': 'Parolni ko\'rsatish',
+    'auth.hide_password': 'Parolni yashirish',
 
     // Validation
     'validation.letters_only': 'Bu qator faqat harflardan iborat bo\'lishi kerak',
@@ -61,6 +63,8 @@ const translations = {
     'menu.administration': 'Boshqaruv',
     'menu.users': 'Foydalanuvchilar',
     'menu.logout': 'Chiqish',
+    'menu.expand': 'Menyuni yoyish',
+    'menu.collapse': 'Menyuni yig\'ish',
 
     // Dashboard/Analytics
     'dashboard.title': 'Tahlil',
@@ -512,6 +516,8 @@ const translations = {
     'auth.role.admin': 'Админ',
     'auth.signup_success': 'Регистрация прошла успешно. Теперь вы можете войти.',
     'auth.signup_error': 'Ошибка при регистрации',
+    'auth.show_password': 'Показать пароль',
+    'auth.hide_password': 'Скрыть пароль',
 
     // Validation
     'validation.letters_only': 'Это поле должно содержать только буквы',
@@ -555,6 +561,8 @@ const translations = {
     'menu.administration': 'Администрация',
     'menu.users': 'Пользователи',
     'menu.logout': 'Выход',
+    'menu.expand': 'Развернуть меню',
+    'menu.collapse': 'Свернуть меню',
 
     // Dashboard/Analytics
     'dashboard.title': 'Аналитика',

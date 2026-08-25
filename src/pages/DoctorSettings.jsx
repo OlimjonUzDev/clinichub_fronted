@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
-import { SearchBar, Table, EmptyState, Pagination } from '../components/DataTable';
+import { SearchBar, Table, EmptyState, Pagination, IconButton } from '../components/DataTable';
 import DoctorSettingsEditModal from '../components/DoctorSettingsEditModal';
 
 const PAGE_SIZE = 6;
@@ -33,7 +33,7 @@ export default function DoctorSettings() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[{ label: t('menu.financial') }, { label: t('menu.doctors_settings') }]}
           title={t('doctor_settings.title')}
@@ -71,12 +71,7 @@ export default function DoctorSettings() {
                     : <Circle size={16} className="text-gray-300" />}
                 </td>
                 <td className="px-5 py-4">
-                  <button
-                    onClick={() => setEditItem(doc)}
-                    className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition"
-                  >
-                    <Pencil size={13} />
-                  </button>
+                  <IconButton icon={Pencil} label={t('common.edit')} variant="edit" onClick={() => setEditItem(doc)} />
                 </td>
               </tr>
             ))

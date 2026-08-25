@@ -6,7 +6,7 @@ export default function Placeholder({ title }) {
   const { t } = useLang();
   return (
     <Layout>
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <div className="p-4 sm:p-8 flex flex-col items-center justify-center min-h-[60vh] text-center">
         <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
           <Construction size={32} className="text-amber-500" />
         </div>

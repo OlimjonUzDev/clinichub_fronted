@@ -64,7 +64,7 @@ export default function Ratings() {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.doctors_staff') },
@@ -107,7 +107,7 @@ export default function Ratings() {
                 <td className="px-5 py-4 text-sm text-gray-500">{encounterId(r) ?? '—'}</td>
                 <td className="px-5 py-4"><Stars score={r.score} /></td>
                 <td className="px-5 py-4 text-sm text-gray-600 max-w-sm">
-                  {r.comment || <span className="text-gray-300 italic text-xs">{t('ratings.no_comment')}</span>}
+                  {r.comment || <span className="text-gray-400 italic text-xs">{t('ratings.no_comment')}</span>}
                 </td>
                 <td className="px-5 py-4 text-sm text-gray-400 whitespace-nowrap">{fmtDate(r.created_at)}</td>
               </tr>

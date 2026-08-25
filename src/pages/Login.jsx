@@ -47,7 +47,8 @@ export default function Login() {
         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden text-xs font-medium">
           <button
             onClick={() => setLang('uz')}
-            className={`px-3 py-1.5 transition-colors ${
+            aria-pressed={lang === 'uz'}
+            className={`px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${
               lang === 'uz' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'
             }`}
           >
@@ -55,7 +56,8 @@ export default function Login() {
           </button>
           <button
             onClick={() => setLang('ru')}
-            className={`px-3 py-1.5 transition-colors ${
+            aria-pressed={lang === 'ru'}
+            className={`px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${
               lang === 'ru' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'
             }`}
           >
@@ -117,7 +119,8 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={showPassword ? t('auth.hide_password') : t('auth.show_password')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:text-gray-600 rounded"
                 >
                   {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
@@ -127,7 +130,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 mt-2"
+              className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60 mt-2"
             >
               {loading ? t('auth.signing_in') : t('auth.signin')}
             </button>
@@ -135,11 +138,11 @@ export default function Login() {
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-500">
                 {t('auth.no_account')}{' '}
-                <Link to="/register" className="text-indigo-500 hover:text-indigo-700 hover:underline">
+                <Link to="/register" className="text-indigo-500 hover:text-indigo-700 hover:underline focus-visible:outline-none focus-visible:underline rounded">
                   {t('auth.signup')}
                 </Link>
               </div>
-              <button type="button" className="text-sm text-indigo-500 hover:text-indigo-700 hover:underline">
+              <button type="button" className="text-sm text-indigo-500 hover:text-indigo-700 hover:underline focus-visible:outline-none focus-visible:underline rounded">
                 {t('auth.forgot')}
               </button>
             </div>
