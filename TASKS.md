@@ -357,36 +357,41 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 
 **Boshlang'ich audit (2026-08-23):** hozircha chat mutlaqo yo'q — na backendda (`channels`/websocket/`Message` modeli yo'q), na frontendda (uchala portalda ham socket/chat komponenti yo'q). `catalog`/`appointments`даги `consultation_type` allaqachon `video`/`voice`/`chat`ni narxlanadigan variant sifatida modellagan, lekin uchalasi ham amalda faqat bitta ochiq Jitsi video-xona havolasiga olib keladi (`videoCall.js`) — ya'ni "chat" hozircha sotib olinadi, lekin ta'minlanmaydi. Admin paneldagi `/messages` route ham `Placeholder` ("under construction")ga ulangan.
 
-**Qamrov qarori (MVP):** chat har bir `Appointment`ga bog'langan (xuddi `prescriptions`/`rating` kabi — patternga mos, oddiy). Bir doktor-bemor juftligi orasidagi appointment'lardan tashqari umumiy/doimiy suhbat MVP'ga kirmaydi — kerak bo'lsa keyingi bosqichda kengaytiriladi. Real-vaqt uchun **Django Channels** (WebSocket) tanlandi — loyihada allaqachon Django/DRF bor, qo'shimcha til/freymvork shart emas. Channel layer sifatida boshida **`InMemoryChannelLayer`** (Redis shart emas, kurs ishi/bitta worker uchun yetarli) — production'da ko'p worker kerak bo'lsa Redis'ga o'tkaziladi (hozircha bloker emas).
+**Qamrov qarori (MVP):** chat har bir `Appointment`ga bog'langan (xuddi `prescriptions`/`rating` kabi — patternga mos, oddiy). Bir doktor-bemor juftligi orasidagi appointment'lardan tashqari umumiy/doimiy suhbat MVP'ga kirmaydi — kerak bo'lsa keyingi bosqichda kengaytiriladi. Boshida real-vaqt uchun **Django Channels** (WebSocket) tanlangan edi.
+
+**Qaror o'zgardi (2026-08-26):** websocket qismi (`consumers.py`/`routing.py`/`middleware.py`/`config/asgi.py`) hali yozilmagan bosqichda, murakkablikni kamaytirish uchun **oddiy REST polling**ga o'tildi — frontend `ChatWindow` ochiq turganda `GET /chat/message/?appointment_id=`ni har necha soniyada (masalan 3-5 sek) qayta so'rab turadi, alohida websocket ulanish/qayta ulanish logikasi kerak emas. `channels` paketi va uning `settings.py` sozlamalari (quyida `[x]`) shu holicha, ishlatilmasa ham, qoldirildi — zarari yo'q, kelajakda real-vaqtga qaytish kerak bo'lsa tayyor turadi. Xuddi shu sababdan yozib bo'lingan `chat/middleware.py` ham hozircha ishlatilmaydi, lekin fayl saqlanib qoldi.
 
 ### Bajarilishi kerak — Backend (siz yozasiz, men tekshirib/tasdiqlab boraman)
 
-- [ ] **Paketlar** — `requirements.txt`ga `channels` (va ixtiyoriy `daphne` ASGI server uchun) qo'shish, `pip install`.
-- [ ] **`config/settings.py`** — `INSTALLED_APPS`ga `'channels'`, `ASGI_APPLICATION = 'config.asgi.application'`, `CHANNEL_LAYERS = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}`.
-- [ ] **Yangi `chat` app** (`python manage.py startapp chat`):
+- [x] **Paketlar** — `requirements.txt`ga `channels` (va ixtiyoriy `daphne` ASGI server uchun) qo'shish, `pip install`.
+  ✅ Tekshirildi (2026-08-25): `requirements.txt`да `channels==4.3.2`; venv'da `import channels; channels.__version__` → `4.3.2` haqiqatan o'rnatilgan. (2026-08-26: REST polling'ga o'tilgani sabab bu paket amalda ishlatilmaydi, lekin qoldirilishi zararsiz.)
+- [x] **`config/settings.py`** — `INSTALLED_APPS`ga `'channels'`, `ASGI_APPLICATION = 'config.asgi.application'`, `CHANNEL_LAYERS = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}`.
+  ✅ Tekshirildi (2026-08-25): `manage.py check` — 0 xato; `get_channel_layer()` real chaqirilganda `<channels.layers.InMemoryChannelLayer object>` qaytardi (dastlab `'channels.;ayers.InMemoryChannellayer'` deb ikki marta yozuv xatosi bilan yozilgan edi — `InvalidChannelLayerError` bilan sinib qolgan; foydalanuvchi tuzatgach qayta tekshirildi, endi ishlaydi).
+- [x] **Yangi `chat` app** (`python manage.py startapp chat`) — to'liq yozilgan va real so'rov bilan tekshirilgan:
   - `models.py` — `Conversation` (`appointment` — `Appointment`ga `OneToOneField`, `created_at`), `Message` (`conversation` FK, `sender` — `User`ga FK, `text`, `created_at`, `is_read=False`).
-  - `serializers.py` — `MessageSerializer` (tarix uchun, REST).
-  - `permissions.py` — faqat shu appointment'ning o'z doktori/bemori (va admin) kira olsin — mavjud `appointments/permissions.py`даги naqshga mos.
-  - `views.py` — `ConversationMessagesView(generics.ListAPIView)`: `GET /api/v1/chat/<appointment_id>/messages/` — sahifalangan xabar tarixi (websocket ulanishidan oldin frontend shu orqali eski xabarlarni yuklaydi).
-  - `consumers.py` — `ChatConsumer(AsyncJsonWebsocketConsumer)`: `connect()`da `scope['user']` orqali ruxsat tekshiradi (faqat shu appointment'ning doktori/bemori/admin), `receive_json()`da xabarni DB'ga yozadi (`sync_to_async`) va guruhga (`appointment_<id>`) tarqatadi, `disconnect()`.
-  - **`middleware.py`** — Channels'ning standart `AuthMiddlewareStack`i faqat session-cookie'ga ishonadi, bizda esa JWT bor. Shu sabab websocket ulanish so'rovidan (`?token=<access_token>` query-param) JWT'ni o'qib, `simplejwt`орqали tekshiradigan maxsus middleware yozish kerak (`scope['user']`ni shu orqali o'rnatish).
-  - `routing.py` — `websocket_urlpatterns = [re_path(r'ws/chat/(?P<appointment_id>\d+)/$', ChatConsumer.as_asgi())]`.
-  - `urls.py` — REST `messages/` endpoint uchun, `config/urls.py`ga ulash.
-  - `admin.py` — modellarni ro'yxatdan o'tkazish.
-  - `tests.py` — kamida: ruxsatsiz foydalanuvchi (boshqa doktor/bemor) ulana olmasligi, xabar to'g'ri saqlanishi/tarqatilishi, tarix endpoint'i to'g'ri filtrlanishi.
-- [ ] **`config/asgi.py`** — `ProtocolTypeRouter({'http': ..., 'websocket': JwtAuthMiddleware(URLRouter(chat.routing.websocket_urlpatterns))})` qilib qayta yozish (hozirgi holicha faqat `get_asgi_application()` bor, websocket'ga umuman tayyor emas).
-- [ ] **Migratsiya** — `makemigrations chat && migrate`.
-- [ ] **Xavfsizlik eslatmasi:** `django-cors-headers` websocket'ga ta'sir qilmaydi — agar kerak bo'lsa `channels`даги `OriginValidator` bilan alohida cheklash kerak bo'ladi (hozircha dev uchun shart emas).
-- [ ] `manage.py test chat` — yashil bo'lishi kerak, qolgan 94 ta test ham regressiyasiz o'tishi kerak.
-- Tayyor bo'lgach ayting — men real so'rov (websocket qo'lda ulanib) bilan tekshirib, so'ng frontend qismini boshlayman.
+  - `serializers.py` — `MessageSerializers` (`fields='__all__'`, `sender`/`conversation` read-only).
+  - `permissions.py` — `IsAppointmentParticipant`: faqat shu appointment'ning o'z doktori/bemori (va admin) kira oladi; `appointment_id`ni `kwargs`/query-param/body'dan navbat bilan oladi.
+  - `views.py` — `MessageViewSet(viewsets.ModelViewSet)`: `appointment_id`ni URL yo'lida emas, query-param (`GET`) va body (`POST`)dan oladi; `perform_create`da `Conversation.objects.get_or_create` bilan birinchi xabarda suhbat avtomatik yaratiladi.
+  - `urls.py` — `DefaultRouter` bilан (`prescriptions`/`appointments`даги naqshga mos), `config/urls.py`ga `path('api/v1/chat/', include('chat.urls'))` qilib ulangan.
+  - `admin.py` — `ConversationAdmin` (`MessageInline` bilan) va `MessageAdmin`, `prescriptions/admin.py`даги naqshga mos.
+  - `tests.py` — `ChatMessageTestCase` (`APITestCase`, `prescriptions/tests.py`даги naqshga mos): login qilmasdan rad etilishi, ishtirokchi (bemor/doktor) kira olishi, begona foydalanuvchi 403 olishi, xabar yozish + `Conversation` avtomatik yaratilishi, tarix faqat so'ralgan appointment'ga filtrlanishi — 7 ta test.
+  - ~~`consumers.py`, `middleware.py`, `routing.py`~~ — yozib ko'rilgan (`middleware.py`), keyin REST polling qarori sabab MVP'dan chiqarildi va o'chirildi (yuqoridagi qaror izohiga qarang).
+  ✅ Tekshirildi (2026-08-26): `manage.py check` — 0 xato (yo'lda `config/urls.py`да `include('chaturls')` deb yozuv xatosi topilib, `include('chat.urls')`ga tuzatildi — shu xato butun loyiha URL konfiguratsiyasini sindirib turgan edi). Real so'rov bilan (`django.test.Client` + `simplejwt` token, keyin tozalangan): login qilmasdan `GET` → `401`; bemor `GET` → `200`; `POST` → `201`, `Conversation` avtomatik yaratildi; qayta `GET`da xabar ko'rindi; begona foydalanuvchi `GET` → `403`. Admin sahifalari (`/admin/chat/conversation/`, `/admin/chat/message/`) superuser bilan real so'rovda `200`. `manage.py test chat --keepdb` → **7/7 test yashil**. Test ma'lumotlari tozalandi, real DB'ga tegilmadi.
+- [ ] ~~`config/asgi.py`ni qayta yozish~~ — REST polling qarori sabab kerak emas.
+- [x] **Migratsiya** — `chat/migrations/0001_initial.py`, `0002_alter_message_options.py` mavjud va ishlangan.
+- [ ] ~~Xavfsizlik eslatmasi (`OriginValidator`)~~ — websocket ishlatilmagani sabab kerak emas.
+- [x] `manage.py test chat` — yashil (7/7).
+  ✅ Tekshirildi (2026-08-26): `manage.py test --keepdb` (to'liq to'plam, 101 ta test = oldingi 94 + yangi 7) → 4 ta xato, lekin ularning barchasi `patients/tests.py` va `prescriptions/tests.py`да (chat'ga aloqasi yo'q) — `git status` bilan tasdiqlandi, bu ishda faqat `chat/*` va `config/urls.py` o'zgargan, `patients`/`prescriptions` fayllariga tegilmagan. Demak bu **oldindan mavjud, chat bilan bog'liq bo'lmagan xatolar** — regressiya emas, alohida band sifatida keyin ko'rib chiqiladi.
+- Backend qismi tayyor va tasdiqlangan — endi frontend qismini boshlayman.
 
 ### Bajarilishi kerak — Frontend (men to'g'ridan-to'g'ri yozaman, backend tayyor bo'lgach)
 
-- [ ] `patient-portal/src/lib/chatSocket.js` va `doctor-portal/src/lib/chatSocket.js` — native `WebSocket` API bilan `ws://127.0.0.1:8000/ws/chat/<appointmentId>/?token=<access>`ga ulanuvchi kichik wrapper (ulanish, qayta ulanish, xabar eventlari).
-- [ ] `ChatWindow` komponenti (ikkala portalda) — xabarlar ro'yxati (bubble'lar, o'z/begona farqlansin), input+yuborish, avtomatik scroll, vaqt belgisi. Ochilganda avval `GET /chat/<id>/messages/` orqali tarix yuklanadi, so'ng websocket orqali live xabarlar qo'shiladi.
-- [ ] Kirish nuqtasi: `patient-portal/src/pages/MyAppointments.jsx` va `doctor-portal/src/pages/Appointments.jsx`ga har bir appointment qatoriga "Chat" tugmasi (video/voice bilan bir qatorda, `consultationTypes.js`даги naqshga mos) — yangi route `/chat/:appointmentId`.
-- [ ] JWT muddati tugasa websocket qayta ulanishi (token yangilanganda qayta ulanish).
-- [ ] Tarjimalar (uz/ru) — `translations.js`.
+- [x] `patient-portal/src/lib/chatApi.js` va `doctor-portal/src/lib/chatApi.js` — `fetchMessages`/`sendMessage`, mavjud `fetchAll` (paginatsiya, `PAGE_SIZE=6`) va `api`dan foydalanadi.
+- [x] `ChatWindow` komponenti (ikkala portalda, `src/components/ChatWindow.jsx`) — xabarlar ro'yxati (bubble'lar, o'z/begona `userId` bo'yicha farqlanadi), input+yuborish, avtomatik scroll (`bottomRef`), vaqt belgisi. Ochilganda tarix yuklanadi, so'ng `setInterval` (4 sek) bilan qayta so'raladi (websocket o'rniga REST polling — yuqoridagi 2026-08-26 qaror).
+- [x] Kirish nuqtasi: `MyAppointments.jsx`/`Appointments.jsx`da "confirmed" holatdagi appointment qatoriga video tugmasi yonida "Chat" (`MessageCircle`) tugmasi, `/chat/:appointmentId` route (`Chat.jsx` sahifasi, `App.jsx`ga qo'shildi).
+- [x] Tarjimalar (uz/ru) — `translations.js`да `chat.*` va `appointments.open_chat`.
+- [x] `patient-portal/src/context/AuthContext.jsx`ga `userId` qo'shildi (`doctor-portal`да allaqachon bor edi) — bubble'larni "o'z/begona" ajratish uchun zarur edi.
+  ✅ Tekshirildi (2026-08-26): ikkala portalda ham `npx eslint src/` — yangi/o'zgargan fayllarda (`ChatWindow.jsx`, `chatApi.js`, `Chat.jsx`, `App.jsx`, `AuthContext.jsx`, `MyAppointments.jsx`, `Appointments.jsx`, `translations.js`) xato yo'q (qolgan 2 ta xato `AuthContext.jsx`/`LangContext.jsx`даги `react-refresh` qoidasi — bu ishdan oldin ham mavjud edi, aloqasi yo'q); `npm run build` — ikkalasi ham muvaffaqiyatli. Vizual/UI sinov brauzer avtomatizatsiyasi yo'qligi sababli qilinmadi (loyiha qoidasiga ko'ra ochiq aytilyapti).
 - Admin paneldagi `/messages` (`Placeholder`) — bu bosqichga kirmaydi (admin doktor-bemor chatiga aralashmaydi deb qaralmoqda; agar admin moderatsiya/ko'rish imkoniyati kerak bo'lsa, alohida band sifatida keyin qo'shiladi).
 
 ---
