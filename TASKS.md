@@ -396,4 +396,40 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 
 ---
 
+## To'rt portal auditi (admin, patient-portal, doctor-portal, backend bog'lanishi) — 2026-08-28
+
+4 nafar agent orqali login/CRUD (admin, doctor-portal), patient↔doctor ma'lumot oqimi
+(booking, status, retsept, rating) va chat funksiyasi end-to-end tekshirildi. 2 ta real
+muammo topildi:
+
+- [ ] **Rating (baho) yaratish backend'da butunlay buzilgan (regressiya)** —
+  `appointments/serializers.py`даги `RatingSerializers.Meta.read_only_fields` ichida
+  `'appointment'` borligi sabab, `POST /appointments/rating/` har doim `500
+  Internal Server Error` (`KeyError: 'appointment'`, `views.py`даги
+  `RatingViewSet.create()`да `serializer.validated_data['appointment']` qatorida)
+  beradi — `appointment` maydoni `read_only` bo'lgani uchun `validated_data`ga
+  umuman kirmaydi. Bu 2026-08-18'dagi `a538175` commitida ("lock rating's
+  appointment on update") kirib qolgan regressiya — maqsad faqat *update*ni
+  bloklash edi, lekin *create*ni ham buzib qo'ygan. Natijada patient-portal va
+  doctor-portal'dagi Reviews sahifalari o'zi to'g'ri yozilgan, lekin backend
+  hech qanday yangi reyting qabul qilmaydi. **Tuzatish (backend, foydalanuvchi
+  o'zi yozadi):** `read_only_fields`dan `'appointment'`ni olib tashlab,
+  `update()`да uni qo'lda `validated_data.pop('appointment', None)` bilan
+  bloklash (`AppointmentSerializers.update()`даги patient/doctor pop naqshiga
+  o'xshab).
+- [x] **doctor-portal chatida "o'z xabar/begona xabar" ajratilmasdi** —
+  `doctor-portal/src/context/AuthContext.jsx`да `userId` state bor edi
+  (`/me/`dan olinadi), lekin `AuthContext.Provider`ning `value`iga qo'shilmagan
+  edi. Natijada `ChatWindow.jsx`даги `const own = m.sender === userId` doim
+  `false` bo'lib, doktor tomonida o'zi yozgan xabarlar ham "begona" (chap,
+  kulrang) bubble sifatida chiqardi — funksional (yuborish/o'qish) ishlagan,
+  faqat vizual ajratish buzilgan edi. ✅ **Tuzatildi va tekshirildi
+  (2026-08-28):** `AuthContext.jsx:72`даги Provider `value`ga `userId`
+  qo'shildi. `npx eslint src` — 2 xato (oldindan mavjud,
+  `AuthContext.jsx`/`LangContext.jsx`даги `react-refresh` qoidasi, aloqasiz),
+  `npm run build` — muvaffaqiyatli (`✓ built in 251ms`). Vizual sinov
+  brauzer avtomatizatsiyasi yo'qligi sababli qilinmadi.
+
+---
+
 **Ishlash tartibi:** Backend — har bir bandni siz yozasiz, men tekshirib/tasdiqlab boraman (kerak bo'lsa real so'rov yuborib sinab ko'raman). Frontend (`patient-portal`, `doctor-portal`) — men to'g'ridan-to'g'ri yozaman, siz tekshirasiz.
