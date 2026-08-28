@@ -64,7 +64,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               title={collapsed ? item.label : ''}
               aria-label={item.label}
               aria-current={active ? 'page' : undefined}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300
                 ${active ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'}`}
             >
               <Icon size={17} className={active ? 'text-indigo-500' : 'text-gray-400'} />
@@ -79,7 +79,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           onClick={handleLogout}
           title={collapsed ? t('nav.logout') : ''}
           aria-label={t('nav.logout')}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
         >
           <LogOut size={17} />
           {!collapsed && <span>{t('nav.logout')}</span>}
@@ -91,7 +91,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? t('nav.expand_sidebar') : t('nav.collapse_sidebar')}
           title={collapsed ? t('nav.expand_sidebar') : t('nav.collapse_sidebar')}
-          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
         >
           {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>

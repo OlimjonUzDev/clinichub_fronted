@@ -27,14 +27,14 @@ export default function Layout({ children }) {
             <button
               onClick={() => setLang('uz')}
               aria-pressed={lang === 'uz'}
-              className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'uz' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${lang === 'uz' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               O'zbek
             </button>
             <button
               onClick={() => setLang('ru')}
               aria-pressed={lang === 'ru'}
-              className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'ru' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${lang === 'ru' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               Русский
             </button>

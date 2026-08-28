@@ -6,8 +6,8 @@ export default function Field({ label, required, error, icon: Icon, children }) 
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        {required && <span className="text-red-500 mr-0.5" aria-hidden="true">*</span>}
         {label}
-        {required && <span className="text-red-500 ml-0.5" aria-hidden="true">*</span>}
       </label>
       {Icon ? (
         <div className="relative">
@@ -15,7 +15,7 @@ export default function Field({ label, required, error, icon: Icon, children }) 
           {children}
         </div>
       ) : children}
-      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 }

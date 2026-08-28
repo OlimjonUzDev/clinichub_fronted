@@ -71,14 +71,14 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('dashboard.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('dashboard.title')}</h1>
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            <StatCard label={t('dashboard.today')} value={today.length} icon={CalendarDays} color="bg-teal-500" />
+            <StatCard label={t('dashboard.today')} value={today.length} icon={CalendarDays} color="bg-indigo-500" />
             <StatCard label={t('dashboard.upcoming')} value={upcomingCount} icon={Clock} color="bg-amber-500" />
             <StatCard label={t('dashboard.completed_month')} value={completedThisMonth} icon={CheckCircle2} color="bg-green-500" />
             <StatCard label={t('dashboard.total_patients')} value={totalPatients} icon={Users} color="bg-purple-500" />
@@ -95,7 +95,7 @@ export default function Dashboard() {
                   const patientName = resolveName(a.patient, patients, lang);
                   return (
                     <div key={a.id} className="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg transition-colors">
-                      <div className="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                         <UserIcon size={15} />
                       </div>
                       <div className="flex-1 min-w-0">

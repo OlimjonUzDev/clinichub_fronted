@@ -28,10 +28,10 @@ export default function Chat() {
 
   return (
     <Layout>
-      <button onClick={() => navigate(-1)} className="text-sm text-teal-600 hover:underline mb-4">
+      <button onClick={() => navigate(-1)} className="text-sm text-indigo-600 hover:underline mb-4">
         ← {t('appointments.title')}
       </button>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">
         {patientName ? `${patientName}${dateLabel ? ` · ${dateLabel}` : ''}` : t('chat.title')}
       </h1>
       <ChatWindow appointmentId={appointmentId} />

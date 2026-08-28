@@ -27,7 +27,7 @@ export default function Payouts() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('payouts.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('payouts.title')}</h1>
 
       {!loading && payouts.length > 0 && (
         <div className="grid grid-cols-2 gap-3 mb-5 max-w-md">
@@ -54,7 +54,7 @@ export default function Payouts() {
             <div key={p.id} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-                  <Wallet size={14} className="text-teal-500" />
+                  <Wallet size={14} className="text-indigo-500" />
                   {Number(p.amount).toLocaleString()}
                 </div>
                 <span className={statusBadgeCls(p.status)}>{t(`payouts.status.${p.status}`) || p.status}</span>

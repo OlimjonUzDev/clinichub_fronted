@@ -2,10 +2,10 @@
 // jamlaydi — admin panel dizayn tizimiga moslab (border-gray-200, rounded-lg/xl,
 // py-2.5). Portal-darajasidagi UI izchillik ishi (TASKS.md emas).
 export const fieldCls =
-  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
+  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition";
 
 export const selectCls =
-  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent bg-white transition appearance-none";
+  "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent bg-white transition appearance-none";
 
 export const sectionLabelCls = "text-xs font-semibold text-gray-500 uppercase tracking-wide";
 

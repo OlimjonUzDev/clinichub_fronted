@@ -111,7 +111,7 @@ export default function ChatWindow({ appointmentId }) {
           type="submit"
           disabled={sending || !text.trim()}
           aria-label={t('chat.send')}
-          className="w-9 h-9 flex items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50 shrink-0"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition disabled:opacity-50 shrink-0"
         >
           {sending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
         </button>

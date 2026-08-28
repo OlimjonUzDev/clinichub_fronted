@@ -139,7 +139,7 @@ export default function TimeSlotPicker({ doctorId, token, durationMinutes, date,
                   aria-pressed={startTime === slot.value}
                   aria-label={`${slot.label}${slot.disabled ? ` — ${t('doctor.slot_busy')}` : ''}`}
                   onClick={() => onStartTimeChange(slot.value)}
-                  className={`text-xs font-medium rounded-lg py-2 transition-colors ${
+                  className={`text-xs font-medium rounded-lg py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 ${
                     slot.disabled
                       ? 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
                       : startTime === slot.value

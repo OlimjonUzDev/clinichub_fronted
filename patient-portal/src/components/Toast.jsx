@@ -19,7 +19,7 @@ export default function Toast({ message, onClose, closeLabel, duration = 5000 })
     >
       <AlertCircle size={16} className="shrink-0 mt-0.5" />
       <span className="flex-1">{message}</span>
-      <button type="button" onClick={onClose} aria-label={closeLabel} className="text-red-300 hover:text-red-500 shrink-0">
+      <button type="button" onClick={onClose} aria-label={closeLabel} className="text-red-300 hover:text-red-500 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 rounded">
         <X size={14} />
       </button>
     </div>

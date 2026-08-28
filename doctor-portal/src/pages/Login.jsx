@@ -7,7 +7,7 @@ import { useLang } from '../context/LangContext';
 import Field from '../components/Field';
 import { bannerCls } from '../lib/formStyles';
 
-const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
 
 const LogoIcon = () => (
   <svg width="64" height="70" viewBox="0 0 64 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,14 +53,14 @@ export default function Login() {
           <button
             onClick={() => setLang('uz')}
             aria-pressed={lang === 'uz'}
-            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'uz' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${lang === 'uz' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             O'zbek
           </button>
           <button
             onClick={() => setLang('ru')}
             aria-pressed={lang === 'ru'}
-            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-inset ${lang === 'ru' ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+            className={`px-3 py-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-inset ${lang === 'ru' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
           >
             Русский
           </button>
@@ -72,7 +72,7 @@ export default function Login() {
           <div className="flex flex-col items-center mb-8">
             <LogoIcon />
             <div className="mt-3 text-center">
-              <div className="text-xl font-bold text-teal-600">HomeCare+</div>
+              <div className="text-xl font-bold text-indigo-600">HomeCare+</div>
               <div className="text-xs text-gray-400 tracking-widest uppercase mt-0.5">Doctor Portal</div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? t('auth.hide_password') : t('auth.show_password')}
                   aria-pressed={showPassword}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -126,7 +126,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-teal-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
+              className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1"
             >
               {loading ? t('auth.signing_in') : t('auth.signin')}
             </button>

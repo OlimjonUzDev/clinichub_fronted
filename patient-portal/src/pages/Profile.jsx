@@ -14,7 +14,7 @@ const EMPTY_FORM = {
   phone_number: '', national_id: '', address: '',
 };
 
-const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition";
 
 export default function Profile() {
   const [form, setForm] = useState(EMPTY_FORM);
@@ -82,7 +82,7 @@ export default function Profile() {
           {initials}
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-800">{t('profile.title')}</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t('profile.title')}</h1>
           <p className="text-sm text-gray-400">{form.name_uz || '—'}</p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function Profile() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto bg-indigo-600 text-white text-sm font-medium py-2.5 px-8 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+          className="w-full sm:w-auto bg-indigo-600 text-white text-sm font-medium py-2.5 px-8 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
         >
           {saving ? t('profile.saving') : t('profile.save')}
         </button>

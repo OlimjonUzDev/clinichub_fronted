@@ -13,7 +13,7 @@ import { useLookup, resolveName } from '../lib/useLookup';
 import { jitsiUrlFor } from '../lib/videoCall';
 import { statusBadgeCls } from '../lib/statusBadge';
 
-const iconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition disabled:opacity-50";
+const iconBtnCls = "w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-50";
 
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -101,7 +101,7 @@ export default function MyAppointments() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
@@ -204,7 +204,7 @@ export default function MyAppointments() {
                     <button
                       onClick={() => handleReschedule(a)}
                       disabled={rescheduleSaving || !rescheduleDate || !rescheduleTime}
-                      className="mt-3 bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                      className="mt-3 bg-indigo-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
                     >
                       {rescheduleSaving ? t('appointments.rescheduling') : t('appointments.reschedule_confirm')}
                     </button>

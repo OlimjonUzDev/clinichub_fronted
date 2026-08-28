@@ -66,7 +66,7 @@ function CheckoutForm({ invoice, token, onPaid, t }) {
       <button
         type="submit"
         disabled={!stripe || processing}
-        className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+        className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
       >
         {processing ? t('payments.processing') : t('payments.pay_button')}
       </button>
@@ -108,7 +108,7 @@ export default function Payments() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('payments.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('payments.title')}</h1>
 
       {!stripePromise && (
         <div className="mb-4 text-amber-700 text-xs bg-amber-50 border border-amber-100 rounded-lg py-2.5 px-4">
@@ -143,7 +143,7 @@ export default function Payments() {
                   {inv.status === 'pending' && stripePromise && (
                     <button
                       onClick={() => setPayingId(payingId === inv.id ? null : inv.id)}
-                      className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 hover:bg-indigo-50 transition"
+                      className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 transition"
                     >
                       <CreditCard size={13} /> {t('payments.pay_button')}
                     </button>

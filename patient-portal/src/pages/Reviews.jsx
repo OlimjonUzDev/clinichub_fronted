@@ -21,6 +21,7 @@ function StarPicker({ value, onChange, t }) {
           onClick={() => onChange(i)}
           aria-label={`${i} ${t('reviews.star_unit')}`}
           aria-pressed={i <= value}
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded"
         >
           <Star size={20} className={i <= value ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'} />
         </button>
@@ -92,7 +93,7 @@ function ReviewForm({ appointment, patientId, doctorName, onSubmitted, t }) {
       <button
         type="submit"
         disabled={saving}
-        className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+        className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
       >
         {saving ? t('reviews.submitting') : t('reviews.submit')}
       </button>
@@ -150,7 +151,7 @@ export default function Reviews() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('reviews.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('reviews.title')}</h1>
 
       {loading ? (
         <LoadingState text={t('common.loading')} />

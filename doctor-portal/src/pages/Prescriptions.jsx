@@ -79,7 +79,7 @@ function PrescriptionForm({ appointment, doctorId, onSaved, t }) {
           <div className={`flex items-center gap-1.5 ${sectionLabelCls}`}>
             <Pill size={13} /> {t('prescriptions.medications')}
           </div>
-          <button type="button" onClick={addItem} className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded px-1">
+          <button type="button" onClick={addItem} className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded px-1">
             <Plus size={13} /> {t('prescriptions.add_medication')}
           </button>
         </div>
@@ -132,7 +132,7 @@ function PrescriptionForm({ appointment, doctorId, onSaved, t }) {
       <button
         type="submit"
         disabled={saving}
-        className="bg-teal-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
+        className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1"
       >
         {saving ? t('prescriptions.saving') : t('prescriptions.save')}
       </button>
@@ -180,7 +180,7 @@ export default function Prescriptions() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
@@ -203,17 +203,17 @@ export default function Prescriptions() {
                         type="button"
                         onClick={() => setExpandedId(isOpen ? null : a.id)}
                         aria-expanded={isOpen}
-                        className="w-full flex items-center justify-between gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded"
+                        className="w-full flex items-center justify-between gap-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded"
                       >
                         <div>
                           <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-                            <User size={14} className="text-teal-500" /> {patientName || `#${idOf(a.patient)}`}
+                            <User size={14} className="text-indigo-500" /> {patientName || `#${idOf(a.patient)}`}
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
                             <Calendar size={12} /> {new Date(a.start_time).toLocaleDateString()}
                           </div>
                         </div>
-                        <span className="text-xs font-medium text-teal-600 shrink-0">
+                        <span className="text-xs font-medium text-indigo-600 shrink-0">
                           {isOpen ? t('prescriptions.collapse') : t('prescriptions.write_new')}
                         </span>
                       </button>
@@ -247,7 +247,7 @@ export default function Prescriptions() {
                     <div key={p.id} className={cardCls}>
                       <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                         <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-                          <User size={14} className="text-teal-500" />
+                          <User size={14} className="text-indigo-500" />
                           {patientName || `#${idOf(p.patient)}`}
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-gray-400">

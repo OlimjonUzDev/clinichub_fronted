@@ -26,13 +26,15 @@ export default function Layout({ children }) {
           <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden text-xs font-medium">
             <button
               onClick={() => setLang('uz')}
-              className={`px-3 py-1.5 transition-colors ${lang === 'uz' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              aria-pressed={lang === 'uz'}
+              className={`px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300 ${lang === 'uz' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               O'zbek
             </button>
             <button
               onClick={() => setLang('ru')}
-              className={`px-3 py-1.5 transition-colors ${lang === 'ru' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              aria-pressed={lang === 'ru'}
+              className={`px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300 ${lang === 'ru' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               Русский
             </button>

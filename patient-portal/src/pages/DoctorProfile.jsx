@@ -24,7 +24,7 @@ const WEEKDAY_LABELS = [
 // A FK field may come back as a bare id or a nested object depending on the serializer.
 const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
 
-const fieldCls = "w-full border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition";
+const fieldCls = "w-full border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition";
 
 function BookField({ icon: Icon, label, required, children }) {
   return (
@@ -151,7 +151,7 @@ export default function DoctorProfile() {
 
   return (
     <Layout>
-      <button onClick={() => navigate(-1)} className="text-sm text-indigo-600 hover:underline mb-4">
+      <button onClick={() => navigate(-1)} className="text-sm text-indigo-600 hover:underline mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded">
         ← {t('nav.home')}
       </button>
 
@@ -260,7 +260,7 @@ export default function DoctorProfile() {
             <button
               type="submit"
               disabled={booking || !date || !startTime}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
             >
               {booking && <Loader2 size={15} className="animate-spin" />}
               {booking ? t('doctor.booking') : t('doctor.book_button')}

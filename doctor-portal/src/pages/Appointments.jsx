@@ -13,7 +13,7 @@ import { statusBadgeCls } from '../lib/statusBadge';
 
 const FILTERS = ['all', 'pending', 'confirmed', 'completed', 'cancelled'];
 
-const actionIconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
+const actionIconBtnCls = "w-7 h-7 flex items-center justify-center rounded border transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
@@ -75,7 +75,7 @@ export default function Appointments() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         {FILTERS.map((f) => (
@@ -83,8 +83,8 @@ export default function Appointments() {
             key={f}
             onClick={() => setFilter(f)}
             aria-pressed={filter === f}
-            className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1 ${
-              filter === f ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-gray-600 border-gray-200 hover:border-teal-300'
+            className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 ${
+              filter === f ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
             }`}
           >
             {f === 'all' ? t('appointments.filter_all') : t(`status.${f}`)}
@@ -110,7 +110,7 @@ export default function Appointments() {
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
                     <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-                      <User size={14} className="text-teal-500" />
+                      <User size={14} className="text-indigo-500" />
                       {patientName || `#${idOf(a.patient)}`}
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
@@ -125,7 +125,7 @@ export default function Appointments() {
                       {t(`status.${a.status}`)}
                     </span>
                     {rowActing && (
-                      <span className="flex items-center gap-1 text-xs text-teal-600" role="status">
+                      <span className="flex items-center gap-1 text-xs text-indigo-600" role="status">
                         <Loader2 size={12} className="animate-spin" /> {t('appointments.acting')}
                       </span>
                     )}
@@ -146,7 +146,7 @@ export default function Appointments() {
                         to={`/chat/${a.id}`}
                         title={t('appointments.open_chat')}
                         aria-label={t('appointments.open_chat')}
-                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-teal-400 hover:text-teal-600 focus-visible:ring-teal-400`}
+                        className={`${actionIconBtnCls} border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 focus-visible:ring-indigo-300`}
                       >
                         <MessageCircle size={13} />
                       </Link>

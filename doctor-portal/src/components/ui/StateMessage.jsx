@@ -7,7 +7,7 @@ export function LoadingState({ text, compact = false, className = '' }) {
   const padCls = compact ? 'py-4' : 'py-10';
   return (
     <div className={`flex flex-col items-center justify-center gap-2 ${padCls} text-gray-400 ${className}`}>
-      <Loader2 size={22} className="animate-spin text-teal-500" />
+      <Loader2 size={22} className="animate-spin text-indigo-500" />
       <span className="text-sm">{text}</span>
     </div>
   );

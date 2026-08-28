@@ -87,9 +87,9 @@ export default function ChatWindow({ appointmentId }) {
             const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             return (
               <div key={m.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm ${own ? 'bg-teal-600 text-white rounded-br-sm' : 'bg-gray-100 text-gray-800 rounded-bl-sm'}`}>
+                <div className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm ${own ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-gray-100 text-gray-800 rounded-bl-sm'}`}>
                   <div className="whitespace-pre-wrap break-words">{m.text}</div>
-                  <div className={`text-[10px] mt-1 ${own ? 'text-teal-100' : 'text-gray-400'}`}>{time}</div>
+                  <div className={`text-[10px] mt-1 ${own ? 'text-indigo-100' : 'text-gray-400'}`}>{time}</div>
                 </div>
               </div>
             );
@@ -111,14 +111,14 @@ export default function ChatWindow({ appointmentId }) {
           onChange={(e) => { setText(e.target.value); if (sendError) setSendError(''); }}
           placeholder={t('chat.placeholder')}
           aria-label={t('chat.placeholder')}
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
+          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
         />
         <button
           type="submit"
           disabled={sending || !text.trim()}
           aria-label={t('chat.send')}
           title={t('chat.send')}
-          className="w-9 h-9 flex items-center justify-center rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1"
         >
           {sending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
         </button>

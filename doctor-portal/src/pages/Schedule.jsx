@@ -10,7 +10,7 @@ import { LoadingState, WarningState, ErrorState } from '../components/ui/StateMe
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { fieldCls } from '../lib/formStyles';
 
-const iconBtnCls = "w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
+const iconBtnCls = "w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1";
 
 export default function Schedule() {
   const [schedule, setSchedule] = useState([]);
@@ -98,7 +98,7 @@ export default function Schedule() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('schedule.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('schedule.title')}</h1>
 
       <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
         {[0, 1, 2, 3, 4, 5, 6].map((weekday) => {
@@ -110,7 +110,7 @@ export default function Schedule() {
                 <div className="flex items-center gap-2 w-36 shrink-0">
                   <span
                     aria-hidden="true"
-                    className={`w-2 h-2 rounded-full shrink-0 ${existing ? 'bg-teal-500' : 'bg-gray-300'}`}
+                    className={`w-2 h-2 rounded-full shrink-0 ${existing ? 'bg-indigo-500' : 'bg-gray-300'}`}
                   />
                   <span className="text-sm font-medium text-gray-800">{weekdayLabel(weekday, lang)}</span>
                 </div>
@@ -119,7 +119,7 @@ export default function Schedule() {
                   <>
                     {existing ? (
                       <div className="flex items-center gap-1.5 text-sm text-gray-600 flex-1">
-                        <Clock size={13} className="text-teal-500" />
+                        <Clock size={13} className="text-indigo-500" />
                         {existing.start_time.slice(0, 5)} – {existing.end_time.slice(0, 5)}
                       </div>
                     ) : (
@@ -130,7 +130,7 @@ export default function Schedule() {
                         onClick={() => openEditor(weekday, existing)}
                         title={existing ? t('schedule.edit') : t('schedule.add')}
                         aria-label={`${existing ? t('schedule.edit') : t('schedule.add')} — ${weekdayLabel(weekday, lang)}`}
-                        className={`${iconBtnCls} hover:border-teal-400 hover:text-teal-600 focus-visible:ring-teal-400`}
+                        className={`${iconBtnCls} hover:border-indigo-400 hover:text-indigo-600 focus-visible:ring-indigo-300`}
                       >
                         {existing ? <Pencil size={13} /> : <Plus size={13} />}
                       </button>
@@ -139,7 +139,7 @@ export default function Schedule() {
                           onClick={() => requestDelete(existing)}
                           title={t('schedule.delete')}
                           aria-label={`${t('schedule.delete')} — ${weekdayLabel(weekday, lang)}`}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 bg-red-50 hover:bg-red-100 hover:border-red-300 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+                          className="w-7 h-7 flex items-center justify-center rounded border border-red-200 text-red-500 bg-red-50 hover:bg-red-100 hover:border-red-300 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -163,7 +163,7 @@ export default function Schedule() {
                       disabled={saving}
                       title={saving ? t('schedule.saving') : t('schedule.save')}
                       aria-label={saving ? t('schedule.saving') : t('schedule.save')}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-1"
+                      className="w-7 h-7 flex items-center justify-center rounded bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1"
                     >
                       {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
                     </button>
@@ -171,7 +171,7 @@ export default function Schedule() {
                       onClick={() => setEditingWeekday(null)}
                       title={t('common.cancel')}
                       aria-label={t('common.cancel')}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-1"
+                      className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-1"
                     >
                       <X size={15} />
                     </button>

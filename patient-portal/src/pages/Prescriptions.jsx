@@ -37,7 +37,7 @@ export default function Prescriptions() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('prescriptions.title')}</h1>
 
       {loading ? (
         <LoadingState text={t('common.loading')} />

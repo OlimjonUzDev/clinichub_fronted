@@ -9,7 +9,7 @@ import { LoadingState, WarningState } from '../components/ui/StateMessage';
 import Field from '../components/Field';
 import { sectionLabelCls } from '../lib/formStyles';
 
-const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition";
+const inputCls = "w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition";
 
 const formFromDoctor = (doctor) => ({
   name_uz: doctor.name_uz || '', name_ru: doctor.name_ru || '',
@@ -58,11 +58,11 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
   return (
     <Layout>
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-full bg-teal-100 text-teal-600 text-xl font-bold flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold flex items-center justify-center shrink-0 overflow-hidden">
           {form.avatar ? <img src={form.avatar} alt="" className="w-full h-full object-cover" /> : initials}
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-800">{t('profile.title')}</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t('profile.title')}</h1>
           <p className="text-sm text-gray-400 flex items-center gap-1.5 flex-wrap">
             <Stethoscope size={13} /> {resolveName(doctor.speciality, specialities, lang) || '—'}
             <span>·</span>
@@ -138,7 +138,7 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
         <button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto bg-teal-600 text-white text-sm font-medium py-2.5 px-8 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-60"
+          className="w-full sm:w-auto bg-indigo-600 text-white text-sm font-medium py-2.5 px-8 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
         >
           {saving ? t('profile.saving') : t('profile.save')}
         </button>

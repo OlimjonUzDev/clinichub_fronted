@@ -48,7 +48,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         </div>
         {!collapsed && (
           <div>
-            <div className="text-sm font-bold text-teal-600 leading-tight">HomeCare+</div>
+            <div className="text-sm font-bold text-indigo-600 leading-tight">HomeCare+</div>
             <div className="text-xs text-gray-400 tracking-widest uppercase">Doctor Portal</div>
           </div>
         )}
@@ -65,10 +65,10 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               title={collapsed ? item.label : ''}
               aria-label={item.label}
               aria-current={active ? 'page' : undefined}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-400
-                ${active ? 'text-teal-600 bg-teal-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'}`}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-300
+                ${active ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'}`}
             >
-              <Icon size={17} className={active ? 'text-teal-500' : 'text-gray-400'} />
+              <Icon size={17} className={active ? 'text-indigo-500' : 'text-gray-400'} />
               {!collapsed && <span>{item.label}</span>}
             </button>
           );
@@ -92,7 +92,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? t('sidebar.expand') : t('sidebar.collapse')}
           aria-expanded={!collapsed}
-          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+          className="w-full flex items-center justify-center py-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
         >
           {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>

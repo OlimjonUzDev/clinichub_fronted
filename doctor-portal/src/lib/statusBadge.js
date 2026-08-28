@@ -18,5 +18,5 @@ export const STATUS_COLORS = {
 
 export function statusBadgeCls(status) {
   const color = STATUS_COLORS[status] || STATUS_COLORS.draft;
-  return `text-xs font-medium px-2.5 py-1 rounded-full border ${color}`;
+  return `text-xs font-medium px-2 py-0.5 rounded border ${color}`;
 }

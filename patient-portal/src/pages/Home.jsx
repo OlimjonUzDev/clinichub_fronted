@@ -48,7 +48,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('home.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('home.title')}</h1>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
@@ -92,7 +92,7 @@ export default function Home() {
           title={t('home.no_data')}
           description={hasFilters ? t('home.no_data_hint') : undefined}
           action={hasFilters && (
-            <button onClick={clearFilters} className="text-xs font-medium text-indigo-600 hover:underline">
+            <button onClick={clearFilters} className="text-xs font-medium text-indigo-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 rounded">
               {t('home.clear_filters')}
             </button>
           )}
@@ -122,7 +122,7 @@ export default function Home() {
 
               <button
                 onClick={() => navigate(`/doctor/${doc.id}`)}
-                className="mt-1 w-full bg-indigo-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-indigo-700 transition"
+                className="mt-1 w-full bg-indigo-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition"
               >
                 {t('home.view_profile')}
               </button>

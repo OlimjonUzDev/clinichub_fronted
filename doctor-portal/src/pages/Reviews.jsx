@@ -37,7 +37,7 @@ export default function Reviews() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h1 className="text-xl font-bold text-gray-800">{t('reviews.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-800">{t('reviews.title')}</h1>
         {ratings.length > 0 && (
           <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-1.5">
             <Star size={15} className="text-yellow-400 fill-yellow-400" />
@@ -61,7 +61,7 @@ export default function Reviews() {
               <div key={r.id} className="bg-white border border-gray-200 rounded-xl p-4">
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
-                    <User size={14} className="text-teal-500" /> {patientName || `#${idOf(r.patient)}`}
+                    <User size={14} className="text-indigo-500" /> {patientName || `#${idOf(r.patient)}`}
                   </div>
                   <Stars score={r.score} />
                 </div>

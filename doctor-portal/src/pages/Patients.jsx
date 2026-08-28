@@ -44,7 +44,7 @@ export default function Patients() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">{t('patients.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('patients.title')}</h1>
 
       <div className="relative mb-6 max-w-sm">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -52,7 +52,8 @@ export default function Patients() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('patients.title')}
-          className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+          aria-label={t('patients.title')}
+          className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
         />
       </div>
 
@@ -69,7 +70,7 @@ export default function Patients() {
             return (
               <div key={id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-2.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-teal-50 flex items-center justify-center text-teal-500 shrink-0">
+                  <div className="w-11 h-11 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 shrink-0">
                     <User size={18} />
                   </div>
                   <div className="min-w-0">

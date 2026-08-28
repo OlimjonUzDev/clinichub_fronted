@@ -23,7 +23,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, canc
         role="alertdialog"
         aria-modal="true"
         aria-label={title || message}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+        className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3">
@@ -41,7 +41,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, canc
           <button
             type="button"
             onClick={onCancel}
-            className="text-sm font-medium text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+            className="text-sm font-medium text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
           >
             {cancelLabel}
           </button>
@@ -49,8 +49,8 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, canc
             type="button"
             onClick={onConfirm}
             autoFocus
-            className={`text-sm font-medium text-white px-4 py-2 rounded-lg transition ${
-              danger ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-600 hover:bg-indigo-700'
+            className={`text-sm font-medium text-white px-4 py-2 rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
+              danger ? 'bg-red-500 hover:bg-red-600 focus-visible:ring-red-300' : 'bg-indigo-600 hover:bg-indigo-700 focus-visible:ring-indigo-300'
             }`}
           >
             {confirmLabel}
