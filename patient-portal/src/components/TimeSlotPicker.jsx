@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Calendar, Clock } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useLang } from '../context/LangContext';
 import { fieldCls } from '../lib/formStyles';
+import { toLocalDateStr } from '../lib/dateUtils';
 
 // DoctorProfile.jsx dagi band qilish formasidan chiqarilgan, qayta ishlatiluvchi
 // sana+vaqt tanlash bloki (ish jadvali + band vaqtlar asosida). Faqat UI/hisoblash —
@@ -36,6 +37,8 @@ function buildCandidateSlots(dateStr, startHHMM, endHHMM, durationMin) {
  */
 export default function TimeSlotPicker({ doctorId, token, durationMinutes, date, onDateChange, startTime, onStartTimeChange, excludeInterval }) {
   const { t } = useLang();
+  const dateInputId = useId();
+  const startTimeLabelId = useId();
   const [schedule, setSchedule] = useState([]);
   const [busySlotsData, setBusySlotsData] = useState({ key: null, slots: [] });
 
@@ -93,21 +96,22 @@ export default function TimeSlotPicker({ doctorId, token, durationMinutes, date,
   return (
     <div className="space-y-3">
       <div>
-        <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1">
+        <label htmlFor={dateInputId} className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1">
           <Calendar size={14} /> {t('doctor.date')}<span className="text-red-500" aria-hidden="true"> *</span>
         </label>
         <input
+          id={dateInputId}
           type="date"
           required
-          min={new Date().toISOString().slice(0, 10)}
+          min={toLocalDateStr(new Date())}
           value={date}
           onChange={(e) => { onDateChange(e.target.value); onStartTimeChange(''); }}
           className={fieldCls}
         />
       </div>
 
-      <div>
-        <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
+      <div role="group" aria-labelledby={startTimeLabelId}>
+        <label id={startTimeLabelId} className="flex items-center gap-1.5 text-xs font-medium text-gray-600 mb-1.5">
           <Clock size={14} /> {t('doctor.start_time')}<span className="text-red-500" aria-hidden="true">*</span>
         </label>
 

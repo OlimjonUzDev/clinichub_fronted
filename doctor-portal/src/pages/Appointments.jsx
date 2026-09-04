@@ -18,6 +18,7 @@ const actionIconBtnCls = "w-7 h-7 flex items-center justify-center rounded borde
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState('all');
   // `acting` — { id, status } shaklida: qaysi tashrifning qaysi amali hozir
   // bajarilayotganini aniq bilish uchun (bir nechta tugma bo'lgani sabab shart).
@@ -32,8 +33,8 @@ export default function Appointments() {
 
   const load = () => {
     fetchAll('/appointments/appointment/', token)
-      .then((data) => { setAppointments(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setAppointments(data); setError(false); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   };
 
   useEffect(load, [token]);
@@ -94,6 +95,8 @@ export default function Appointments() {
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('appointments.load_error')} />
       ) : !doctor ? (
         <WarningState text={t('auth.no_doctor_profile')} />
       ) : filtered.length === 0 ? (
@@ -129,7 +132,7 @@ export default function Appointments() {
                         <Loader2 size={12} className="animate-spin" /> {t('appointments.acting')}
                       </span>
                     )}
-                    {a.status === 'confirmed' && (
+                    {a.status === 'confirmed' && (a.consultation_type === 'video' || a.consultation_type === 'voice') && (
                       <a
                         href={jitsiUrlFor(a)}
                         target="_blank"

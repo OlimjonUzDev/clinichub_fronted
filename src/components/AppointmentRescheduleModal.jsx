@@ -16,11 +16,17 @@ const toLocalInput = (dt) => {
 export default function AppointmentRescheduleModal({ item, onClose, onRescheduled }) {
   const [startTime, setStartTime] = useState(toLocalInput(item.start_time));
   const [endTime, setEndTime] = useState(toLocalInput(item.end_time));
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const { token } = useAuth();
   const { t } = useLang();
 
   const handleSave = async () => {
+    if (endTime && startTime && new Date(endTime) <= new Date(startTime)) {
+      setError(t('appt.reschedule_invalid_time'));
+      return;
+    }
+    setError('');
     setSaving(true);
     try {
       // status endi PATCH orqali o'zgarmaydi (backend xavfsizlik uchun read-only qilgan) —
@@ -69,6 +75,7 @@ export default function AppointmentRescheduleModal({ item, onClose, onReschedule
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('appt.end_time')}</label>
           <input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputCls} />
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
       </div>
     </Modal>

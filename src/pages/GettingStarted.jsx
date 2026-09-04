@@ -88,20 +88,22 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
     return nameOf(ct) || c.phone_number || `Klinika ${c.id}`;
   };
 
-  const inp = (name, extra = {}) => (
+  const inp = (name, extra = {}, required = false) => (
     <input
       value={form[name] ?? ''}
       onChange={e => onChange(name, e.target.value)}
       className={inputCls}
+      required={required}
       {...extra}
     />
   );
 
-  const sel = (name, options) => (
+  const sel = (name, options, required = false) => (
     <select
       value={form[name] ?? ''}
       onChange={e => onChange(name, e.target.value)}
       className={selectCls}
+      required={required}
     >
       <option value="">{t('gs.select')}</option>
       {options.map(o => (
@@ -112,8 +114,8 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
 
   if (stepKey === 'medical_center') return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={t('gs.name_uz')} required>{inp('name_uz')}</Field>
-      <Field label={t('gs.name_ru')} required>{inp('name_ru')}</Field>
+      <Field label={t('gs.name_uz')} required>{inp('name_uz', {}, true)}</Field>
+      <Field label={t('gs.name_ru')} required>{inp('name_ru', {}, true)}</Field>
       <Field label={t('gs.contact')}>
         {inp('contact', { placeholder: '+998 90 123 45 67' })}
       </Field>
@@ -149,35 +151,35 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
 
   if (stepKey === 'clinic_type') return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={t('gs.name_uz')} required>{inp('name_uz')}</Field>
-      <Field label={t('gs.name_ru')} required>{inp('name_ru')}</Field>
+      <Field label={t('gs.name_uz')} required>{inp('name_uz', {}, true)}</Field>
+      <Field label={t('gs.name_ru')} required>{inp('name_ru', {}, true)}</Field>
     </div>
   );
 
   if (stepKey === 'speciality') return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={t('gs.name_uz')} required>{inp('name_uz')}</Field>
-      <Field label={t('gs.name_ru')} required>{inp('name_ru')}</Field>
+      <Field label={t('gs.name_uz')} required>{inp('name_uz', {}, true)}</Field>
+      <Field label={t('gs.name_ru')} required>{inp('name_ru', {}, true)}</Field>
     </div>
   );
 
   if (stepKey === 'rank_type') return (
     <div className="grid grid-cols-2 gap-3">
-      <Field label={t('gs.name_uz')} required>{inp('name_uz')}</Field>
-      <Field label={t('gs.name_ru')} required>{inp('name_ru')}</Field>
+      <Field label={t('gs.name_uz')} required>{inp('name_uz', {}, true)}</Field>
+      <Field label={t('gs.name_ru')} required>{inp('name_ru', {}, true)}</Field>
     </div>
   );
 
   if (stepKey === 'clinic') return (
     <div className="grid grid-cols-2 gap-3">
       <Field label={t('gs.medical_center')} required>
-        {sel('medical_center', rel.medicalCenters.map(m => ({ id: m.id, label: nameOf(m) })))}
+        {sel('medical_center', rel.medicalCenters.map(m => ({ id: m.id, label: nameOf(m) })), true)}
       </Field>
       <Field label={t('gs.clinic_type')} required>
-        {sel('clinic_type', rel.clinicTypes.map(c => ({ id: c.id, label: nameOf(c) })))}
+        {sel('clinic_type', rel.clinicTypes.map(c => ({ id: c.id, label: nameOf(c) })), true)}
       </Field>
       <Field label={t('gs.phone')} required>
-        {inp('phone_number', { placeholder: '+998 90 123 45 67' })}
+        {inp('phone_number', { placeholder: '+998 90 123 45 67' }, true)}
       </Field>
     </div>
   );
@@ -185,31 +187,32 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
   if (stepKey === 'doctor') return (
     <div className="grid grid-cols-2 gap-3">
       <Field label={t('gs.user')} required>
-        {sel('user', rel.users.map(u => ({ id: u.id, label: u.username || u.email })))}
+        {sel('user', rel.users.map(u => ({ id: u.id, label: u.username || u.email })), true)}
       </Field>
       <Field label={t('gs.gender')} required>
         <select
           value={form.gender ?? 'erkak'}
           onChange={e => onChange('gender', e.target.value)}
           className={selectCls}
+          required
         >
           <option value="erkak">{t('doctor_create.male')}</option>
           <option value="ayol">{t('doctor_create.female')}</option>
         </select>
       </Field>
-      <Field label={t('gs.name_uz')} required>{inp('name_uz')}</Field>
-      <Field label={t('gs.name_ru')} required>{inp('name_ru')}</Field>
+      <Field label={t('gs.name_uz')} required>{inp('name_uz', {}, true)}</Field>
+      <Field label={t('gs.name_ru')} required>{inp('name_ru', {}, true)}</Field>
       <Field label={t('gs.speciality')} required>
-        {sel('speciality', rel.specialities.map(s => ({ id: s.id, label: nameOf(s) })))}
+        {sel('speciality', rel.specialities.map(s => ({ id: s.id, label: nameOf(s) })), true)}
       </Field>
       <Field label={t('gs.rank')} required>
-        {sel('rank_type', rel.rankTypes.map(r => ({ id: r.id, label: nameOf(r) })))}
+        {sel('rank_type', rel.rankTypes.map(r => ({ id: r.id, label: nameOf(r) })), true)}
       </Field>
       <Field label={t('gs.clinic')} required>
         {sel('clinic', rel.clinics.map(c => ({
           id:    c.id,
           label: clinicLabel(c),
-        })))}
+        })), true)}
       </Field>
     </div>
   );
@@ -217,16 +220,16 @@ function StepForm({ stepKey, form, onChange, rel, lang, t }) {
   if (stepKey === 'rank_price') return (
     <div className="grid grid-cols-2 gap-3">
       <Field label={t('gs.rank')} required>
-        {sel('rank_type', rel.rankTypes.map(r => ({ id: r.id, label: nameOf(r) })))}
+        {sel('rank_type', rel.rankTypes.map(r => ({ id: r.id, label: nameOf(r) })), true)}
       </Field>
       <Field label={t('gs.clinic')} required>
         {sel('clinic', rel.clinics.map(c => ({
           id:    c.id,
           label: clinicLabel(c),
-        })))}
+        })), true)}
       </Field>
       <Field label={t('gs.price')} required>
-        {inp('price', { type: 'number', min: 0, placeholder: '0' })}
+        {inp('price', { type: 'number', min: 0, placeholder: '0' }, true)}
       </Field>
       <Field label={t('gs.duration')}>
         {inp('duration_min', { type: 'number', min: 5, placeholder: '30' })}

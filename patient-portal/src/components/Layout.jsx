@@ -12,6 +12,7 @@ export default function Layout({ children }) {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) setCollapsed(true);
+      else setCollapsed(false);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

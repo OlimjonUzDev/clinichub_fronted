@@ -98,6 +98,7 @@ export default function Login() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder={t('auth.username')}
                   className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                  required
                 />
               </div>
             </div>
@@ -115,6 +116,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('auth.password')}
                   className="w-full border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                  required
                 />
                 <button
                   type="button"

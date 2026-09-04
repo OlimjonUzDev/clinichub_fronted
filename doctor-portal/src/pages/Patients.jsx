@@ -5,11 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveRef, idOf } from '../lib/useLookup';
-import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
 
 export default function Patients() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const { token, doctor } = useAuth();
   const { t, lang } = useLang();
@@ -17,8 +18,8 @@ export default function Patients() {
 
   useEffect(() => {
     fetchAll('/appointments/appointment/', token)
-      .then((data) => { setAppointments(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setAppointments(data); setError(false); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   }, [token]);
 
   const myPatients = useMemo(() => {
@@ -59,6 +60,8 @@ export default function Patients() {
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('patients.load_error')} />
       ) : !doctor ? (
         <WarningState text={t('auth.no_doctor_profile')} />
       ) : filtered.length === 0 ? (
@@ -80,12 +83,12 @@ export default function Patients() {
                 </div>
                 {patient?.phone_number && (
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <Phone size={12} /> {patient.phone_number}
+                    <Phone size={12} /> <span className="text-gray-400">{t('patients.phone')}:</span> {patient.phone_number}
                   </div>
                 )}
                 {patient?.birth_date && (
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <Calendar size={12} /> {patient.birth_date}
+                    <Calendar size={12} /> <span className="text-gray-400">{t('patients.birth_date')}:</span> {patient.birth_date}
                   </div>
                 )}
               </div>

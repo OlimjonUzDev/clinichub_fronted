@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
-import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
 
 function Stars({ score }) {
   return (
@@ -20,6 +20,7 @@ function Stars({ score }) {
 export default function Reviews() {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { token, doctor } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
@@ -27,8 +28,8 @@ export default function Reviews() {
   useEffect(() => {
     // Server-side filtered to this doctor's own received ratings.
     fetchAll('/appointments/rating/', token)
-      .then((data) => { setRatings(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setRatings(data); setError(false); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   }, [token]);
 
   const sorted = ratings.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -49,6 +50,8 @@ export default function Reviews() {
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('reviews.load_error')} />
       ) : !doctor ? (
         <WarningState text={t('auth.no_doctor_profile')} />
       ) : sorted.length === 0 ? (

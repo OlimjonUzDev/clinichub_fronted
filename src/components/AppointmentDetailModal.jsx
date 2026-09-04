@@ -16,7 +16,7 @@ export default function AppointmentDetailModal({ item, onClose, fmtDate, patient
       params: { appointment_id: item.id },
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => setPrescription(res.data[0] || null))
+      .then(res => setPrescription(res.data.results?.[0] || null))
       .catch(() => setPrescription(null));
   }, [tab]);
 

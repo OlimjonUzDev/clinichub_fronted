@@ -154,6 +154,8 @@ const translations = {
     // Speciality Edit
     'specialities.edit_title': 'Mutaxassislikni tahrirlash',
     'specialities.edit_error': 'Saqlab bo\'lmadi',
+    'specialities.delete_confirm': 'Bu mutaxassislikni o\'chirishni tasdiqlaysizmi?',
+    'specialities.delete_error': 'O\'chirish mumkin emas',
 
     // Patients
     'patients.title': 'Bemorlar',
@@ -348,6 +350,7 @@ const translations = {
     'appt.reschedule':          'Ko\'chirish',
     'appt.reschedule_title':    'Uchrashuvni ko\'chirish',
     'appt.reschedule_error':    'Ko\'chirib bo\'lmadi',
+    'appt.reschedule_invalid_time': 'Tugash vaqti boshlanish vaqtidan keyin bo\'lishi kerak',
     'appt.cancel_action':       'Bekor qilish',
     'appt.cancel_title':        'Uchrashuvni bekor qilish',
     'appt.cancel_reason':       'Bekor qilish sababi',
@@ -652,6 +655,8 @@ const translations = {
     // Speciality Edit
     'specialities.edit_title': 'Редактировать специальность',
     'specialities.edit_error': 'Не удалось сохранить',
+    'specialities.delete_confirm': 'Вы уверены, что хотите удалить эту специальность?',
+    'specialities.delete_error': 'Невозможно удалить',
 
     // Patients
     'patients.title': 'Пациенты',
@@ -846,6 +851,7 @@ const translations = {
     'appt.reschedule':          'Перенести',
     'appt.reschedule_title':    'Перенести запись',
     'appt.reschedule_error':    'Не удалось перенести',
+    'appt.reschedule_invalid_time': 'Время окончания должно быть позже времени начала',
     'appt.cancel_action':       'Отменить',
     'appt.cancel_title':        'Отмена записи',
     'appt.cancel_reason':       'Причина отмены',

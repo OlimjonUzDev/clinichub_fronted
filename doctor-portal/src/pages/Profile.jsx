@@ -59,7 +59,7 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
     <Layout>
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 text-xl font-bold flex items-center justify-center shrink-0 overflow-hidden">
-          {form.avatar ? <img src={form.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+          {form.avatar ? <img src={form.avatar} alt={form.name_uz || t('profile.avatar')} className="w-full h-full object-cover" /> : initials}
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-800">{t('profile.title')}</h1>

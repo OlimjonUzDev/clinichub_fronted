@@ -38,10 +38,12 @@ const translations = {
     'dashboard.total_patients': 'Jami bemorlar',
     'dashboard.today_list': 'Bugungi jadval',
     'dashboard.no_today': 'Bugun tashrif rejalashtirilmagan',
+    'dashboard.load_error': "Ma'lumotlarni yuklashda xatolik yuz berdi",
 
     // Appointments
     'appointments.title': 'Tashriflar',
     'appointments.no_data': 'Hali tashrif yo\'q',
+    'appointments.load_error': 'Tashriflarni yuklashda xatolik yuz berdi',
     'appointments.filter_all': 'Barchasi',
     'appointments.confirm': 'Tasdiqlash',
     'appointments.complete': 'Yakunlash',
@@ -50,7 +52,6 @@ const translations = {
     'appointments.action_error': 'Amalni bajarishda xatolik yuz berdi',
     'appointments.join_call': 'Video chatga qo\'shilish',
     'appointments.open_chat': 'Yozishmani ochish',
-    'appointments.patient': 'Bemor',
     'appointments.cancel_title': 'Tashrifni bekor qilish',
     'appointments.complete_title': 'Tashrifni yakunlash',
     'appointments.complete_confirm': "Ushbu tashrifni yakunlagach, holatini qaytarib bo'lmaydi. Davom etasizmi?",
@@ -59,6 +60,7 @@ const translations = {
     // Patients
     'patients.title': 'Bemorlarim',
     'patients.no_data': 'Hali bemor yo\'q',
+    'patients.load_error': 'Bemorlarni yuklashda xatolik yuz berdi',
     'patients.visits': 'tashrif',
     'patients.phone': 'Telefon',
     'patients.birth_date': "Tug'ilgan sana",
@@ -71,6 +73,7 @@ const translations = {
     'prescriptions.no_eligible': "Hozircha retsept yozish mumkin bo'lgan yakunlangan tashrif yo'q",
     'prescriptions.issued_title': 'Yozilgan retseptlar',
     'prescriptions.no_data': 'Hali retsept yozilmagan',
+    'prescriptions.load_error': "Ma'lumotlarni yuklashda xatolik yuz berdi",
     'prescriptions.diagnosis_uz': 'Tashxis (lotin)',
     'prescriptions.diagnosis_ru': 'Tashxis (kirill, ixtiyoriy)',
     'prescriptions.notes_uz': 'Izoh (ixtiyoriy)',
@@ -91,7 +94,6 @@ const translations = {
 
     // Schedule
     'schedule.title': 'Ish jadvali',
-    'schedule.weekday': 'Hafta kuni',
     'schedule.start_time': 'Boshlanish vaqti',
     'schedule.end_time': 'Tugash vaqti',
     'schedule.add': 'Kun qo\'shish',
@@ -100,7 +102,7 @@ const translations = {
     'schedule.saving': 'Saqlanmoqda...',
     'schedule.delete': "O'chirish",
     'schedule.delete_confirm': 'Ushbu kunni ish jadvalidan o\'chirishni tasdiqlaysizmi?',
-    'schedule.no_data': 'Ish jadvali hali kiritilmagan',
+    'schedule.load_error': 'Ish jadvalini yuklashda xatolik yuz berdi',
     'schedule.save_error': 'Saqlashda xatolik yuz berdi',
     'schedule.delete_error': "O'chirishda xatolik yuz berdi",
     'schedule.delete_title': "Kunni ish jadvalidan o'chirish",
@@ -110,10 +112,12 @@ const translations = {
     // Reviews
     'reviews.title': 'Sharhlarim',
     'reviews.no_data': 'Sizga hali sharh qoldirilmagan',
+    'reviews.load_error': 'Sharhlarni yuklashda xatolik yuz berdi',
 
     // Payouts
     'payouts.title': "To'lovlarim",
     'payouts.no_data': "Hali to'lov tarixi yo'q",
+    'payouts.load_error': "To'lovlarni yuklashda xatolik yuz berdi",
     'payouts.total_paid': "To'langan",
     'payouts.total_pending': 'Kutilmoqda',
     'payouts.paid_at': "To'langan sana",
@@ -152,10 +156,7 @@ const translations = {
     'chat.send': 'Yuborish',
 
     'common.loading': 'Yuklanmoqda...',
-    'common.close': 'Yopish',
-    'common.confirm': 'Tasdiqlash',
     'common.cancel': 'Bekor qilish',
-    'common.back': 'Orqaga',
     'auth.show_password': "Parolni ko'rsatish",
     'auth.hide_password': 'Parolni berkitish',
     'sidebar.collapse': 'Panelni yig\'ish',
@@ -197,9 +198,11 @@ const translations = {
     'dashboard.total_patients': 'Всего пациентов',
     'dashboard.today_list': 'Расписание на сегодня',
     'dashboard.no_today': 'На сегодня приёмов не запланировано',
+    'dashboard.load_error': 'Ошибка при загрузке данных',
 
     'appointments.title': 'Приёмы',
     'appointments.no_data': 'Пока нет приёмов',
+    'appointments.load_error': 'Ошибка при загрузке приёмов',
     'appointments.filter_all': 'Все',
     'appointments.confirm': 'Подтвердить',
     'appointments.complete': 'Завершить',
@@ -208,7 +211,6 @@ const translations = {
     'appointments.action_error': 'Ошибка при выполнении действия',
     'appointments.join_call': 'Присоединиться к видеозвонку',
     'appointments.open_chat': 'Открыть переписку',
-    'appointments.patient': 'Пациент',
     'appointments.cancel_title': 'Отмена приёма',
     'appointments.complete_title': 'Завершение приёма',
     'appointments.complete_confirm': 'После завершения статус приёма нельзя будет изменить. Продолжить?',
@@ -216,6 +218,7 @@ const translations = {
 
     'patients.title': 'Мои пациенты',
     'patients.no_data': 'Пока нет пациентов',
+    'patients.load_error': 'Ошибка при загрузке пациентов',
     'patients.visits': 'визитов',
     'patients.phone': 'Телефон',
     'patients.birth_date': 'Дата рождения',
@@ -227,6 +230,7 @@ const translations = {
     'prescriptions.no_eligible': 'Пока нет завершённых приёмов без рецепта',
     'prescriptions.issued_title': 'Выписанные рецепты',
     'prescriptions.no_data': 'Пока нет рецептов',
+    'prescriptions.load_error': 'Ошибка при загрузке данных',
     'prescriptions.diagnosis_uz': 'Диагноз (латиница)',
     'prescriptions.diagnosis_ru': 'Диагноз (кириллица, необязательно)',
     'prescriptions.notes_uz': 'Заметка (необязательно)',
@@ -246,7 +250,6 @@ const translations = {
     'prescriptions.no_medications': 'Лекарства не назначены',
 
     'schedule.title': 'График работы',
-    'schedule.weekday': 'День недели',
     'schedule.start_time': 'Время начала',
     'schedule.end_time': 'Время окончания',
     'schedule.add': 'Добавить день',
@@ -255,7 +258,7 @@ const translations = {
     'schedule.saving': 'Сохранение...',
     'schedule.delete': 'Удалить',
     'schedule.delete_confirm': 'Подтвердите удаление этого дня из графика',
-    'schedule.no_data': 'График работы ещё не заполнен',
+    'schedule.load_error': 'Ошибка при загрузке графика',
     'schedule.save_error': 'Ошибка при сохранении',
     'schedule.delete_error': 'Ошибка при удалении',
     'schedule.delete_title': 'Удаление дня из графика',
@@ -264,10 +267,12 @@ const translations = {
 
     'reviews.title': 'Мои отзывы',
     'reviews.no_data': 'Вам ещё не оставили отзывов',
+    'reviews.load_error': 'Ошибка при загрузке отзывов',
 
     // Payouts
     'payouts.title': 'Мои выплаты',
     'payouts.no_data': 'Пока нет истории выплат',
+    'payouts.load_error': 'Ошибка при загрузке выплат',
     'payouts.total_paid': 'Выплачено',
     'payouts.total_pending': 'Ожидание',
     'payouts.paid_at': 'Дата выплаты',
@@ -305,10 +310,7 @@ const translations = {
     'chat.send': 'Отправить',
 
     'common.loading': 'Загрузка...',
-    'common.close': 'Закрыть',
-    'common.confirm': 'Подтвердить',
     'common.cancel': 'Отмена',
-    'common.back': 'Назад',
     'auth.show_password': 'Показать пароль',
     'auth.hide_password': 'Скрыть пароль',
     'sidebar.collapse': 'Свернуть панель',

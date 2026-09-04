@@ -432,4 +432,264 @@ muammo topildi:
 
 ---
 
+## Besh agentli to'liq audit — backend, admin, patient-portal, doctor-portal (2026-08-30)
+
+Backend xavfsizligi, uch portalning har biri va cross-portal frontend bo'yicha
+5 ta agent parallel ishlatildi, ustiga real HTTP so'rovlar bilan asosiy
+oqimlar (login, doctor yaratish, appointment, rating, chat) qo'lda sinaldi va
+backend'ning haqiqiy test suite'i ishga tushirildi. Quyida hech qayerda
+oldin yozilmagan yangi topilmalar (Rating-500 bug va RankPrice/consultation_type
+nomuvofiqligidan tashqari — ular alohida eslatilgan).
+
+**TDD / CI-CD holati:**
+- Backend: `python manage.py test` — **101 ta test, 4 tasi FAIL** (pastdagi
+  3 va 13-bandlar bilan bog'liq). `.github/workflows/django-ci.yml` to'g'ri
+  sozlangan (real Postgres bilan har push/PR'da test ishga tushiradi), lekin
+  hozir shu testlar bilan **CI qizil (FAIL) bo'lardi**.
+- Frontend: uchala ilovada ham (admin, patient-portal, doctor-portal)
+  **CI/CD umuman yo'q** (`.github/workflows` yo'q) va **hech qanday test
+  framework/test yo'q** (Jest/Vitest o'rnatilmagan, `package.json`da `test`
+  skripti yo'q). Tekshiruv faqat `eslint`+`build`+qo'lda real-so'rov
+  testlari bilan cheklangan.
+
+**KRITIK (backend, foydalanuvchi yozadi):**
+
+- [ ] **Video-konsultatsiyaga begona kirishi mumkin** —
+  `patient-portal/src/lib/videoCall.js:5-12` va
+  `doctor-portal/src/lib/videoCall.js:5-12`da Jitsi xona nomi faqat
+  `appointment.id` (kichik ketma-ket son) va `start_time`dan hosil qilinadi.
+  `GET /appointments/busy-slots/?doctor=&date=` (`AllowAny`) har bir
+  shifokorning barcha uchrashuvi uchun aniq `start_time`ni
+  autentifikatsiyasiz qaytaradi. Bu ikkisi birgalikda begona odamga
+  `meet.jit.si` xona nomini qayta tiklab, bemor-shifokor konsultatsiyasiga
+  jim kirish imkonini beradi (meet.jit.si xonalari parolsiz). **Tuzatish:**
+  `Appointment`ga tasodifiy `video_room_token` (UUID) qo'shib xona nomida
+  shundan foydalanish, va/yoki busy-slots aniq vaqt o'rniga faqat band/bo'sh
+  holatini qaytarishi kerak.
+- [ ] **Bemor o'z `Patient` yozuvini boshqa userga "ko'chirib" yubora oladi
+  (IDOR)** — `patients/serializers.py:5-8`даги `PatientSerializers`da `user`
+  maydoni yozish uchun ochiq (`fields='__all__'`, `read_only_fields`/`update()`
+  yo'q). `patients/permissions.py`даги `IsAdminOrOwnerPatient` bemorga o'z
+  yozuvini PATCH qilishga ruxsat beradi, standart router endpoint
+  (`PATCH /patients/patient/<id>/`) esa `user`ni tozalamaydi (faqat maxsus
+  `me` action tozalaydi). Bemor `{"user": <boshqa_id>}` yuborib boshqa
+  userning profilini "egallab olishi" mumkin. `Doctor`da xuddi shu himoya
+  (`SENSITIVE_FIELDS` bilan `user`) allaqachon bor, `Patient`da yo'q.
+  **Tuzatish:** `PatientSerializers.Meta`ga `read_only_fields = ['user']`
+  qo'shish.
+- [ ] **Har qanday shifokor har qanday bemorning to'liq yozuvini (JSHSHIR,
+  manzil) ko'ra oladi — real testda tasdiqlandi** —
+  `patients/permissions.py`даги `IsAdminOrOwnerPatient.has_object_permission`:
+  `if request.method in SAFE_METHODS and request.user.role == 'doctor':
+  return True` — bemorning o'zi bilan bog'liqligini tekshirmasdan. Backend
+  test suite'da `test_doctor_cannot_retrieve_single_patient` aynan shuni
+  kutadi (403), lekin kod 200 qaytaradi — **bu hozir FAIL bo'layotgan real
+  test**. **Tuzatish:** faqat shu bemor bilan appointment/prescription
+  orqali bog'liq shifokorga ruxsat berish kerak, hammasiga emas.
+
+**YUQORI:**
+
+- [ ] **[backend] Rating (baho) yaratish — 500 xato** — yuqorida
+  ("To'rt portal auditi") allaqachon yozilgan, 2026-08-30'da real so'rov
+  bilan qayta tasdiqlandi: `appointments/serializers.py`даги
+  `RatingSerializers.Meta.read_only_fields`da `'appointment'` borligi sabab
+  `RatingViewSet.create()`даги `serializer.validated_data['appointment']`
+  KeyError beradi. Hali tuzatilmagan.
+- [ ] **[backend] JWT tokenlar juda uzoq muddatli, bekor qilib bo'lmaydi** —
+  `config/settings.py:188-191`: `ACCESS_TOKEN_LIFETIME=7 kun`,
+  `REFRESH_TOKEN_LIFETIME=30 kun`. `token_blacklist` o'rnatilmagan, logout
+  endpointi yo'q. Token o'g'irlansa, uni bekor qilib bo'lmaydi. **Tuzatish:**
+  `rest_framework_simplejwt.token_blacklist` qo'shish, logout view yaratish,
+  `ACCESS_TOKEN_LIFETIME`ni daqiqalarga tushirish.
+- [ ] **[backend] Chatda ishtirokchi boshqasining xabarini o'chira/tahrirlay
+  oladi** — `chat/permissions.py`даги `IsAppointmentParticipant` faqat
+  `has_permission` (appointmentga tegishlilik) tekshiradi,
+  `has_object_permission` yo'q — `obj.sender == request.user` hech qachon
+  tekshirilmaydi. **Tuzatish:** xabar egasiga tegishli tekshiruv qo'shish
+  yoki PATCH/DELETE'ni butunlay olib tashlash (chat append-only bo'lishi
+  kerak).
+- [ ] **[backend+admin] To'lov (billing) zanjiri butunlay yetib
+  bo'lmaydigan holatda** — hech qanday portalda `Invoice` yaratish UI'si
+  yo'q (`src/pages/Invoices.jsx` faqat ro'yxat, `/invoices/create` route
+  yo'q), `Appointment` yakunlanganda avtomatik invoice yaratadigan signal
+  ham yo'q. `DoctorPayout` yaratish/`paid` qilish uchun ham hech qanday UI
+  yo'q (`src/pages/Payouts.jsx` faqat ko'rish). Natija: "bemor hisob oladi
+  va to'laydi" oqimini demo qilib bo'lmaydi — faqat Django admin/shell
+  orqali qo'lda qatorlar kiritilsa ishlaydi. Qaror kerak: avtomatik invoice
+  yaratish signalimi, yoki admin panelga qo'lda yaratish formasi kerakmi.
+- [ ] **[frontend, Claude yozadi] Admin panel va doctor-portalda tokenning
+  muddati tugashi ushlanmaydi** — `src/api/axios.js` va
+  `doctor-portal/src/api/axios.js`da 401 interceptor yo'q (patient-portalda
+  2026-08-18'da tuzatilgan xuddi shu muammo). Doctor-portalda oqibati
+  yanada yomonroq: `AuthContext.jsx:14-20`да `/me/` 401 bersa `role=null`
+  bo'ladi, `App.jsx:24`даги `Protected` esa faqat `role && role!=='doctor'`
+  da bloklaydi — `null` buni ishga tushirmaydi, natijada foydalanuvchi
+  login sahifasiga qaytarilmasdan, barcha sahifalarda "Hisobingizga hali
+  doktor profili biriktirilmagan" degan **noto'g'ri** xabar ko'radi.
+- [ ] **[frontend, Claude yozadi] Doktor Profile sahifasidan bank/IBAN
+  ma'lumotini hech qachon saqlay olmaydi, lekin UI "saqlandi" deb
+  ko'rsatadi** — `doctor-portal/src/pages/Profile.jsx` bank_name/iban
+  maydonlarini PATCH qiladi, lekin backend `doctors/serializers.py`даги
+  `DoctorSerializers.update()` bu maydonlarni admin bo'lmagan har bir
+  so'rovchi uchun jimgina o'chirib tashlaydi (`SENSITIVE_FIELDS`). Frontend
+  xatoni ko'rmaydi, "Ma'lumotlar saqlandi" deb ko'rsataveradi. Qaror kerak:
+  bu qasddan shundaymi (faqat admin o'zgartirsin, firibgarlikdan himoya) —
+  agar shunday bo'lsa, Profile formasidan bu maydonlarni butunlay olib
+  tashlash kerak, aks holda backendda ruxsat berish kerak.
+
+**O'RTA:**
+
+- [ ] **[backend] OTP so'rovini cheklovsiz qayta yuborish mumkin +
+  kriptografik bo'lmagan RNG** — `users/views.py:69-77` faqat 60 soniyalik
+  cooldown tekshiradi, kunlik/soatlik limit yo'q (SMS-bombing xavfi).
+  `users/views.py:79`da `random.randint` ishlatilgan, `secrets` moduli emas.
+- [ ] **[backend] Production uchun HTTPS/xavfsiz-cookie sozlamalari yo'q** —
+  `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE` va h.k.
+  `config/settings.py`da yo'q. DEBUG=True bo'lgani uchun hozircha
+  shoshilinch emas.
+- [ ] **[backend] To'liq API sxemasi (`drf_yasg` Swagger/Redoc) `/` da
+  hech kimga cheklanmagan holda ochiq** — `config/urls.py:16-30,58-60`,
+  `AllowAny`. **Tuzatish:** admin-only qilish yoki DEBUG bilan cheklash.
+- [ ] **[backend] Retsept yangilashda "faqat completed appointment"
+  tekshiruvi yangi testlarni buzmoqda** — `prescriptions/serializers.py`даги
+  `validate()` har bir PATCH'da ham `appointment.status=='completed'`ni
+  talab qiladi, bu 3 ta testni FAIL qilyapti
+  (`test_owner_doctor_can_create_prescription_with_items`,
+  `test_update_replaces_items_when_items_provided`,
+  `test_update_without_items_keeps_existing_items`) — testlar uchrashuvni
+  'completed' qilib sozlamagan. Qaror kerak: testlar eskirganmi (fixture'ga
+  `status='completed'` qo'shish kerak) yoki validatsiya yangilashda
+  ortiqcha qattiqmi (faqat yaratishda kerak).
+- [ ] **[data, backend] `RankPrice` ma'lumotlari eskirgan
+  `consultation_type` bilan — booking formasida "narx aniqlanmagan"
+  chiqadi** — bazadagi barcha 3 ta RankPrice yozuvi
+  `consultation_type="in_person"`, dastur esa endi faqat
+  `video`/`voice`/`chat` qo'llaydi (masofaviy qabul). Har bir
+  rank_type+clinic uchun video/voice/chat narxlari qo'shish kerak.
+- [ ] **[frontend, Claude yozadi] Refresh token olinadi, lekin hech qachon
+  ishlatilmaydi** — barcha 3 portalda ham. `patient-portal`da saqlanadi-yu
+  ishlatilmaydi, `doctor-portal`da hatto saqlanmaydi ham (`Login.jsx:40`
+  faqat access tokenni oladi). Backend 30 kunlik sessiya bersa ham, amalda
+  token tugashi bilanoq majburiy qayta login.
+- [ ] **[frontend, Claude yozadi] API manzili barcha 3 ilovada qattiq
+  kodlangan** (`http://127.0.0.1:8000/api/v1`) — `src/api/axios.js:4`,
+  `patient-portal/src/api/axios.js:4`, `doctor-portal/src/api/axios.js:4`.
+  Env-o'zgaruvchi orqali sozlanmaydi — production'ga chiqarish uchun 3
+  joyni qo'lda o'zgartirib qayta build qilish kerak bo'ladi.
+- [ ] **[frontend, Claude yozadi] Patient-portal to'lovi faqat optimistik
+  UI — Stripe webhook bilan hech qachon solishtirilmaydi** —
+  `patient-portal/src/pages/Payments.jsx:42-50,100-103` Stripe.js
+  client-side "succeeded" javobiga qarab darhol `status:'paid'` qo'yadi,
+  lekin backend `Invoice.status`ni faqat webhook (`payments/signals.py`)
+  o'zgartiradi. Webhook kechiksa/kelmasa, bemor "to'landi" ko'radi, sahifani
+  yangilasa "kutilmoqda"ga qaytadi — chalkashlik yoki qayta to'lov xavfi.
+- [ ] **[frontend, Claude yozadi] CheckoutForm `PaymentIntent`ning
+  "processing" kabi oraliq holatlarida hech qanday xabar bermaydi** —
+  `Payments.jsx:46-50` faqat `succeeded`/xato holatlarini kutadi, boshqa
+  holatda forma jim "Pay" holatiga qaytadi.
+- [ ] **[backend+frontend] Chatda uchrashuv holati (status) tekshirilmaydi**
+  — bekor qilingan yoki hali tasdiqlanmagan appointment uchun ham chat
+  to'liq ishlayveradi (`chat/permissions.py` va ikkala portalning
+  `Chat.jsx`/`ChatWindow.jsx`da status tekshiruvi yo'q).
+- [ ] **[frontend, Claude yozadi] Telefon validatsiyasi frontendda
+  backenddan yumshoqroq** — `patient-portal/src/lib/validators.js:1`:
+  `/^\+?\d{9,13}$/` — `+998` prefiksini talab qilmaydi, backend
+  `patients/models.py:10-13` esa qat'iy talab qiladi. Noto'g'ri raqam
+  frontendda xatosiz o'tadi, submit qilgandagina umumiy xato ko'rsatiladi.
+- [ ] **[frontend, Claude yozadi] Admin panelda ~15 ro'yxat sahifasida
+  fetch xatosi va "haqiqatan bo'sh ro'yxat" bir xil ko'rinadi, retry
+  tugmasi yo'q** — `Appointments.jsx`, `Clinics.jsx`, `Doctors.jsx`,
+  `DoctorSettings.jsx`, `Invoices.jsx`, `MedicalCenters.jsx`,
+  `Patients.jsx`, `Payouts.jsx`, `RankPrices.jsx`, `RankTypes.jsx`,
+  `Ratings.jsx`, `Specialities.jsx`, `Users.jsx` — barchasi
+  `.catch(() => setLoading(false))`, xato holati yo'q. `DoctorView.jsx`
+  yagona to'g'ri qilingan misol.
+- [ ] **[frontend, Claude yozadi] `GettingStarted.jsx` onboarding
+  tekshiruvi vaqtinchalik tarmoq xatosini "bajarilmagan" deb noto'g'ri
+  ko'rsatadi** — `pages/GettingStarted.jsx:271-276`даги har bir qadam
+  tekshiruvi `.catch(() => false)` — server vaqtincha ishlamasa, admin
+  allaqachon bajargan qadamga qaytarib yuboriladi.
+- [ ] **[frontend, Claude yozadi] ~21 admin forma/modalda backend'ning
+  aniq validatsiya xabari umumiy `alert()` bilan yashiriladi** — masalan
+  `AppointmentCreateModal.jsx:55-57` backend'ning "Doktor bu vaqt band"/
+  "Vaqt jadvaldan tashqarida" kabi aniq sabablarini ko'rsatmasdan, faqat
+  umumiy "xatolik" deydi. `Login.jsx`/`Register.jsx`da to'g'ri naqsh
+  (`err.response?.data?.detail`) allaqachon bor, boshqa joylarga
+  qo'llanmagan.
+- [ ] **[backend+frontend] Admin panelning `DoctorScheduleModal.jsx`da ish
+  vaqti boshi<tugashi tekshiruvi yo'q** — na frontendda, na backendda
+  (`DoctorScheduleSerializers`da `validate()` yo'q). Xuddi shu xato turi
+  doctor-portal'da 2026-08-18'da tuzatilgan, admin panelga ko'chirilmagan.
+
+**PAST:**
+
+- [ ] **[frontend, Claude yozadi] `GettingStarted.jsx`даги RankPrice
+  qadamida `consultation_type` maydoni yo'q** — onboarding orqali
+  yaratilgan narx doim backend default'i (`video`) bilan qoladi,
+  voice/chat tanlab bo'lmaydi.
+- [ ] **[frontend, Claude yozadi] doctor-portal bemorlar qidiruv
+  maydonining `aria-label`i noto'g'ri** — `Patients.jsx:54-55`,
+  nusxa-joylash xatosi (sahifa sarlavhasi ishlatilgan).
+- [ ] **[frontend] JWT barcha 3 ilovada `localStorage`da saqlanadi** — XSS
+  orqali o'g'irlanish xavfi, arxitektura darajasidagi masala, tezkor
+  tuzatish yo'q.
+- [ ] **[backend] `requirements.txt`da ishlatilmayotgan paketlar** —
+  `social-auth-app-django`, `social-auth-core`, `python3-openid`,
+  `oauthlib`, `requests-oauthlib` — kodda hech qayerda ishlatilmaydi.
+
+**Umumiy xulosa:** Loyiha **100% topshirilishga tayyor emas**. 3 ta kritik
+(video-qo'ng'iroq xavfsizligi, Patient IDOR, shifokorning bemor ma'lumotiga
+haddan tashqari kirishi — oxirgisi real FAIL testda tasdiqlangan) va
+to'liq ishlamaydigan billing zanjiri bor. Ichki demo/taqdimot uchun "yuqori"
+va "o'rta" toifadagi bandlarni yopish bilan 1-2 kunda ancha ishonchli
+holatga kelish mumkin; real ishga tushirish uchun xavfsizlik bandlarining
+barchasi ham shart.
+
+---
+
+## Uch portal auditi (admin, patient-portal, doctor-portal) — 2026-09-04
+
+3 nafar agent orqali admin panel (`src/`), `patient-portal/` va `doctor-portal/`
+qayta audit qilindi — bu safar avvalgi 4 ta audit (2026-08-18/08-28/08-30)da
+qayd etilmagan yangi topilmalarga e'tibor berildi. Topilgan hammasi tasdiqdan
+so'ng shu yerda to'g'ridan-to'g'ri tuzatildi.
+
+### Admin panel (`src/`)
+
+- [x] **Retsept modal — retsept mavjud bo'lsa ham "yo'q" ko'rsatardi** — `AppointmentDetailModal.jsx`даги so'rov backend paginatsiyasini (`{results: [...]}`) hisobga olmay `res.data[0]` deb o'qir edi. Endi `res.data.results?.[0] || null`.
+- [x] **5 ta Edit-modalda majburiy maydonlarda HTML `required` yo'q edi** — `RankPriceEditModal.jsx`, `RankTypeEditModal.jsx`, `SpecialityEditModal.jsx`, `ClinicEditModal.jsx`, `PatientEditModal.jsx` — UI'da qizil `*` bor edi, brauzer bo'sh qoldirib yuborishga ruxsat berardi (tegishli Create sahifalarida esa `required` bor edi). Hammasiga qo'shildi.
+- [x] **`DoctorCreate.jsx`/`DoctorEdit.jsx` — `name_uz`/`name_ru`da `required` yo'q edi** (2026-08-18'da faqat 4 ta select'ga qo'shilgan, matn maydonlari qolib ketgan). Endi qo'shildi.
+- [x] **`Login.jsx` — username/parolda `required` yo'q edi** (Register.jsx'da bor, nomuvofiqlik). Endi qo'shildi.
+- [x] **`Layout.jsx` — sarlavha matni "tugma" sifatida belgilangan (hover/klaviatura fokus), lekin `onClick` yo'q edi** — o'lik interaktiv element. `role="button"`/`tabIndex`/`cursor-pointer`/`hover:underline` olib tashlandi (oddiy matn).
+- [x] **`Specialities.jsx` — delete tasdiq/xato xabarlari `Doctors` sahifasidan "qarz olingan" edi** — maxsus `specialities.delete_confirm`/`specialities.delete_error` tarjima kalitlari (uz+ru) qo'shildi va ulandi.
+- [x] **`AppointmentRescheduleModal.jsx` — vaqtni qayta rejalashtirishda `endTime <= startTime` tekshiruvi yo'q edi** — frontendda oldindan tekshiruv (aniq xato xabari bilan) qo'shildi.
+- [x] **`Dashboard.jsx:78` — `total_clinics ?? 1` soxta-raqam bilan niqoblangan qolib ketgan edi** (2026-08-18'da shu faylda boshqa 2 maydon `?? 0`ga o'tkazilgan, bu birini unutib ketishgan). Endi `?? 0`.
+- [x] **`GettingStarted.jsx` — onboarding'dagi ~20 ta maydonning birortasida ham haqiqiy `required` yo'q edi** (faqat `Field required` prop, DOM elementda emas). `inp()`/`sel()` helperlariga `required` parametri qo'shilib, barcha majburiy maydonlarga ulandi.
+- ✅ Tekshirildi (2026-09-04): `npm run lint` — 6 xato/26 ogohlantirish (oldindan mavjud, `git stash` bilan solishtirilib tasdiqlandi — bizning o'zgarishimiz yangi xato qo'shmadi). `npm run build` — muvaffaqiyatli.
+
+### `patient-portal/`
+
+- [x] **`AuthContext.jsx` — login paytida "poyga sharti" (race condition)** — doctor-portal'da 2026-08-18'da tuzatilgan bug patient-portal'ga ko'chirilmagan edi. `login()`ga `setRoleLoading(true)` qo'shildi (xuddi doctor-portal naqshiga mos).
+- [x] **Forma label'lari inputga dasturiy bog'lanmagan edi (`htmlFor`/`id` yo'q)** — `Field.jsx`, `DoctorProfile.jsx`даги `BookField`, `TimeSlotPicker.jsx` — screen reader inputning nomini e'lon qilmasdi. Markazlashtirilgan yechim: yangi `lib/withFieldId.js` helper + `useId()`, `Field`/`BookField`ga ulandi (bu avtomatik `Login`/`Register`/`Profile`ni ham tuzatadi); `TimeSlotPicker`даги vaqt tugmalari guruhiga `role="group"`+`aria-labelledby`.
+- [x] **`TimeSlotPicker.jsx`/`MyAppointments.jsx` — UTC/local vaqt zonasi nomuvofiqligi** — `toISOString().slice(0,10)` UTC bo'yicha "bugun"ni hisoblardi, UTC+5'da tunda (00:00-05:00) noto'g'ri sana berardi. Yangi `lib/dateUtils.js`даги `toLocalDateStr()` bilan almashtirildi.
+- [x] **`Profile.jsx` — ism maydonlarida (`name_uz`/`name_ru`) client-side validatsiya yo'q edi** — tayyor `validation.letters_only` tarjima kaliti ishlatilmasdan turgan edi. `validators.js`ga `nameError()` qo'shildi va ulandi.
+- [x] **`Profile.jsx` — JSHSHIR (`national_id`) formatida tekshiruv yo'q edi** — `validators.js`ga `nationalIdError()` (14 xonali) qo'shildi va ulandi, `validation.national_id` tarjima kaliti qo'shildi.
+- [x] **`Layout.jsx` — sidebar faqat yig'ilishga avtomoslashardi, kengayishga yo'q** — `resize` listener'ga `else setCollapsed(false)` qo'shildi (simmetrik).
+- [ ] **`chatApi.js` — har 4 soniyada butun chat tarixi qayta yuklanadi (samarasiz, funksional xato emas)** — ataylab tuzatilmadi: backend `/chat/message/` endpointida `after_id`/`since`/tartib parametri qo'llab-quvvatlanishi tasdiqlanmagan (TASKS.md'da yozilmagan), noto'g'ri faraz bilan chat tarixini birlashtirish mantig'ini buzish xavfi yuqori. **Backend (siz):** endpoint filtr/tartib imkoniyati aniqlansa, aytib qoling — shunga mos optimallashtiraman.
+- ✅ Tekshirildi (2026-09-04): `npm run lint` — 2 xato (oldindan mavjud, aloqasiz `AuthContext.jsx`/`LangContext.jsx` `react-refresh` ogohlantirishi — `git stash` bilan solishtirilib tasdiqlandi). `npm run build` — muvaffaqiyatli.
+
+### `doctor-portal/`
+
+- [x] **`Dashboard.jsx` — "bugungi tashriflar" UTC bilan hisoblanardi** — Toshkent vaqtida (UTC+5) tunda (00:00-05:00) noto'g'ri kun ko'rsatardi (real simulyatsiya bilan tasdiqlangan). `toLocaleDateString('en-CA')`ga o'tkazildi.
+- [x] **`Appointments.jsx` — "Video chatga qo'shilish" tugmasi `consultation_type`ni tekshirmasdi** — klinikaga borib qabul (`in_person`) uchun ham video-havola tugmasi chiqardi. Shartga `consultation_type === 'video' || 'voice'` qo'shildi.
+- [x] **7 ta sahifada (`Dashboard`, `Appointments`, `Patients`, `Prescriptions`, `Schedule`, `Reviews`, `Payouts`) tarmoq xatosi "bo'sh ro'yxat" bilan bir xil ko'rsatilardi** — `error`/`loadError` state qo'shilib, mavjud `ErrorState` komponenti (loyihada `ChatWindow.jsx`да to'g'ri ishlatilgan naqsh) hammasiga ulandi.
+- [x] **`ConfirmDialog.jsx` — halokatli (`danger`) amallarda ham tasdiqlash tugmasi avtomatik fokusda edi** — tasodifiy Enter bosilsa qaytarilmaydigan amal bajarilish xavfi bor edi. Endi `danger` bo'lsa fokus "Bekor qilish"ga o'tadi.
+- [x] **8 ta ishlatilmayotgan tarjima kaliti tozalandi** (`translations.js`) — 2 tasi (`patients.phone`/`patients.birth_date`) haqiqatan foydali bo'lgani uchun `Patients.jsx`даги telefon/tug'ilgan sana qatorlariga label sifatida ulandi, qolgan 6 tasi olib tashlandi.
+- [x] **`ChatWindow.jsx` — poll-xato bannerida ARIA roli yo'q edi** — `role="status"` qo'shildi.
+- [x] **`Profile.jsx` — avatar rasmida mazmunli `alt` yo'q edi** — `alt={form.name_uz || t('profile.avatar')}`.
+- [x] **`Payouts.jsx` — pul summalari tilga (`lang`) bog'lanmagan formatlanardi** (sanalar formatlanadi, summalar yo'q — nomuvofiqlik) — `Prescriptions.jsx`даги naqshga mos `lang === 'ru' ? 'ru-RU' : 'uz-UZ'` ulandi.
+- ✅ Tekshirildi (2026-09-04): `npm run lint` — 2 xato (oldindan mavjud, aloqasiz, `git stash` bilan tasdiqlandi). `npm run build` — muvaffaqiyatli.
+
+---
+
 **Ishlash tartibi:** Backend — har bir bandni siz yozasiz, men tekshirib/tasdiqlab boraman (kerak bo'lsa real so'rov yuborib sinab ko'raman). Frontend (`patient-portal`, `doctor-portal`) — men to'g'ridan-to'g'ri yozaman, siz tekshirasiz.

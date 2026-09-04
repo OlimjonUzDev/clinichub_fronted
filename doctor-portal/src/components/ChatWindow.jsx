@@ -72,7 +72,7 @@ export default function ChatWindow({ appointmentId }) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl flex flex-col min-h-[400px] max-h-[70vh]">
       {pollWarning && (
-        <div className="px-4 pt-2 text-xs text-amber-600 shrink-0">{t('chat.poll_warning')}</div>
+        <div role="status" className="px-4 pt-2 text-xs text-amber-600 shrink-0">{t('chat.poll_warning')}</div>
       )}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {loading ? (

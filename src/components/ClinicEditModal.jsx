@@ -82,19 +82,19 @@ export default function ClinicEditModal({ item, onClose, onSaved }) {
     >
       <div className="space-y-5">
         <Field label={t('clinic_create.medical_center')} required>
-          <select name="medical_center" value={form.medical_center} onChange={handleChange} className={selectCls}>
+          <select name="medical_center" value={form.medical_center} onChange={handleChange} className={selectCls} required>
             <option value="">{t('clinic_create.select')}</option>
             {medicalCenters.map(mc => <option key={mc.id} value={mc.id}>{nameOf(mc)}</option>)}
           </select>
         </Field>
         <Field label={t('clinic_create.clinic_type')} required>
-          <select name="clinic_type" value={form.clinic_type} onChange={handleChange} className={selectCls}>
+          <select name="clinic_type" value={form.clinic_type} onChange={handleChange} className={selectCls} required>
             <option value="">{t('clinic_create.select')}</option>
             {clinicTypes.map(ct => <option key={ct.id} value={ct.id}>{nameOf(ct)}</option>)}
           </select>
         </Field>
         <Field label={t('clinic_create.phone')} required error={errors.phone_number}>
-          <input name="phone_number" value={form.phone_number} onChange={handleChange} className={inputCls} />
+          <input name="phone_number" value={form.phone_number} onChange={handleChange} className={inputCls} required />
         </Field>
         <Field label={t('clinic_create.status')}>
           <select name="status" value={form.status} onChange={handleChange} className={selectCls}>

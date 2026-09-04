@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Stethoscope, Building2, User, Calendar, MessageSquare, Video, Loader2 } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
@@ -10,6 +10,7 @@ import TimeSlotPicker from '../components/TimeSlotPicker';
 import { useLookup, resolveName, resolveRef } from '../lib/useLookup';
 import { CONSULTATION_TYPES } from '../lib/consultationTypes';
 import { sectionLabelCls } from '../lib/formStyles';
+import { withFieldId } from '../lib/withFieldId';
 
 const WEEKDAY_LABELS = [
   { uz: 'Dushanba', ru: 'Понедельник' },
@@ -27,15 +28,17 @@ const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
 const fieldCls = "w-full border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition";
 
 function BookField({ icon: Icon, label, required, children }) {
+  const inputId = useId();
+  const content = withFieldId(children, inputId);
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">
+      <label htmlFor={inputId} className="block text-xs font-medium text-gray-600 mb-1">
         {label}
         {required && <span className="text-red-500" aria-hidden="true"> *</span>}
       </label>
       <div className="relative">
         <Icon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        {children}
+        {content}
       </div>
     </div>
   );

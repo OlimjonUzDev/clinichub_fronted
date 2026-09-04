@@ -12,6 +12,7 @@ import TimeSlotPicker from '../components/TimeSlotPicker';
 import { useLookup, resolveName } from '../lib/useLookup';
 import { jitsiUrlFor } from '../lib/videoCall';
 import { statusBadgeCls } from '../lib/statusBadge';
+import { toLocalDateStr } from '../lib/dateUtils';
 
 const iconBtnCls = "w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 disabled:opacity-50";
 
@@ -65,7 +66,7 @@ export default function MyAppointments() {
   const openReschedule = (a) => {
     const start = new Date(a.start_time);
     setReschedulingId(a.id);
-    setRescheduleDate(start.toISOString().slice(0, 10));
+    setRescheduleDate(toLocalDateStr(start));
     setRescheduleTime(start.toTimeString().slice(0, 5));
     setRescheduleError('');
   };

@@ -144,6 +144,7 @@ export default function Prescriptions() {
   const [appointments, setAppointments] = useState([]);
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const { token, doctor } = useAuth();
   const { t, lang } = useLang();
@@ -156,8 +157,9 @@ export default function Prescriptions() {
     ]).then(([apps, pres]) => {
       setAppointments(apps);
       setPrescriptions(pres);
+      setError(false);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => { setError(true); setLoading(false); });
   };
 
   useEffect(load, [token]);
@@ -184,6 +186,8 @@ export default function Prescriptions() {
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('prescriptions.load_error')} />
       ) : !doctor ? (
         <WarningState text={t('auth.no_doctor_profile')} />
       ) : (

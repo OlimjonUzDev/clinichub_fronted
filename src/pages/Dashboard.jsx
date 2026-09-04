@@ -75,7 +75,7 @@ export default function Dashboard() {
             <StatCard label={t('dashboard.total_doctors')} value={stats?.total_doctors} icon={Users} color="bg-indigo-500" onClick={() => navigate('/doctors')} />
             <StatCard label={t('dashboard.total_patients')} value={stats?.total_patients} icon={Activity} color="bg-purple-500" onClick={() => navigate('/patients')} />
             <StatCard label={t('dashboard.appointments')} value={stats?.total_appointments} icon={CalendarDays} color="bg-pink-500" onClick={() => navigate('/appointments')} />
-            <StatCard label={t('dashboard.total_clinics')} value={stats?.total_clinics ?? 1} icon={TrendingUp} color="bg-blue-500" onClick={() => navigate('/clinics')} />
+            <StatCard label={t('dashboard.total_clinics')} value={stats?.total_clinics ?? 0} icon={TrendingUp} color="bg-blue-500" onClick={() => navigate('/clinics')} />
           </div>
         </div>
 

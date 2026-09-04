@@ -81,10 +81,10 @@ export default function PatientEditModal({ item, onClose, onSaved }) {
     >
       <div className="space-y-5">
         <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
-          <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} />
+          <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} required />
         </Field>
         <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
-          <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} />
+          <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} required />
         </Field>
         <Field label={t('doctor_create.gender')}>
           <select name="gender" value={form.gender} onChange={handleChange} className={selectCls}>

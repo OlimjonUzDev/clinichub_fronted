@@ -15,6 +15,7 @@ const iconBtnCls = "w-7 h-7 flex items-center justify-center rounded border bord
 export default function Schedule() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [editingWeekday, setEditingWeekday] = useState(null);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('18:00');
@@ -27,8 +28,8 @@ export default function Schedule() {
 
   const load = () => {
     fetchAll('/doctors/doctorschedule/', token)
-      .then((data) => { setSchedule(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setSchedule(data); setLoadError(false); setLoading(false); })
+      .catch(() => { setLoadError(true); setLoading(false); });
   };
 
   useEffect(load, [token]);
@@ -94,6 +95,10 @@ export default function Schedule() {
 
   if (!doctor) {
     return <Layout><WarningState text={t('auth.no_doctor_profile')} /></Layout>;
+  }
+
+  if (loadError) {
+    return <Layout><ErrorState text={t('schedule.load_error')} /></Layout>;
   }
 
   return (

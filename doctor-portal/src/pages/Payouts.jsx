@@ -4,21 +4,23 @@ import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
-import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
 import { statusBadgeCls } from '../lib/statusBadge';
 
 export default function Payouts() {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { token, doctor } = useAuth();
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const locale = lang === 'ru' ? 'ru-RU' : 'uz-UZ';
 
   useEffect(() => {
     // Backend DoctorPayoutViewSet.get_queryset() server tomonida shu
     // doktorning o'ziga tegishli payout'larga cheklaydi.
     fetchAll('/billing/doctorpayout/', token)
-      .then((data) => { setPayouts(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setPayouts(data); setError(false); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   }, [token]);
 
   const sorted = payouts.slice().sort((a, b) => new Date(b.period_to) - new Date(a.period_to));
@@ -33,17 +35,19 @@ export default function Payouts() {
         <div className="grid grid-cols-2 gap-3 mb-5 max-w-md">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="text-xs text-gray-400 mb-1">{t('payouts.total_paid')}</div>
-            <div className="text-lg font-bold text-green-600">{totalPaid.toLocaleString()}</div>
+            <div className="text-lg font-bold text-green-600">{totalPaid.toLocaleString(locale)}</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="text-xs text-gray-400 mb-1">{t('payouts.total_pending')}</div>
-            <div className="text-lg font-bold text-amber-600">{totalPending.toLocaleString()}</div>
+            <div className="text-lg font-bold text-amber-600">{totalPending.toLocaleString(locale)}</div>
           </div>
         </div>
       )}
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('payouts.load_error')} />
       ) : !doctor ? (
         <WarningState text={t('auth.no_doctor_profile')} />
       ) : sorted.length === 0 ? (
@@ -55,7 +59,7 @@ export default function Payouts() {
               <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-800">
                   <Wallet size={14} className="text-indigo-500" />
-                  {Number(p.amount).toLocaleString()}
+                  {Number(p.amount).toLocaleString(locale)}
                 </div>
                 <span className={statusBadgeCls(p.status)}>{t(`payouts.status.${p.status}`) || p.status}</span>
               </div>

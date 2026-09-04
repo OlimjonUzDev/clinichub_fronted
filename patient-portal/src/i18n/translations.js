@@ -32,6 +32,7 @@ const translations = {
     // Validation
     'validation.phone': "Telefon raqami noto'g'ri (masalan: +998901234567)",
     'validation.letters_only': "Bu qator faqat harflardan iborat bo'lishi kerak",
+    'validation.national_id': "JSHSHIR 14 ta raqamdan iborat bo'lishi kerak",
 
     // Nav
     'nav.home': 'Doktor qidirish',
@@ -217,6 +218,7 @@ const translations = {
 
     'validation.phone': 'Неверный формат номера (например: +998901234567)',
     'validation.letters_only': 'Это поле должно содержать только буквы',
+    'validation.national_id': 'ПИНФЛ должен содержать 14 цифр',
 
     'nav.home': 'Поиск врача',
     'nav.analytics': 'Аналитика',

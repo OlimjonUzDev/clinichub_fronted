@@ -50,6 +50,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
+            autoFocus={danger}
             className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1"
           >
             {cancelLabel}
@@ -57,7 +58,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onConfirm}
-            autoFocus
+            autoFocus={!danger}
             className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
               danger ? 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-400' : 'bg-indigo-600 hover:bg-indigo-700 focus-visible:ring-indigo-300'
             }`}

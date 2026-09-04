@@ -32,11 +32,11 @@ export default function Specialities() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (id) => {
-    if (!confirm(t('common.delete') + '?')) return;
+    if (!confirm(t('specialities.delete_confirm'))) return;
     try {
       await api.delete(`/catalog/specialities/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setItems(prev => prev.filter(i => i.id !== id));
-    } catch { alert(t('doctors.delete_error')); }
+    } catch { alert(t('specialities.delete_error')); }
   };
 
   return (

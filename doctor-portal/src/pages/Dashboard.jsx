@@ -5,8 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { useLookup, resolveName, idOf } from '../lib/useLookup';
-import { LoadingState, EmptyState, WarningState } from '../components/ui/StateMessage';
+import { LoadingState, EmptyState, WarningState, ErrorState } from '../components/ui/StateMessage';
 import { statusBadgeCls } from '../lib/statusBadge';
+
+// `toISOString()` UTC vaqtga aylantiradi — Toshkentda (UTC+5) tunda (00:00-05:00)
+// bu kunni bir kun oldinga suradi. `toLocaleDateString('en-CA')` esa YYYY-MM-DD
+// formatini mahalliy vaqt bo'yicha beradi, shu sabab "bugun" hisoblashda shu ishlatiladi.
+const localDateStr = (date = new Date()) => date.toLocaleDateString('en-CA');
 
 const StatCard = ({ label, value, icon: Icon, color }) => (
   <div className={`rounded-xl p-5 text-white ${color}`}>
@@ -23,17 +28,18 @@ const StatCard = ({ label, value, icon: Icon, color }) => (
 export default function Dashboard() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { token, doctor, doctorLoading } = useAuth();
   const { t, lang } = useLang();
   const patients = useLookup('/patients/patient/', token);
 
   useEffect(() => {
     fetchAll('/appointments/appointment/', token)
-      .then((data) => { setAppointments(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((data) => { setAppointments(data); setError(false); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   }, [token]);
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localDateStr();
   const today = useMemo(
     () => appointments
       .filter((a) => a.start_time?.slice(0, 10) === todayStr)
@@ -75,6 +81,8 @@ export default function Dashboard() {
 
       {loading ? (
         <LoadingState text={t('common.loading')} />
+      ) : error ? (
+        <ErrorState text={t('dashboard.load_error')} />
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">

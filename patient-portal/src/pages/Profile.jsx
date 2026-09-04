@@ -6,7 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import { LoadingState } from '../components/StateBlock';
 import Field from '../components/Field';
-import { phoneError } from '../lib/validators';
+import { phoneError, nameError, nationalIdError } from '../lib/validators';
 import { sectionLabelCls } from '../lib/formStyles';
 
 const EMPTY_FORM = {
@@ -41,14 +41,23 @@ export default function Profile() {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (field === 'phone_number') {
       setFieldErrors((prev) => ({ ...prev, phone_number: phoneError(value, t) }));
+    } else if (field === 'name_uz' || field === 'name_ru') {
+      setFieldErrors((prev) => ({ ...prev, [field]: nameError(value, t) }));
+    } else if (field === 'national_id') {
+      setFieldErrors((prev) => ({ ...prev, national_id: nationalIdError(value, t) }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const phoneErr = phoneError(form.phone_number, t);
-    setFieldErrors({ phone_number: phoneErr });
-    if (phoneErr) return;
+    const errors = {
+      phone_number: phoneError(form.phone_number, t),
+      name_uz: nameError(form.name_uz, t),
+      name_ru: nameError(form.name_ru, t),
+      national_id: nationalIdError(form.national_id, t),
+    };
+    setFieldErrors(errors);
+    if (Object.values(errors).some(Boolean)) return;
 
     setSaving(true);
     setMessage({ type: '', text: '' });
@@ -102,10 +111,10 @@ export default function Profile() {
         <div>
           <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_personal')}</div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field icon={User} label={t('profile.name_uz')} required>
+            <Field icon={User} label={t('profile.name_uz')} required error={fieldErrors.name_uz}>
               <input type="text" required value={form.name_uz} onChange={handleChange('name_uz')} className={inputCls} />
             </Field>
-            <Field icon={User} label={t('profile.name_ru')} required>
+            <Field icon={User} label={t('profile.name_ru')} required error={fieldErrors.name_ru}>
               <input type="text" required value={form.name_ru} onChange={handleChange('name_ru')} className={inputCls} />
             </Field>
           </div>
@@ -129,7 +138,7 @@ export default function Profile() {
             <Field icon={Phone} label={t('profile.phone')} error={fieldErrors.phone_number}>
               <input type="text" value={form.phone_number} onChange={handleChange('phone_number')} placeholder="+998901234567" className={inputCls} />
             </Field>
-            <Field icon={Fingerprint} label={t('profile.national_id')}>
+            <Field icon={Fingerprint} label={t('profile.national_id')} error={fieldErrors.national_id}>
               <input type="text" value={form.national_id} onChange={handleChange('national_id')} className={inputCls} />
             </Field>
             <Field icon={MapPin} label={t('profile.address')}>

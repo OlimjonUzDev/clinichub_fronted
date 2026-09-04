@@ -24,6 +24,11 @@ export const AuthProvider = ({ children }) => {
   const login = (accessToken, refreshToken) => {
     localStorage.setItem('access_token', accessToken);
     if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+    // A fresh login (no reload) leaves roleLoading at its stale `false` from
+    // before the token existed, so `Protected` would render the destination
+    // page before the /me/ role check below resolves. Reset it here so the
+    // gate blocks until role is confirmed again.
+    setRoleLoading(true);
     setToken(accessToken);
   };
 

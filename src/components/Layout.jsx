@@ -15,7 +15,7 @@ export default function Layout({ children }) {
         <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
           <div className="text-sm text-gray-500 truncate">
             {t('header.app_url')}:{' '}
-            <span className="text-indigo-500 font-medium cursor-pointer hover:underline focus-visible:outline-none focus-visible:underline" tabIndex={0} role="button">
+            <span className="text-indigo-500 font-medium">
               clinichub.admin.local
             </span>
           </div>
