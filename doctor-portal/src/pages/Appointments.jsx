@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Clock, Check, X, CheckCheck, Video, MessageCircle, Loader2, CalendarX } from 'lucide-react';
+import { User, Clock, Check, X, CheckCheck, Video, MessageCircle, Loader2, CalendarX, Lock } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -17,6 +17,7 @@ const actionIconBtnCls = "w-7 h-7 flex items-center justify-center rounded borde
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [filter, setFilter] = useState('all');
@@ -38,6 +39,13 @@ export default function Appointments() {
   };
 
   useEffect(load, [token]);
+
+  // Video/chat faqat bemorning invoice'i "paid" bo'lgandagina ochiladi —
+  // to'lovsiz konsultatsiya berilib qolmasligi uchun (backend chat/permissions.py'da
+  // ham xuddi shu tekshiruv bor, bu yerdagi shart faqat UX uchun).
+  useEffect(() => {
+    fetchAll('/billing/invoice/', token).then(setInvoices).catch(() => {});
+  }, [token]);
 
   // Backend endi status'ni to'g'ridan-to'g'ri PATCH qilishga ruxsat bermaydi (xavfsizlik
   // uchun read-only qilingan) — o'rniga rolga qarab tekshiriladigan alohida action
@@ -73,6 +81,10 @@ export default function Appointments() {
     .filter((a) => filter === 'all' || a.status === filter)
     .slice()
     .sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+
+  const paidAppointmentIds = new Set(
+    invoices.filter((inv) => inv.status === 'paid').map((inv) => idOf(inv.appointment))
+  );
 
   return (
     <Layout>
@@ -132,7 +144,7 @@ export default function Appointments() {
                         <Loader2 size={12} className="animate-spin" /> {t('appointments.acting')}
                       </span>
                     )}
-                    {a.status === 'confirmed' && (a.consultation_type === 'video' || a.consultation_type === 'voice') && (
+                    {a.status === 'confirmed' && (a.consultation_type === 'video' || a.consultation_type === 'voice') && paidAppointmentIds.has(a.id) && (
                       <a
                         href={jitsiUrlFor(a)}
                         target="_blank"
@@ -144,7 +156,7 @@ export default function Appointments() {
                         <Video size={13} />
                       </a>
                     )}
-                    {a.status === 'confirmed' && (
+                    {a.status === 'confirmed' && paidAppointmentIds.has(a.id) && (
                       <Link
                         to={`/chat/${a.id}`}
                         title={t('appointments.open_chat')}
@@ -153,6 +165,15 @@ export default function Appointments() {
                       >
                         <MessageCircle size={13} />
                       </Link>
+                    )}
+                    {a.status === 'confirmed' && !paidAppointmentIds.has(a.id) && (
+                      <span
+                        title={t('appointments.payment_pending')}
+                        aria-label={t('appointments.payment_pending')}
+                        className={`${actionIconBtnCls} border-amber-200 text-amber-500 bg-amber-50 cursor-default`}
+                      >
+                        <Lock size={13} />
+                      </span>
                     )}
                     {a.status === 'pending' && (
                       <button
