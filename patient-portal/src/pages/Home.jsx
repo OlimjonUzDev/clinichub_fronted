@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Stethoscope, Building2, User } from 'lucide-react';
+import { Search, Stethoscope, User } from 'lucide-react';
 import { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -115,9 +115,6 @@ export default function Home() {
 
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <Stethoscope size={13} /> {resolveName(doc.speciality, specialities, lang) || '—'}
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                <Building2 size={13} /> {resolveRef(doc.clinic, clinics)?.name || '—'}
               </div>
 
               <button

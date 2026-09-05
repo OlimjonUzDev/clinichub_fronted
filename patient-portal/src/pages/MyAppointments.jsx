@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Clock, X, CalendarClock, Video, MessageCircle, CalendarX2 } from 'lucide-react';
+import { Stethoscope, Clock, X, CalendarClock, Video, MessageCircle, CalendarX2, Lock } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -18,6 +18,7 @@ const iconBtnCls = "w-7 h-7 flex items-center justify-center rounded border bord
 
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
@@ -39,6 +40,12 @@ export default function MyAppointments() {
   };
 
   useEffect(load, [token]);
+
+  // Video/chat faqat invoice "paid" bo'lgandagina ochiladi — bemor pulini
+  // to'lamasdan konsultatsiyadan foydalanib chiqib ketmasligi uchun.
+  useEffect(() => {
+    fetchAll('/billing/invoice/', token).then(setInvoices).catch(() => {});
+  }, [token]);
 
   const handleRetry = () => {
     setLoading(true);
@@ -73,6 +80,9 @@ export default function MyAppointments() {
 
   const durationMinutesOf = (a) => Math.round((new Date(a.end_time) - new Date(a.start_time)) / 60000);
   const idOf = (val) => (val && typeof val === 'object' ? val.id : val);
+  const paidAppointmentIds = new Set(
+    invoices.filter((inv) => inv.status === 'paid').map((inv) => idOf(inv.appointment))
+  );
 
   const handleReschedule = async (a) => {
     if (!rescheduleDate || !rescheduleTime) return;
@@ -144,7 +154,7 @@ export default function MyAppointments() {
                     <span className={statusBadgeCls(a.status)}>
                       {t(`status.${a.status}`)}
                     </span>
-                    {a.status === 'confirmed' && (
+                    {a.status === 'confirmed' && paidAppointmentIds.has(a.id) && (
                       <a
                         href={jitsiUrlFor(a)}
                         target="_blank"
@@ -156,7 +166,7 @@ export default function MyAppointments() {
                         <Video size={13} />
                       </a>
                     )}
-                    {a.status === 'confirmed' && (
+                    {a.status === 'confirmed' && paidAppointmentIds.has(a.id) && (
                       <Link
                         to={`/chat/${a.id}`}
                         title={t('appointments.open_chat')}
@@ -164,6 +174,16 @@ export default function MyAppointments() {
                         className={`${iconBtnCls} hover:border-indigo-400 hover:text-indigo-600`}
                       >
                         <MessageCircle size={13} />
+                      </Link>
+                    )}
+                    {a.status === 'confirmed' && !paidAppointmentIds.has(a.id) && (
+                      <Link
+                        to="/payments"
+                        title={t('appointments.payment_required')}
+                        aria-label={t('appointments.payment_required')}
+                        className={`${iconBtnCls} border-amber-200 text-amber-600 bg-amber-50 hover:border-amber-400`}
+                      >
+                        <Lock size={13} />
                       </Link>
                     )}
                     {canCancel && (
