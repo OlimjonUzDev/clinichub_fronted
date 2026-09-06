@@ -54,7 +54,7 @@ export default function RankTypeCreate() {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-2xl">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.pricing_ranks') },
@@ -66,12 +66,14 @@ export default function RankTypeCreate() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
-              <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} required />
-            </Field>
-            <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
-              <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} required />
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
+                <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} required />
+              </Field>
+              <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
+                <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} required />
+              </Field>
+            </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <button

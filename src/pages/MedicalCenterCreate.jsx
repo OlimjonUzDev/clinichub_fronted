@@ -103,7 +103,7 @@ export default function MedicalCenterCreate() {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-2xl">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.clinics_centers') },
@@ -121,89 +121,93 @@ export default function MedicalCenterCreate() {
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            <Field label={t('mc_create.name_uz')} required error={errors.name_uz}>
-              <input
-                name="name_uz"
-                value={form.name_uz}
-                onChange={handleChange}
-                className={inputCls}
-                required
-              />
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label={t('mc_create.name_uz')} required error={errors.name_uz}>
+                <input
+                  name="name_uz"
+                  value={form.name_uz}
+                  onChange={handleChange}
+                  className={inputCls}
+                  required
+                />
+              </Field>
 
-            <Field label={t('mc_create.name_ru')} required error={errors.name_ru}>
-              <input
-                name="name_ru"
-                value={form.name_ru}
-                onChange={handleChange}
-                className={inputCls}
-                required
-              />
-            </Field>
+              <Field label={t('mc_create.name_ru')} required error={errors.name_ru}>
+                <input
+                  name="name_ru"
+                  value={form.name_ru}
+                  onChange={handleChange}
+                  className={inputCls}
+                  required
+                />
+              </Field>
 
-            <Field label={t('mc_create.contact')} error={errors.contact}>
-              <input
-                name="contact"
-                value={form.contact}
-                onChange={handleChange}
-                placeholder="+998 90 123 45 67"
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('mc_create.contact')} error={errors.contact}>
+                <input
+                  name="contact"
+                  value={form.contact}
+                  onChange={handleChange}
+                  placeholder="+998 90 123 45 67"
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('mc_create.email')} error={errors.email}>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="info@klinika.uz"
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('mc_create.email')} error={errors.email}>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="info@klinika.uz"
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('mc_create.address')}>
-              <textarea
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                rows={3}
-                placeholder={t('mc_create.address_placeholder')}
-                className={textareaCls}
-              />
-            </Field>
+              <div className="sm:col-span-2">
+                <Field label={t('mc_create.address')}>
+                  <textarea
+                    name="address"
+                    value={form.address}
+                    onChange={handleChange}
+                    rows={3}
+                    placeholder={t('mc_create.address_placeholder')}
+                    className={textareaCls}
+                  />
+                </Field>
+              </div>
 
-            <Field label={t('mc_create.logo')} error={errors.logo}>
-              <input
-                name="logo"
-                value={form.logo}
-                onChange={handleChange}
-                placeholder="https://..."
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('mc_create.logo')} error={errors.logo}>
+                <input
+                  name="logo"
+                  value={form.logo}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('mc_create.website')} error={errors.website}>
-              <input
-                name="website"
-                value={form.website}
-                onChange={handleChange}
-                placeholder="https://klinika.uz"
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('mc_create.website')} error={errors.website}>
+                <input
+                  name="website"
+                  value={form.website}
+                  onChange={handleChange}
+                  placeholder="https://klinika.uz"
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('mc_create.status')}>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className={selectCls}
-              >
-                <option value="active">{t('common.active')}</option>
-                <option value="inactive">{t('common.inactive')}</option>
-              </select>
-            </Field>
+              <Field label={t('mc_create.status')}>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className={selectCls}
+                >
+                  <option value="active">{t('common.active')}</option>
+                  <option value="inactive">{t('common.inactive')}</option>
+                </select>
+              </Field>
+            </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <button

@@ -80,7 +80,7 @@ export default function RankPriceCreate() {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-2xl">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.pricing_ranks') },
@@ -92,44 +92,46 @@ export default function RankPriceCreate() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Field label={t('rank_prices.rank_type')} required>
-              <select name="rank_type" value={form.rank_type} onChange={handleChange} className={selectCls} required>
-                <option value="">{t('doctor_create.select')}</option>
-                {rankTypes.map(r => <option key={r.id} value={r.id}>{nameOf(r)}</option>)}
-              </select>
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label={t('rank_prices.rank_type')} required>
+                <select name="rank_type" value={form.rank_type} onChange={handleChange} className={selectCls} required>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {rankTypes.map(r => <option key={r.id} value={r.id}>{nameOf(r)}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('rank_prices.clinic')} required>
-              <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls} required>
-                <option value="">{t('doctor_create.select')}</option>
-                {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
-              </select>
-            </Field>
+              <Field label={t('rank_prices.clinic')} required>
+                <select name="clinic" value={form.clinic} onChange={handleChange} className={selectCls} required>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('appt.consultation_type')} required>
-              <select name="consultation_type" value={form.consultation_type} onChange={handleChange} className={selectCls} required>
-                {CONSULTATION_TYPES.map(v => <option key={v} value={v}>{t(`consult.${v}`)}</option>)}
-              </select>
-            </Field>
+              <Field label={t('appt.consultation_type')} required>
+                <select name="consultation_type" value={form.consultation_type} onChange={handleChange} className={selectCls} required>
+                  {CONSULTATION_TYPES.map(v => <option key={v} value={v}>{t(`consult.${v}`)}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('rank_prices.price')} required error={errors.price}>
-              <input type="number" min={0} step="0.01" name="price" value={form.price} onChange={handleChange} className={inputCls} required />
-            </Field>
+              <Field label={t('rank_prices.price')} required error={errors.price}>
+                <input type="number" min={0} step="0.01" name="price" value={form.price} onChange={handleChange} className={inputCls} required />
+              </Field>
 
-            <Field label={t('rank_price_create.currency')}>
-              <input name="currency" value={form.currency} onChange={handleChange} className={inputCls} />
-            </Field>
+              <Field label={t('rank_price_create.currency')}>
+                <input name="currency" value={form.currency} onChange={handleChange} className={inputCls} />
+              </Field>
 
-            <Field label={t('rank_prices.duration')} required error={errors.duration_min}>
-              <input type="number" min={1} name="duration_min" value={form.duration_min} onChange={handleChange} className={inputCls} required />
-            </Field>
+              <Field label={t('rank_prices.duration')} required error={errors.duration_min}>
+                <input type="number" min={1} name="duration_min" value={form.duration_min} onChange={handleChange} className={inputCls} required />
+              </Field>
 
-            <Field label={t('rank_prices.status')}>
-              <label className="flex items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-400" />
-                {t('common.active')}
-              </label>
-            </Field>
+              <Field label={t('rank_prices.status')}>
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-400" />
+                  {t('common.active')}
+                </label>
+              </Field>
+            </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <button

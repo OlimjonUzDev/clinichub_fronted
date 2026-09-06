@@ -72,7 +72,7 @@ export default function ClinicCreate() {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-2xl">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.clinics_centers') },
@@ -85,62 +85,64 @@ export default function ClinicCreate() {
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Medical Center */}
-            <Field label={t('clinic_create.medical_center')} required>
-              <select
-                name="medical_center"
-                value={form.medical_center}
-                onChange={handleChange}
-                className={selectCls}
-                required
-              >
-                <option value="">{t('clinic_create.select')}</option>
-                {medicalCenters.map(mc => (
-                  <option key={mc.id} value={mc.id}>{centerName(mc)}</option>
-                ))}
-              </select>
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Medical Center */}
+              <Field label={t('clinic_create.medical_center')} required>
+                <select
+                  name="medical_center"
+                  value={form.medical_center}
+                  onChange={handleChange}
+                  className={selectCls}
+                  required
+                >
+                  <option value="">{t('clinic_create.select')}</option>
+                  {medicalCenters.map(mc => (
+                    <option key={mc.id} value={mc.id}>{centerName(mc)}</option>
+                  ))}
+                </select>
+              </Field>
 
-            {/* Clinic Type */}
-            <Field label={t('clinic_create.clinic_type')} required>
-              <select
-                name="clinic_type"
-                value={form.clinic_type}
-                onChange={handleChange}
-                className={selectCls}
-                required
-              >
-                <option value="">{t('clinic_create.select')}</option>
-                {clinicTypes.map(ct => (
-                  <option key={ct.id} value={ct.id}>{typeName(ct)}</option>
-                ))}
-              </select>
-            </Field>
+              {/* Clinic Type */}
+              <Field label={t('clinic_create.clinic_type')} required>
+                <select
+                  name="clinic_type"
+                  value={form.clinic_type}
+                  onChange={handleChange}
+                  className={selectCls}
+                  required
+                >
+                  <option value="">{t('clinic_create.select')}</option>
+                  {clinicTypes.map(ct => (
+                    <option key={ct.id} value={ct.id}>{typeName(ct)}</option>
+                  ))}
+                </select>
+              </Field>
 
-            {/* Phone */}
-            <Field label={t('clinic_create.phone')} required error={errors.phone_number}>
-              <input
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="+998 90 123 45 67"
-                className={inputCls}
-                required
-              />
-            </Field>
+              {/* Phone */}
+              <Field label={t('clinic_create.phone')} required error={errors.phone_number}>
+                <input
+                  name="phone_number"
+                  value={form.phone_number}
+                  onChange={handleChange}
+                  placeholder="+998 90 123 45 67"
+                  className={inputCls}
+                  required
+                />
+              </Field>
 
-            {/* Status */}
-            <Field label={t('clinic_create.status')}>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className={selectCls}
-              >
-                <option value="active">{t('common.active')}</option>
-                <option value="inactive">{t('common.inactive')}</option>
-              </select>
-            </Field>
+              {/* Status */}
+              <Field label={t('clinic_create.status')}>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className={selectCls}
+                >
+                  <option value="active">{t('common.active')}</option>
+                  <option value="inactive">{t('common.inactive')}</option>
+                </select>
+              </Field>
+            </div>
 
             {/* Buttons */}
             <div className="flex justify-end gap-3 pt-2">

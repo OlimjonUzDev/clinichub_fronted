@@ -3,7 +3,7 @@ import { useLang } from '../context/LangContext';
 
 export function SearchBar({ value, onChange, placeholder = 'Search...' }) {
   return (
-    <div className="relative w-full sm:w-72">
+    <div className="relative w-full flex-1">
       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
       <input
         type="text"

@@ -371,7 +371,7 @@ export default function GettingStarted() {
         </div>
 
         {/* ── Progress card ── */}
-        <div className="max-w-3xl mx-auto bg-white rounded-xl border border-gray-100 p-5 mb-6">
+        <div className="bg-white rounded-xl border border-gray-100 p-5 mb-6">
           <div className="flex items-center mb-3">
             <div className="flex-1 bg-gray-100 rounded-full h-2.5 mr-4">
               <div
@@ -414,7 +414,7 @@ export default function GettingStarted() {
 
         {/* ── Success banner ── */}
         {allDone && (
-          <div className="max-w-3xl mx-auto bg-green-50 border border-green-200 rounded-xl p-6 mb-6 text-center">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 text-center">
             <CheckCircle2 size={36} className="text-green-500 mx-auto mb-2" />
             <h2 className="text-lg font-bold text-green-800 mb-1">{t('gs.success_title')}</h2>
             <p className="text-sm text-green-600 mb-4">{t('gs.success_msg')}</p>
@@ -428,7 +428,7 @@ export default function GettingStarted() {
         )}
 
         {/* ── Step cards ── */}
-        <div className="max-w-3xl mx-auto space-y-3">
+        <div className="space-y-3">
           {STEPS.map((step, i) => {
             const isActive = activeStep === i;
             const isDone   = done[i];
@@ -562,7 +562,7 @@ export default function GettingStarted() {
         </div>
 
         {/* ── All Setup Steps grid ── */}
-        <div className="max-w-3xl mx-auto mt-8">
+        <div className="mt-8">
           <h3 className="text-sm font-semibold text-gray-500 mb-3">{t('gs.all_steps')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {STEPS.map((_, i) => (

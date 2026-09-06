@@ -91,7 +91,7 @@ export default function DoctorCreate() {
 
   return (
     <Layout>
-      <div className="p-4 sm:p-8 max-w-4xl">
+      <div className="p-4 sm:p-8">
         <PageHeader
           breadcrumbs={[
             { label: t('menu.doctors_staff'), path: '/doctors' },
@@ -104,89 +104,95 @@ export default function DoctorCreate() {
         <div className="bg-white rounded-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            <Field label={t('doctor_create.user')} required>
-              <select name="user" required value={form.user} onChange={handleChange} className={selectCls}>
-                <option value="">{t('doctor_create.select')}</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.username || u.email}</option>
-                ))}
-              </select>
-            </Field>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label={t('doctor_create.user')} required>
+                <select name="user" required value={form.user} onChange={handleChange} className={selectCls}>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.username || u.email}</option>
+                  ))}
+                </select>
+              </Field>
 
-            <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
-              <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} required />
-            </Field>
+              <Field label={t('doctor_create.name_uz')} required error={errors.name_uz}>
+                <input name="name_uz" value={form.name_uz} onChange={handleChange} className={inputCls} required />
+              </Field>
 
-            <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
-              <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} required />
-            </Field>
+              <Field label={t('doctor_create.name_ru')} required error={errors.name_ru}>
+                <input name="name_ru" value={form.name_ru} onChange={handleChange} className={inputCls} required />
+              </Field>
 
-            <Field label={t('doctor_create.gender')} required>
-              <select name="gender" value={form.gender} onChange={handleChange} className={selectCls}>
-                <option value="erkak">{t('doctor_create.male')}</option>
-                <option value="ayol">{t('doctor_create.female')}</option>
-              </select>
-            </Field>
+              <Field label={t('doctor_create.gender')} required>
+                <select name="gender" value={form.gender} onChange={handleChange} className={selectCls}>
+                  <option value="erkak">{t('doctor_create.male')}</option>
+                  <option value="ayol">{t('doctor_create.female')}</option>
+                </select>
+              </Field>
 
-            <Field label={t('doctor_create.clinic')} required>
-              <select name="clinic" required value={form.clinic} onChange={handleChange} className={selectCls}>
-                <option value="">{t('doctor_create.select')}</option>
-                {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
-              </select>
-            </Field>
+              <Field label={t('doctor_create.clinic')} required>
+                <select name="clinic" required value={form.clinic} onChange={handleChange} className={selectCls}>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {clinics.map(c => <option key={c.id} value={c.id}>{clinicLabel(c)}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('doctor_create.speciality')} required>
-              <select name="speciality" required value={form.speciality} onChange={handleChange} className={selectCls}>
-                <option value="">{t('doctor_create.select')}</option>
-                {specialities.map(s => <option key={s.id} value={s.id}>{s.name_uz}</option>)}
-              </select>
-            </Field>
+              <Field label={t('doctor_create.speciality')} required>
+                <select name="speciality" required value={form.speciality} onChange={handleChange} className={selectCls}>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {specialities.map(s => <option key={s.id} value={s.id}>{s.name_uz}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('doctor_create.rank')} required>
-              <select name="rank_type" required value={form.rank_type} onChange={handleChange} className={selectCls}>
-                <option value="">{t('doctor_create.select')}</option>
-                {rankTypes.map(r => <option key={r.id} value={r.id}>{r.name_uz}</option>)}
-              </select>
-            </Field>
+              <Field label={t('doctor_create.rank')} required>
+                <select name="rank_type" required value={form.rank_type} onChange={handleChange} className={selectCls}>
+                  <option value="">{t('doctor_create.select')}</option>
+                  {rankTypes.map(r => <option key={r.id} value={r.id}>{r.name_uz}</option>)}
+                </select>
+              </Field>
 
-            <Field label={t('doctor_create.experience_years')} error={errors.experience_years}>
-              <input
-                type="number"
-                name="experience_years"
-                value={form.experience_years}
-                onChange={handleChange}
-                min={0}
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('doctor_create.experience_years')} error={errors.experience_years}>
+                <input
+                  type="number"
+                  name="experience_years"
+                  value={form.experience_years}
+                  onChange={handleChange}
+                  min={0}
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('doctor_create.telegram')}>
-              <input
-                name="telegram_username"
-                value={form.telegram_username}
-                onChange={handleChange}
-                placeholder="@username"
-                className={inputCls}
-              />
-            </Field>
+              <Field label={t('doctor_create.telegram')}>
+                <input
+                  name="telegram_username"
+                  value={form.telegram_username}
+                  onChange={handleChange}
+                  placeholder="@username"
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('doctor_create.bio_uz')}>
-              <textarea name="bio_uz" value={form.bio_uz} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
-            </Field>
+              <Field label={t('doctor_create.avatar')} error={errors.avatar}>
+                <input
+                  name="avatar"
+                  value={form.avatar}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                  className={inputCls}
+                />
+              </Field>
 
-            <Field label={t('doctor_create.bio_ru')}>
-              <textarea name="bio_ru" value={form.bio_ru} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
-            </Field>
+              <div className="sm:col-span-2">
+                <Field label={t('doctor_create.bio_uz')}>
+                  <textarea name="bio_uz" value={form.bio_uz} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
+                </Field>
+              </div>
 
-            <Field label={t('doctor_create.avatar')} error={errors.avatar}>
-              <input
-                name="avatar"
-                value={form.avatar}
-                onChange={handleChange}
-                placeholder="https://..."
-                className={inputCls}
-              />
-            </Field>
+              <div className="sm:col-span-2">
+                <Field label={t('doctor_create.bio_ru')}>
+                  <textarea name="bio_ru" value={form.bio_ru} onChange={handleChange} rows={4} className={`${inputCls} resize-none`} />
+                </Field>
+              </div>
+            </div>
 
             <div className="flex justify-end pt-2">
               <button
