@@ -107,19 +107,16 @@ export default function Profile() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-xl space-y-5">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 w-full space-y-5">
         <div>
           <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_personal')}</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Field icon={User} label={t('profile.name_uz')} required error={fieldErrors.name_uz}>
               <input type="text" required value={form.name_uz} onChange={handleChange('name_uz')} className={inputCls} />
             </Field>
             <Field icon={User} label={t('profile.name_ru')} required error={fieldErrors.name_ru}>
               <input type="text" required value={form.name_ru} onChange={handleChange('name_ru')} className={inputCls} />
             </Field>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <Field icon={Users} label={t('profile.gender')}>
               <select value={form.gender} onChange={handleChange('gender')} className={`${inputCls} appearance-none bg-white`}>
                 <option value="erkak">{t('profile.gender.erkak')}</option>
@@ -134,7 +131,7 @@ export default function Profile() {
 
         <div className="border-t border-gray-100 pt-5">
           <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_contact')}</div>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field icon={Phone} label={t('profile.phone')} error={fieldErrors.phone_number}>
               <input type="text" value={form.phone_number} onChange={handleChange('phone_number')} placeholder="+998901234567" className={inputCls} />
             </Field>

@@ -90,13 +90,13 @@ export default function Appointments() {
     <Layout>
       <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('appointments.title')}</h1>
 
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
+      <div className="flex items-center gap-2 mb-4">
         {FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             aria-pressed={filter === f}
-            className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 ${
+            className={`flex-1 text-xs font-medium px-3 py-2 rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 ${
               filter === f ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
             }`}
           >

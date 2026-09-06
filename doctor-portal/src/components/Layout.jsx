@@ -42,7 +42,7 @@ export default function Layout({ children }) {
         </header>
 
         <main className="flex-1 overflow-auto p-4 sm:p-6">
-          <div className="max-w-4xl mx-auto">{children}</div>
+          {children}
         </main>
       </div>
     </div>

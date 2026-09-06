@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Users, FileText, Award, Image, AtSign, Landmark, CreditCard, Stethoscope, Building2 } from 'lucide-react';
+import { User, Users, FileText, Award, Image, AtSign, Stethoscope, Building2 } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -18,7 +18,6 @@ const formFromDoctor = (doctor) => ({
   avatar: doctor.avatar || '',
   experience_years: doctor.experience_years ?? 0,
   telegram_username: doctor.telegram_username || '',
-  bank_name: doctor.bank_name || '', iban: doctor.iban || '',
 });
 
 // Mounted only once `doctor` is loaded (see Profile below), with `key={doctor.id}`
@@ -81,18 +80,16 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-8 max-w-xl space-y-5">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-5 sm:p-8 w-full space-y-5">
         <div>
           <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_personal')}</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Field icon={User} label={t('profile.name_uz')} required>
               <input type="text" required value={form.name_uz} onChange={handleChange('name_uz')} className={inputCls} />
             </Field>
             <Field icon={User} label={t('profile.name_ru')} required>
               <input type="text" required value={form.name_ru} onChange={handleChange('name_ru')} className={inputCls} />
             </Field>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <Field icon={Users} label={t('profile.gender')}>
               <select value={form.gender} onChange={handleChange('gender')} className={`${inputCls} appearance-none bg-white`}>
                 <option value="erkak">{t('profile.gender.erkak')}</option>
@@ -107,7 +104,7 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
 
         <div className="border-t border-gray-100 pt-5">
           <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_professional')}</div>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Field icon={FileText} label={t('profile.bio_uz')}>
               <textarea rows={3} value={form.bio_uz} onChange={handleChange('bio_uz')} className={`${inputCls} pt-2.5`} />
             </Field>
@@ -119,18 +116,6 @@ function ProfileForm({ doctor, token, refreshDoctor, t, lang }) {
             </Field>
             <Field icon={AtSign} label={t('profile.telegram')}>
               <input type="text" value={form.telegram_username} onChange={handleChange('telegram_username')} placeholder="@username" className={inputCls} />
-            </Field>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-100 pt-5">
-          <div className={`${sectionLabelCls} mb-3`}>{t('profile.section_payout')}</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field icon={Landmark} label={t('profile.bank_name')}>
-              <input type="text" value={form.bank_name} onChange={handleChange('bank_name')} className={inputCls} />
-            </Field>
-            <Field icon={CreditCard} label={t('profile.iban')}>
-              <input type="text" value={form.iban} onChange={handleChange('iban')} className={inputCls} />
             </Field>
           </div>
         </div>

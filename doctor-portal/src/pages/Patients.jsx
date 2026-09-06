@@ -47,7 +47,7 @@ export default function Patients() {
     <Layout>
       <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('patients.title')}</h1>
 
-      <div className="relative mb-6 max-w-sm">
+      <div className="relative mb-6">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           value={search}
