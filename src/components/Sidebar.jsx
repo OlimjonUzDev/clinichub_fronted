@@ -7,7 +7,7 @@ import {
   Home, Building2, UsersRound, Calendar, DollarSign,
   Plug, Wallet, Settings, LogOut,
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
-  UserSquare, FileText, ShieldCheck, ArrowLeftRight, UserCog,
+  UserSquare, FileText,
   Tag, Users, Puzzle, MessageSquare
 } from 'lucide-react';
 
@@ -70,9 +70,6 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       key: 'financial', label: t('menu.financial'), icon: Wallet,
       children: [
         { label: t('menu.invoices'), path: '/invoices', icon: FileText },
-        { label: t('menu.insurance'), path: '/insurance', icon: ShieldCheck },
-        { label: t('menu.doctor_payouts'), path: '/payouts', icon: ArrowLeftRight },
-        { label: t('menu.doctors_settings'), path: '/doctor-settings', icon: UserCog },
       ]
     },
     {

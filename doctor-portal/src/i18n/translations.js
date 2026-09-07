@@ -39,6 +39,10 @@ const translations = {
     'dashboard.today_list': 'Bugungi jadval',
     'dashboard.no_today': 'Bugun tashrif rejalashtirilmagan',
     'dashboard.load_error': "Ma'lumotlarni yuklashda xatolik yuz berdi",
+    'dashboard.status_breakdown': 'Tashriflar holati bo\'yicha',
+    'dashboard.monthly_trend': 'Oylik dinamika',
+    'dashboard.rating_breakdown': 'Baholar taqsimoti',
+    'dashboard.no_ratings': 'Hali baho qoldirilmagan',
 
     // Appointments
     'appointments.title': 'Tashriflar',
@@ -200,6 +204,10 @@ const translations = {
     'dashboard.today_list': 'Расписание на сегодня',
     'dashboard.no_today': 'На сегодня приёмов не запланировано',
     'dashboard.load_error': 'Ошибка при загрузке данных',
+    'dashboard.status_breakdown': 'По статусу приёмов',
+    'dashboard.monthly_trend': 'Динамика по месяцам',
+    'dashboard.rating_breakdown': 'Распределение оценок',
+    'dashboard.no_ratings': 'Пока нет оценок',
 
     'appointments.title': 'Приёмы',
     'appointments.no_data': 'Пока нет приёмов',
