@@ -22,9 +22,7 @@ import RankTypeCreate from './pages/RankTypeCreate';
 import RankPrices from './pages/RankPrices';
 import RankPriceCreate from './pages/RankPriceCreate';
 import Invoices from './pages/Invoices';
-import Payouts from './pages/Payouts';
 import Users from './pages/Users';
-import DoctorSettings from './pages/DoctorSettings';
 import Placeholder from './pages/Placeholder';
 
 const Protected = ({ children }) => {
@@ -74,8 +72,6 @@ function App() {
         {/* Financial */}
         <Route path="/invoices"           element={<Protected><Invoices /></Protected>} />
         <Route path="/insurance"          element={<Protected><Placeholder title="Insurance Claims" /></Protected>} />
-        <Route path="/payouts"            element={<Protected><Payouts /></Protected>} />
-        <Route path="/doctor-settings"    element={<Protected><DoctorSettings /></Protected>} />
 
         {/* Admin */}
         <Route path="/users"              element={<Protected><Users /></Protected>} />

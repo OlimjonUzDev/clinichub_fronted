@@ -55,7 +55,6 @@ const translations = {
     'menu.financial': 'Moliya',
     'menu.invoices': 'Hisob-fakturalar',
     'menu.insurance': 'Sug\'urta talablari',
-    'menu.doctor_payouts': 'Shifokor to\'lovlari',
     'menu.doctors_settings': 'Shifokorlar sozlamalari',
     'menu.marketing': 'Marketing',
     'menu.coupons': 'Kuponlar',
@@ -413,21 +412,6 @@ const translations = {
     'rank_price_create.error':    'Xatolik yuz berdi!',
 
     // Doctor Settings
-    'doctor_settings.title':        'Shifokorlar sozlamalari',
-    'doctor_settings.id':           'ID',
-    'doctor_settings.name':         'Ismi',
-    'doctor_settings.bank_name':    'Bank nomi',
-    'doctor_settings.iban':         'IBAN',
-    'doctor_settings.revenue':      'Ulush %',
-    'doctor_settings.auto_payout':  'Avtomatik to\'lov',
-    'doctor_settings.actions':      'Amallar',
-    'doctor_settings.search':       'Shifokor nomi...',
-    'doctor_settings.no_data':      'Shifokorlar yo\'q',
-    'doctor_settings.yes':          'Ha',
-    'doctor_settings.no':           'Yo\'q',
-    'doctor_settings.edit_title':   'To\'lov sozlamalarini tahrirlash',
-    'doctor_settings.edit_error':   'Saqlab bo\'lmadi',
-    'doctor_settings.revenue_hint': '0 (0%) dan 1 (100%) gacha — shifokorga tegadigan ulush',
 
     // Invoices
     'invoices.title':          'Hisob-fakturalar',
@@ -450,20 +434,6 @@ const translations = {
     'invoices.view_title':     'Hisob-faktura ma\'lumotlari',
 
     // Payouts
-    'payouts.title':        'Shifokor To\'lovlari',
-    'payouts.id':           'ID',
-    'payouts.doctor':       'Shifokor',
-    'payouts.period':       'Davr',
-    'payouts.amount':       'Summa',
-    'payouts.status':       'Holat',
-    'payouts.paid_at':      'To\'langan sana',
-    'payouts.actions':      'Amallar',
-    'payouts.search':       'Shifokor ismi...',
-    'payouts.no_data':      'To\'lovlar yo\'q',
-    'payouts.all_statuses': 'Barcha holatlar',
-    'payouts.pending':      'Kutilmoqda',
-    'payouts.paid':         'To\'langan',
-    'payouts.view_title':   'To\'lov ma\'lumotlari',
 
     // Users
     'users.title':       'Foydalanuvchilar',
@@ -556,7 +526,6 @@ const translations = {
     'menu.financial': 'Финансы',
     'menu.invoices': 'Счета',
     'menu.insurance': 'Страховые требования',
-    'menu.doctor_payouts': 'Выплаты врачам',
     'menu.doctors_settings': 'Настройки врачей',
     'menu.marketing': 'Маркетинг',
     'menu.coupons': 'Купоны',
@@ -914,21 +883,6 @@ const translations = {
     'rank_price_create.error':    'Произошла ошибка!',
 
     // Doctor Settings
-    'doctor_settings.title':        'Настройки врачей',
-    'doctor_settings.id':           'ID',
-    'doctor_settings.name':         'Имя',
-    'doctor_settings.bank_name':    'Название банка',
-    'doctor_settings.iban':         'IBAN',
-    'doctor_settings.revenue':      'Доля %',
-    'doctor_settings.auto_payout':  'Автовыплата',
-    'doctor_settings.actions':      'Действия',
-    'doctor_settings.search':       'Имя врача...',
-    'doctor_settings.no_data':      'Врачи не найдены',
-    'doctor_settings.yes':          'Да',
-    'doctor_settings.no':           'Нет',
-    'doctor_settings.edit_title':   'Редактировать настройки выплат',
-    'doctor_settings.edit_error':   'Не удалось сохранить',
-    'doctor_settings.revenue_hint': 'От 0 (0%) до 1 (100%) — доля, причитающаяся врачу',
 
     // Invoices
     'invoices.title':          'Счета',
@@ -951,20 +905,6 @@ const translations = {
     'invoices.view_title':     'Информация о счёте',
 
     // Payouts
-    'payouts.title':        'Выплаты врачам',
-    'payouts.id':           'ID',
-    'payouts.doctor':       'Врач',
-    'payouts.period':       'Период',
-    'payouts.amount':       'Сумма',
-    'payouts.status':       'Статус',
-    'payouts.paid_at':      'Дата выплаты',
-    'payouts.actions':      'Действия',
-    'payouts.search':       'Имя врача...',
-    'payouts.no_data':      'Выплаты не найдены',
-    'payouts.all_statuses': 'Все статусы',
-    'payouts.pending':      'Ожидание',
-    'payouts.paid':         'Выплачено',
-    'payouts.view_title':   'Информация о выплате',
 
     // Users
     'users.title':        'Пользователи',

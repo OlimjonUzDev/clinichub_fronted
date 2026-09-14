@@ -1,6 +1,6 @@
 // Admin panel (src/components/DataTable.jsx) dagi StatusBadge rang xaritasiga mos —
 // bir xil holat (masalan "confirmed") barcha portallarda bir xil rangda ko'rinsin.
-// Avval Appointments.jsx, Payouts.jsx va Dashboard.jsx da 3 ta mustaqil
+// Avval Appointments.jsx va Dashboard.jsx da alohida mustaqil
 // implementatsiya bor edi (jumladan Dashboard'da holat rangi umuman ko'rsatilmasdi) —
 // endi barchasi shu yerdan.
 export const STATUS_COLORS = {

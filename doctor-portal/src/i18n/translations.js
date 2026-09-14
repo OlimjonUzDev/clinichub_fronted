@@ -16,7 +16,6 @@ const translations = {
     'nav.prescriptions': 'Retseptlar',
     'nav.schedule': 'Ish jadvali',
     'nav.reviews': 'Sharhlar',
-    'nav.payouts': "To'lovlarim",
     'nav.profile': 'Profil',
     'nav.logout': 'Chiqish',
 
@@ -120,20 +119,11 @@ const translations = {
     'reviews.load_error': 'Sharhlarni yuklashda xatolik yuz berdi',
 
     // Payouts
-    'payouts.title': "To'lovlarim",
-    'payouts.no_data': "Hali to'lov tarixi yo'q",
-    'payouts.load_error': "To'lovlarni yuklashda xatolik yuz berdi",
-    'payouts.total_paid': "To'langan",
-    'payouts.total_pending': 'Kutilmoqda',
-    'payouts.paid_at': "To'langan sana",
-    'payouts.status.pending': 'Kutilmoqda',
-    'payouts.status.paid': "To'landi",
 
     // Profile
     'profile.title': 'Mening profilim',
     'profile.section_personal': "Shaxsiy ma'lumotlar",
     'profile.section_professional': 'Kasbiy ma\'lumotlar',
-    'profile.section_payout': "To'lov rekvizitlari",
     'profile.name_uz': 'Ism (lotin)',
     'profile.name_ru': 'Ism (kirill)',
     'profile.gender': 'Jinsi',
@@ -144,8 +134,6 @@ const translations = {
     'profile.avatar': 'Avatar (URL)',
     'profile.experience_years': 'Tajriba (yil)',
     'profile.telegram': 'Telegram username',
-    'profile.bank_name': 'Bank nomi',
-    'profile.iban': 'IBAN',
     'profile.save': 'Saqlash',
     'profile.saving': 'Saqlanmoqda...',
     'profile.saved': "Ma'lumotlar saqlandi",
@@ -182,7 +170,6 @@ const translations = {
     'nav.prescriptions': 'Рецепты',
     'nav.schedule': 'График работы',
     'nav.reviews': 'Отзывы',
-    'nav.payouts': 'Мои выплаты',
     'nav.profile': 'Профиль',
     'nav.logout': 'Выйти',
 
@@ -280,19 +267,10 @@ const translations = {
     'reviews.load_error': 'Ошибка при загрузке отзывов',
 
     // Payouts
-    'payouts.title': 'Мои выплаты',
-    'payouts.no_data': 'Пока нет истории выплат',
-    'payouts.load_error': 'Ошибка при загрузке выплат',
-    'payouts.total_paid': 'Выплачено',
-    'payouts.total_pending': 'Ожидание',
-    'payouts.paid_at': 'Дата выплаты',
-    'payouts.status.pending': 'Ожидание',
-    'payouts.status.paid': 'Выплачено',
 
     'profile.title': 'Мой профиль',
     'profile.section_personal': 'Личные данные',
     'profile.section_professional': 'Профессиональные данные',
-    'profile.section_payout': 'Платёжные реквизиты',
     'profile.name_uz': 'Имя (латиница)',
     'profile.name_ru': 'Имя (кириллица)',
     'profile.gender': 'Пол',
@@ -303,8 +281,6 @@ const translations = {
     'profile.avatar': 'Аватар (URL)',
     'profile.experience_years': 'Опыт (лет)',
     'profile.telegram': 'Telegram username',
-    'profile.bank_name': 'Название банка',
-    'profile.iban': 'IBAN',
     'profile.save': 'Сохранить',
     'profile.saving': 'Сохранение...',
     'profile.saved': 'Данные сохранены',

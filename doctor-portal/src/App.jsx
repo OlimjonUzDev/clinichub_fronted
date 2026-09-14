@@ -8,7 +8,6 @@ import Patients from './pages/Patients';
 import Prescriptions from './pages/Prescriptions';
 import Schedule from './pages/Schedule';
 import Reviews from './pages/Reviews';
-import Payouts from './pages/Payouts';
 import Chat from './pages/Chat';
 import Profile from './pages/Profile';
 
@@ -38,7 +37,6 @@ function App() {
         <Route path="/prescriptions" element={<Protected><Prescriptions /></Protected>} />
         <Route path="/schedule" element={<Protected><Schedule /></Protected>} />
         <Route path="/reviews" element={<Protected><Reviews /></Protected>} />
-        <Route path="/payouts" element={<Protected><Payouts /></Protected>} />
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
