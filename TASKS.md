@@ -454,7 +454,7 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
 
 **KRITIK (backend, foydalanuvchi yozadi):**
 
-- [ ] **Video-konsultatsiyaga begona kirishi mumkin** —
+- [x] **Video-konsultatsiyaga begona kirishi mumkin** —
   `patient-portal/src/lib/videoCall.js:5-12` va
   `doctor-portal/src/lib/videoCall.js:5-12`da Jitsi xona nomi faqat
   `appointment.id` (kichik ketma-ket son) va `start_time`dan hosil qilinadi.
@@ -466,7 +466,20 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   `Appointment`ga tasodifiy `video_room_token` (UUID) qo'shib xona nomida
   shundan foydalanish, va/yoki busy-slots aniq vaqt o'rniga faqat band/bo'sh
   holatini qaytarishi kerak.
-- [ ] **Bemor o'z `Patient` yozuvini boshqa userga "ko'chirib" yubora oladi
+  ✅ **Tekshirildi (2026-09-14):** backend (foydalanuvchi yozgan) —
+  `Appointment.video_room_token` (UUID, unique, `editable=False`) qo'shildi,
+  bosqichma-bosqich migratsiya (avval `null=True` default'siz, keyin data
+  migratsiya bilan mavjud qatorlarga individual UUID, so'ng `unique=True`ga
+  qaytarish) muvaffaqiyatli qo'llandi; `AppointmentSerializers`да
+  `read_only_fields`ga qo'shildi (`read_only=True` tasdiqlandi, client
+  yuborgan qiymat e'tiborga olinmaydi). Real `django.test.Client` so'rovi
+  bilan: bemor va doktor bir xil appointment uchun **bir xil**
+  `video_room_token` oladi (`200`), begona patient `404`. Frontend (men
+  yozdim): ikkala portalning `videoCall.js`i `id+start_time` o'rniga
+  `video_room_token`dan foydalanadigan qilindi — eski formula bilan
+  hisoblangan xona nomi endi haqiqiy xona bilan mos kelmasligi tasdiqlandi.
+  `npx eslint`/`npm run build` — ikkalasida ham xatosiz.
+- [x] **Bemor o'z `Patient` yozuvini boshqa userga "ko'chirib" yubora oladi
   (IDOR)** — `patients/serializers.py:5-8`даги `PatientSerializers`da `user`
   maydoni yozish uchun ochiq (`fields='__all__'`, `read_only_fields`/`update()`
   yo'q). `patients/permissions.py`даги `IsAdminOrOwnerPatient` bemorga o'z
@@ -477,7 +490,17 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   (`SENSITIVE_FIELDS` bilan `user`) allaqachon bor, `Patient`da yo'q.
   **Tuzatish:** `PatientSerializers.Meta`ga `read_only_fields = ['user']`
   qo'shish.
-- [ ] **Har qanday shifokor har qanday bemorning to'liq yozuvini (JSHSHIR,
+  ✅ **Tekshirildi (2026-09-14):** dastlabki `read_only_fields = ['user']`
+  yechimi `test_admin_can_create_patient`ни buzgani aniqlandi (admin CREATE
+  paytida ham `user` e'tiborga olinmay, `IntegrityError` berardi) — shu
+  sabab `Doctor`даги `SENSITIVE_FIELDS` naqshiga o'tkazildi: `update()`да
+  faqat admin bo'lmaganlar uchun `user` tozalanadi, CREATE (faqat admin
+  kira oladigan action) tegilmaydi. `manage.py test patients --keepdb` —
+  **10/10 o'tdi**. Real so'rov (tranzaksiya rollback bilan): bemor `PATCH
+  {"user": <boshqa_id>}` yuborsa `200` qaytadi, lekin bazada `user_id`
+  o'zgarmagan (hali ham o'ziniki); admin `POST` bilan yangi patient
+  `user`ni to'g'ri belgilab yaratadi (`201`).
+- [x] **Har qanday shifokor har qanday bemorning to'liq yozuvini (JSHSHIR,
   manzil) ko'ra oladi — real testda tasdiqlandi** —
   `patients/permissions.py`даги `IsAdminOrOwnerPatient.has_object_permission`:
   `if request.method in SAFE_METHODS and request.user.role == 'doctor':
@@ -486,28 +509,63 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   kutadi (403), lekin kod 200 qaytaradi — **bu hozir FAIL bo'layotgan real
   test**. **Tuzatish:** faqat shu bemor bilan appointment/prescription
   orqali bog'liq shifokorga ruxsat berish kerak, hammasiga emas.
+  ✅ **Tekshirildi (2026-09-14):** `has_object_permission`да doktor uchun
+  endi `Appointment.objects.filter(patient=obj, doctor=doctor).exists()`
+  tekshiriladi (profilsiz doktor uchun `False`). `manage.py test patients
+  --keepdb` — **10/10 o'tdi** (eski FAIL yo'qoldi). Real so'rov (rollback
+  bilan): bemor bilan appointment'i bor doktor → `200`; hech qanday
+  bog'liqligi yo'q doktor → `403`.
 
 **YUQORI:**
 
-- [ ] **[backend] Rating (baho) yaratish — 500 xato** — yuqorida
+- [x] **[backend] Rating (baho) yaratish — 500 xato** — yuqorida
   ("To'rt portal auditi") allaqachon yozilgan, 2026-08-30'da real so'rov
   bilan qayta tasdiqlandi: `appointments/serializers.py`даги
   `RatingSerializers.Meta.read_only_fields`da `'appointment'` borligi sabab
   `RatingViewSet.create()`даги `serializer.validated_data['appointment']`
   KeyError beradi. Hali tuzatilmagan.
-- [ ] **[backend] JWT tokenlar juda uzoq muddatli, bekor qilib bo'lmaydi** —
+  ✅ **Tekshirildi (2026-09-14):** kod allaqachon to'g'irlangan ekan —
+  `read_only_fields = ['patient', 'doctor']` (`'appointment'` yo'q),
+  `validate()`да appointment egasi va `status=='completed'` tekshiruvi bor.
+  Bu band boshqa (keyinroq qilingan) ish davomida yopilgan, TASKS.md'da
+  belgilanmay qolgan ekan — endi rasman yopildi.
+- [x] **[backend] JWT tokenlar juda uzoq muddatli, bekor qilib bo'lmaydi** —
   `config/settings.py:188-191`: `ACCESS_TOKEN_LIFETIME=7 kun`,
   `REFRESH_TOKEN_LIFETIME=30 kun`. `token_blacklist` o'rnatilmagan, logout
   endpointi yo'q. Token o'g'irlansa, uni bekor qilib bo'lmaydi. **Tuzatish:**
   `rest_framework_simplejwt.token_blacklist` qo'shish, logout view yaratish,
   `ACCESS_TOKEN_LIFETIME`ni daqiqalarga tushirish.
-- [ ] **[backend] Chatda ishtirokchi boshqasining xabarini o'chira/tahrirlay
+  ✅ **Tekshirildi (2026-09-14):** `token_blacklist` `INSTALLED_APPS`ga
+  qo'shildi (`migrate` bilan bazaga qo'llandi), `ACCESS_TOKEN_LIFETIME` 7
+  kundan 30 daqiqaga, `REFRESH_TOKEN_LIFETIME` 30 kundan 7 kunga
+  qisqartirildi, `ROTATE_REFRESH_TOKENS`/`BLACKLIST_AFTER_ROTATION`
+  yoqildi, `POST /api/v1/auth/token/logout/` (`TokenBlacklistView`)
+  qo'shildi. Real oqim bilan tasdiqlandi: login → `/me/` bilan `200` →
+  logout (`200`) → **o'sha** refresh token bilan yangilashga urinish →
+  `401` (`"Token is blacklisted"`). `manage.py check` — 0 xato.
+- [x] **[backend] Chatda ishtirokchi boshqasining xabarini o'chira/tahrirlay
   oladi** — `chat/permissions.py`даги `IsAppointmentParticipant` faqat
   `has_permission` (appointmentga tegishlilik) tekshiradi,
   `has_object_permission` yo'q — `obj.sender == request.user` hech qachon
   tekshirilmaydi. **Tuzatish:** xabar egasiga tegishli tekshiruv qo'shish
   yoki PATCH/DELETE'ni butunlay olib tashlash (chat append-only bo'lishi
   kerak).
+  ✅ **Tekshirildi (2026-09-14):** ikkinchi variant tanlandi — frontend
+  (`chatApi.js`, ikkala portalda) chat uchun faqat `GET`/`POST` ishlatishi
+  tasdiqlangач, `MessageViewSet`ga `http_method_names = ['get', 'post',
+  'head', 'options']` qo'shildi. Real so'rov bilan: xabar yuborish (`POST`)
+  hali ham `201`; boshqa ishtirokchi tomonidan `PATCH` → `405`; hatto
+  o'zining xabarini `DELETE` qilish ham → `405`. `manage.py test chat
+  --keepdb` — 4 ta oldindan mavjud FAIL (to'lov-gating bilan bog'liq,
+  bu ishga aloqasiz) o'zgarishsiz qoldi, yangi regressiya yo'q.
+  **Qo'shimcha (2026-09-14):** o'sha 4 ta FAIL alohida tuzatildi —
+  `chat/tests.py`даги `setUp()` appointment'lar uchun `paid` holatidagi
+  `Invoice` yaratmagani sabab, invoice-gating qoidasi haqiqiy ishtirokchini
+  ham bloklab qo'yayotgan edi (kod xatosi emas, test fixture'i eskirgan
+  edi). Ikkala appointment uchun ham `Invoice.objects.create(..., status=
+  'paid')` qo'shildi. `manage.py test chat --keepdb` — **7/7 o'tdi**.
+  To'liq suite (`manage.py test --keepdb`) — 87 test, endi faqat 3 FAIL
+  (`prescriptions`, alohida band), yangi regressiya yo'q.
 - [ ] **[backend+admin] To'lov (billing) zanjiri butunlay yetib
   bo'lmaydigan holatda** — hech qanday portalda `Invoice` yaratish UI'si
   yo'q (`src/pages/Invoices.jsx` faqat ro'yxat, `/invoices/create` route
@@ -547,10 +605,13 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE` va h.k.
   `config/settings.py`da yo'q. DEBUG=True bo'lgani uchun hozircha
   shoshilinch emas.
-- [ ] **[backend] To'liq API sxemasi (`drf_yasg` Swagger/Redoc) `/` da
+- [x] **[backend] To'liq API sxemasi (`drf_yasg` Swagger/Redoc) `/` da
   hech kimga cheklanmagan holda ochiq** — `config/urls.py:16-30,58-60`,
   `AllowAny`. **Tuzatish:** admin-only qilish yoki DEBUG bilan cheklash.
-- [ ] **[backend] Retsept yangilashda "faqat completed appointment"
+  ✅ **Tekshirildi (2026-09-14):** pastdagi "To'rt agentli deploy-tayyorlik
+  auditi" bo'limida batafsil yopilgan — `if settings.DEBUG:` bilan
+  cheklandi, `DEBUG=False`да `404`.
+- [x] **[backend] Retsept yangilashda "faqat completed appointment"
   tekshiruvi yangi testlarni buzmoqda** — `prescriptions/serializers.py`даги
   `validate()` har bir PATCH'da ham `appointment.status=='completed'`ni
   talab qiladi, bu 3 ta testni FAIL qilyapti
@@ -560,6 +621,15 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   'completed' qilib sozlamagan. Qaror kerak: testlar eskirganmi (fixture'ga
   `status='completed'` qo'shish kerak) yoki validatsiya yangilashda
   ortiqcha qattiqmi (faqat yaratishda kerak).
+  ✅ **Tekshirildi (2026-09-14):** foydalanuvchi qarori — B variant
+  (validatsiya faqat yaratishda talab qilinadi). `validate()`да
+  `if self.instance is None and appointment.status != 'completed':`
+  qo'shildi (UPDATE'da `self.instance` mavjud bo'lgani uchun tekshiruv
+  o'tkazib yuboriladi). `test_owner_doctor_can_create_prescription_with_items`даги
+  fixture'ga ham `status='completed'` qo'shildi (CREATE qoidasi hali
+  ham amal qiladi). `manage.py test prescriptions --keepdb` — **8/8
+  o'tdi**. To'liq suite (`manage.py test --keepdb`) — **87/87, hammasi
+  YASHIL** (bu sessiyada birinchi marta bironta FAIL yo'q).
 - [ ] **[data, backend] `RankPrice` ma'lumotlari eskirgan
   `consultation_type` bilan — booking formasida "narx aniqlanmagan"
   chiqadi** — bazadagi barcha 3 ta RankPrice yozuvi
@@ -689,6 +759,69 @@ so'ng shu yerda to'g'ridan-to'g'ri tuzatildi.
 - [x] **`Profile.jsx` — avatar rasmida mazmunli `alt` yo'q edi** — `alt={form.name_uz || t('profile.avatar')}`.
 - [x] **`Payouts.jsx` — pul summalari tilga (`lang`) bog'lanmagan formatlanardi** (sanalar formatlanadi, summalar yo'q — nomuvofiqlik) — `Prescriptions.jsx`даги naqshga mos `lang === 'ru' ? 'ru-RU' : 'uz-UZ'` ulandi.
 - ✅ Tekshirildi (2026-09-04): `npm run lint` — 2 xato (oldindan mavjud, aloqasiz, `git stash` bilan tasdiqlandi). `npm run build` — muvaffaqiyatli.
+
+---
+
+## To'rt agentli deploy-tayyorlik auditi (backend, admin, patient-portal, doctor-portal) — 2026-09-14
+
+4 ta agent parallel ishlatilib, backend `manage.py check --deploy`/to'liq test
+suite bilan, uchala frontend esa `eslint`/`build` + kod o'qish bilan qayta
+tekshirildi. Ma'lum bandlardan tashqari topilgan yangi KRITIK muammolar —
+barchasi shu kuniyoq tuzatildi va real so'rov bilan tasdiqlandi:
+
+- [x] **Shifokorning bank/IBAN/komissiya ma'lumotlari hammaga (login qilmasdan
+  ham) ochiq edi** — `doctors/serializers.py`даги `DoctorSerializers`
+  (`fields='__all__'`) + `doctors/views.py`даги `IsAdminOrReadOnly`
+  (SAFE_METHODS uchun `AllowAny`ga teng) tufayli `GET /doctors/doctor/`
+  har bir shifokorning `bank_name`/`iban`/`revenue_percentage`/
+  `auto_payout` maydonlarini ochiq qaytarardi. **Qaror (foydalanuvchi):**
+  shifokorlar platforma orqali klinikaga to'lov qilmaydi/olmaydi — shu
+  sabab butun funksiya ildizidan olib tashlandi (yamalmasdan).
+  ✅ **Tekshirildi (2026-09-14):** Backend (siz) — `Doctor` modelidan 4
+  maydon o'chirildi, `SENSITIVE_FIELDS`дан ham; `billing.DoctorPayout`
+  modeli, uning serializer/view/url/permission/testlari butunlay
+  o'chirildi; migratsiya qo'llandi. `manage.py test` — 87 test, 8 FAIL
+  (barchasi bu ishga aloqasiz, oldindan ma'lum). Real so'rov: `GET
+  /doctors/doctor/` javobida 4 maydon ham umuman yo'q. Frontend (men) —
+  admin panelning `Payouts.jsx`/`DoctorSettings.jsx`/
+  `DoctorSettingsEditModal.jsx` va doctor-portal'ning `Payouts.jsx`i
+  (allaqachon menyudan yashiringan, endi butunlay) o'chirildi, `App.jsx`
+  route'lari va `translations.js`даги tegishli kalitlar tozalandi.
+  `eslint`/`build` — ikkalasida ham yangi xato yo'q.
+- [x] **Django admin'da `User` uchun maxsus `UserAdmin` yo'qligi —
+  parol plaintext ko'rinishi va privilege escalation xavfi** —
+  `users/admin.py`даги `admin.site.register(User)` standart `ModelAdmin`
+  bilan edi, `password` maydoni tahrirlash formasida xom matn (`CharField`)
+  sifatida chiqar, saqlansa hash qilinmay yozilib qolardi; `is_superuser`
+  kabi maydonlar ham cheklovsiz edi.
+  ✅ **Tekshirildi (2026-09-14):** `django.contrib.auth.admin.UserAdmin`дан
+  meros oluvchi custom `UserAdmin` yozildi (`role`/`phone_number`/`avatar`
+  qo'shimcha fieldset sifatida). Real so'rov (superuser bilan
+  `force_login`, tranzaksiya rollback bilan): mavjud user'ni tahrirlash
+  formasida parol endi oddiy `<input>` emas, hash-ko'rinishda
+  (`ReadOnlyPasswordHashField`); yangi user qo'shish formasida
+  `password1`/`password2` (`UserCreationForm`) bor; yaratilgan userning
+  paroli `pbkdf2_sha...` bilan to'g'ri hash qilingani va `check_password()`
+  ishlashi tasdiqlandi. `manage.py check` — 0 xato.
+- [x] **Swagger/Redoc production'da (`DEBUG=False`) ham hech kimga
+  cheklanmagan holda ochiq edi** — `config/urls.py`даги `schem_view`
+  (`public=True`, `AllowAny`) va uning URL'lari `DEBUG` holatidan qat'i
+  nazar har doim ro'yxatga olingan edi.
+  ✅ **Tekshirildi (2026-09-14):** `/`, `/swagger.json`, `/redoc/`
+  endi faqat `if settings.DEBUG:` bloki ichida ro'yxatga olinadi. Real
+  so'rov bilan: `DEBUG=True`да uchalasi ham `200`; `DEBUG=False`
+  simulyatsiyasida (HTTPS orqali, `SECURE_SSL_REDIRECT`ni chetlab) uchalasi
+  ham `404`. `manage.py check` — 0 xato.
+
+**Tekshirilib, muammo emas deb aniqlangan (yolg'on-ijobiy):**
+
+- **`/appointments/rating/` joriy foydalanuvchiga filtrlanmagan degan
+  gumon** (patient-portal auditida, `Reviews.jsx`даги eskirgan izohdan
+  kelib chiqib topilgan) — real tekshiruvda (`RatingViewSet.get_queryset()`
+  allaqachon `Q(patient__user=user) | Q(doctor__user=user)` bilan to'g'ri
+  filtrlayotgani, boshqa patientning "MAXFIY TEST SHARH" nomli sinov
+  yozuvi sizib chiqmagani) tasdiqlandi — bu band aslida hech qachon ochiq
+  bo'lmagan, frontend'dagi izoh eskirgan ekan. Kod o'zgartirilmadi.
 
 ---
 
