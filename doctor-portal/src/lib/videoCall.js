@@ -1,10 +1,13 @@
 // Bemor va doktorni masofaviy (video/ovozli/chat) bog'laydigan qabul xonasi.
 // Jitsi Meet — bepul, ro'yxatdan o'tishsiz, backend o'zgarishisiz ishlaydi.
-// Xona nomi appointment id + boshlanish vaqtidan hosil qilinadi — shu appointment'ga
-// tegishli ikkala tomon (bemor va doktor) bir xil xonaga tushadi.
+// Xona nomi backend generatsiya qilgan tasodifiy `video_room_token`dan (UUID)
+// hosil qilinadi — appointment id + boshlanish vaqtidan hisoblanmaydi, chunki
+// bular oldindan taxmin qilinishi mumkin edi (masalan ochiq busy-slots
+// endpointi orqali), bu esa begona odamga xonani "hisoblab topish" imkonini
+// berardi. `video_room_token` backendda read-only va faqat shu appointment'ga
+// tegishli ikkala tomon (bemor va doktor) o'z javobida oladi.
 export function jitsiRoomFor(appointment) {
-  const started = new Date(appointment.start_time).getTime();
-  return `ClinicHub-Appt-${appointment.id}-${started}`;
+  return `ClinicHub-Appt-${appointment.video_room_token}`;
 }
 
 export function jitsiUrlFor(appointment) {
