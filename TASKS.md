@@ -414,7 +414,7 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 (booking, status, retsept, rating) va chat funksiyasi end-to-end tekshirildi. 2 ta real
 muammo topildi:
 
-- [ ] **Rating (baho) yaratish backend'da butunlay buzilgan (regressiya)** —
+- [x] **Rating (baho) yaratish backend'da butunlay buzilgan (regressiya)** —
   `appointments/serializers.py`даги `RatingSerializers.Meta.read_only_fields` ichida
   `'appointment'` borligi sabab, `POST /appointments/rating/` har doim `500
   Internal Server Error` (`KeyError: 'appointment'`, `views.py`даги
@@ -429,6 +429,21 @@ muammo topildi:
   `update()`да uni qo'lda `validated_data.pop('appointment', None)` bilan
   bloklash (`AppointmentSerializers.update()`даги patient/doctor pop naqshiga
   o'xshab).
+  ✅ **Tekshirildi (2026-09-17):** Backend (siz) — bu shu bandning o'zi
+  532-541-qatorlardagi keyingi audit yozuvida allaqachon "tuzatilgan ekan"
+  deb belgilangan edi (`read_only_fields = ['patient', 'doctor']`,
+  `'appointment'` yo'q), lekin o'sha tekshiruv faqat kod o'qishga asoslangan
+  edi — real so'rov bilan hech qachon tasdiqlanmagan. Endi real HTTP so'rov
+  bilan (Django test client, `transaction.savepoint()` + rollback, real
+  Postgres devbazaga hech narsa yozilmadi) to'rtta holat tekshirildi:
+  to'g'ri so'rov — `POST /api/v1/appointments/rating/` (yakunlangan
+  appointment, egasi patient) → `201 Created`, `KeyError` yo'q; bir xil
+  appointment'ga ikkinchi marta baho — `400`, `"appointment" rating
+  allaqachon mavjud` (OneToOne guard ishlayapti); begona patient boshqa
+  bemorning appointment'iga baho qo'ymoqchi bo'lsa — `400`, "Bu tashrifga
+  baho qo'yish huquqingiz yo'q"; yakunlanmagan (`pending`) appointment'ga
+  baho — `400`, "Faqat yakunlangan tashrif uchun baho qoldirish mumkun".
+  Xulosa: bug haqiqatan ham allaqachon tuzatilgan, `500` endi chiqmaydi.
 - [x] **doctor-portal chatida "o'z xabar/begona xabar" ajratilmasdi** —
   `doctor-portal/src/context/AuthContext.jsx`да `userId` state bor edi
   (`/me/`dan olinadi), lekin `AuthContext.Provider`ning `value`iga qo'shilmagan
