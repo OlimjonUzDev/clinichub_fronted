@@ -195,7 +195,19 @@ Tugallandi (7/7, barchasi ✅ o'tdi — tasdiqlandi 2026-07-28, `manage.py test`
 
 ## 5-BOSQICH — Infratuzilma / deploy
 
-- [ ] **`ALLOWED_HOSTS = []`** — production domenini/IP'ni qo'shish (`DEBUG=False` bo'lganda bu bo'sh bo'lsa hamma so'rov `DisallowedHost` xatosi beradi). Hozircha `DEBUG=True` bo'lgani uchun ta'siri yo'q — haqiqiy domen aniq bo'lgach qo'shiladi.
+- [x] **`ALLOWED_HOSTS = []`** — production domenini/IP'ni qo'shish (`DEBUG=False` bo'lganda bu bo'sh bo'lsa hamma so'rov `DisallowedHost` xatosi beradi). Hozircha `DEBUG=True` bo'lgani uchun ta'siri yo'q — haqiqiy domen aniq bo'lgach qo'shiladi.
+  ✅ **Tekshirildi (2026-09-15):** Backend (siz) — `config/settings.py`да
+  `ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS',
+  'localhost,127.0.0.1').split(',') if h.strip()]`га almashtirildi.
+  `manage.py check` — 0 xato. Real tekshiruv: env-o'zgaruvchisiz default
+  `['localhost', '127.0.0.1']`; `DJANGO_ALLOWED_HOSTS=clinichub.uz,
+  www.clinichub.uz` bilan `settings.ALLOWED_HOSTS` aynan shu ikkitaga
+  o'zgardi. `DEBUG=False` + `ALLOWED_HOSTS=['clinichub.uz']` simulyatsiyasida
+  real so'rov (Django test client): ruxsat etilgan `Host: clinichub.uz` —
+  `DisallowedHost`siz o'tdi (404, chunki `/api/v1/` aniq route emas, host
+  tekshiruvidan xatosiz o'tgani muhim); ruxsatsiz `Host: evil.com` — to'g'ri
+  `400 DisallowedHost` bilan bloklandi. Production domen aniqlanganda faqat
+  `.env`ga `DJANGO_ALLOWED_HOSTS=...` yozish yetarli, kodga tegilmaydi.
 - [x] SQLite'dan PostgreSQL'ga o'tish — ✅ Tekshirildi (2026-08-01): `DATABASES` allaqachon Postgres'ga sozlangan (`config/settings.py`, `os.environ.get(...)` orqali `.env`dan), `psycopg2-binary` o'rnatilgan. `manage.py check --database default` xatosiz, `manage.py showmigrations` — barcha app'lar uchun barcha migratsiyalar qo'llangan holatda real Postgres'ga ulanib tasdiqlandi.
 - [x] `requiremets.txt` fayl nomini `requirements.txt`ga to'g'irlash (ko'p hosting platformalari aynan shu nomni qidiradi). ✅ Bajarildi (2-bosqichda tasodifan). UTF-16 kodировкани UTF-8'ga o'tkazish ham ✅ bajarildi va tekshirildi (2026-08-01) — fayl endi ASCII/UTF-8, `pip install -r requirements.txt` (Docker build ichida) muvaffaqiyatli o'tdi.
 - [x] **Dockerfile va docker-compose.yml — to'liq tuzatildi va amaliy sinovdan o'tkazildi (2026-08-01):**
@@ -566,7 +578,7 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   'paid')` qo'shildi. `manage.py test chat --keepdb` — **7/7 o'tdi**.
   To'liq suite (`manage.py test --keepdb`) — 87 test, endi faqat 3 FAIL
   (`prescriptions`, alohida band), yangi regressiya yo'q.
-- [ ] **[backend+admin] To'lov (billing) zanjiri butunlay yetib
+- [x] **[backend+admin] To'lov (billing) zanjiri butunlay yetib
   bo'lmaydigan holatda** — hech qanday portalda `Invoice` yaratish UI'si
   yo'q (`src/pages/Invoices.jsx` faqat ro'yxat, `/invoices/create` route
   yo'q), `Appointment` yakunlanganda avtomatik invoice yaratadigan signal
@@ -575,6 +587,24 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   va to'laydi" oqimini demo qilib bo'lmaydi — faqat Django admin/shell
   orqali qo'lda qatorlar kiritilsa ishlaydi. Qaror kerak: avtomatik invoice
   yaratish signalimi, yoki admin panelga qo'lda yaratish formasi kerakmi.
+  ✅ **Tekshirildi (2026-09-15):** bu band ham eskirgan ekan — `DoctorPayout`
+  qismi 2026-09-14'da butunlay o'chirilgan (shifokorlar platforma orqali
+  to'lov olmaydi, qaror allaqachon qilingan). Invoice qismi esa aslida
+  avtomatik signal orqali **allaqachon ishlayotgan ekan**:
+  `billing/signals.py`даги `create_invoice_on_confirmation` (`Appointment`
+  `post_save`) status `pending → confirmed`ga o'tganda `RankPrice`дан
+  narxni topib `Invoice(status='pending')` yaratadi; patient-portal
+  `Payments.jsx` esa `/billing/invoice/`ни chaqirib, real invoice'larni
+  ro'yxatlab, Stripe `CheckoutForm` bilan to'lashga imkon beradi — demo
+  oqim kodda mavjud edi, faqat TASKS.md yozuvi eskirgan bo'lgan. Real
+  tranzaksiya bilan tekshirildi (rollback qilingan): appointment
+  `confirmed`ga o'tganda Invoice avtomatik yaratildi, narx to'g'ri
+  `RankPrice`дан olindi (`video` uchun 100000 UZS), qayta save qilinganda
+  dublikat yaratmadi (`Invoice.objects.filter(...).exists()` guard
+  ishlayapti). **Yagona haqiqiy topilgan bo'shliq:** `consultation_type`
+  uchun `RankPrice` topilmasa (masalan `voice`/`chat`), signal jim
+  `amount=0` bilan invoice yaratadi — bemor bepul "hisob" ko'radi. Sabab —
+  quyidagi RankPrice-data bandida.
 - [ ] **[frontend, Claude yozadi] Admin panel va doctor-portalda tokenning
   muddati tugashi ushlanmaydi** — `src/api/axios.js` va
   `doctor-portal/src/api/axios.js`da 401 interceptor yo'q (patient-portalda
@@ -601,10 +631,35 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   kriptografik bo'lmagan RNG** — `users/views.py:69-77` faqat 60 soniyalik
   cooldown tekshiradi, kunlik/soatlik limit yo'q (SMS-bombing xavfi).
   `users/views.py:79`da `random.randint` ishlatilgan, `secrets` moduli emas.
-- [ ] **[backend] Production uchun HTTPS/xavfsiz-cookie sozlamalari yo'q** —
+- [ ] **[backend] `VerifyOTPView`da `otp.attempts` hisoblanadi-yu, hech qayerda
+  tekshirilmaydi (brute-force)** — `users/views.py:109-111`да noto'g'ri kod
+  kiritilganda `attempts` oshiriladi va saqlanadi, lekin bu qiymatga qarab
+  kodni bloklaydigan tekshiruv yo'q — 6 xonali kodni (~1M variant) cheksiz
+  marta taxmin qilib ko'rish mumkin. Yuqoridagi OTP-cheklov bandi bilan bir
+  vaqtda tuzatilsa qulay (masalan `attempts >= 5` bo'lsa kodni
+  `is_used=True`/bekor qilib, "yangi kod so'rang" deyish).
+- [x] **[backend] Production uchun HTTPS/xavfsiz-cookie sozlamalari yo'q** —
   `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE` va h.k.
   `config/settings.py`da yo'q. DEBUG=True bo'lgani uchun hozircha
   shoshilinch emas.
+  ✅ **Tekshirildi (2026-09-15):** aslida bu band 2026-09-11'dagi
+  `f036509` commitida (`config/settings.py:242-249`) allaqachon
+  yozilgan ekan — 2026-09-14'dagi audit yozuvi eskirgan/noto'g'ri
+  bo'lgan, kod o'zgartirilmadi, faqat real tekshiruv qilindi. `if not
+  DEBUG:` bloki `SECURE_SSL_REDIRECT`/`SESSION_COOKIE_SECURE`/
+  `CSRF_COOKIE_SECURE`/`SECURE_PROXY_SSL_HEADER`/HSTS (1 soat,
+  subdomainlar bilan, preload) — barchasini o'rnatadi;
+  `CORS_ALLOWED_ORIGINS`/`CSRF_TRUSTED_ORIGINS` ham allaqachon
+  env-o'zgaruvchidan qo'shimcha domen qabul qiladi. Real tekshiruv:
+  hozirgi `DEBUG=True`da barcha shu sozlamalar Django default'i (`False`/`0`)
+  — lokal HTTP ishlashga ta'siri yo'q; `DEBUG=False` simulyatsiyasida
+  hammasi to'g'ri `True`/`3600`ga o'tgani tasdiqlandi. **Qo'shimcha topilma:**
+  `manage.py check --deploy` (DEBUG=False) 1 ta ogohlantirish beryapti —
+  `SECRET_KEY` "django-insecure-" turidagi standart/qisqa qiymat
+  (`security.W009`) — production serverga chiqarishda `.env`dagi
+  `SECRET_KEY`ni `python -c "import secrets;
+  print(secrets.token_urlsafe(50))"` kabi uzun tasodifiy qiymatga
+  almashtirish kerak (kod o'zgarishi emas, faqat `.env` qiymati).
 - [x] **[backend] To'liq API sxemasi (`drf_yasg` Swagger/Redoc) `/` da
   hech kimga cheklanmagan holda ochiq** — `config/urls.py:16-30,58-60`,
   `AllowAny`. **Tuzatish:** admin-only qilish yoki DEBUG bilan cheklash.
@@ -630,22 +685,38 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   ham amal qiladi). `manage.py test prescriptions --keepdb` — **8/8
   o'tdi**. To'liq suite (`manage.py test --keepdb`) — **87/87, hammasi
   YASHIL** (bu sessiyada birinchi marta bironta FAIL yo'q).
-- [ ] **[data, backend] `RankPrice` ma'lumotlari eskirgan
-  `consultation_type` bilan — booking formasida "narx aniqlanmagan"
-  chiqadi** — bazadagi barcha 3 ta RankPrice yozuvi
-  `consultation_type="in_person"`, dastur esa endi faqat
-  `video`/`voice`/`chat` qo'llaydi (masofaviy qabul). Har bir
-  rank_type+clinic uchun video/voice/chat narxlari qo'shish kerak.
+- [ ] **[data] `RankPrice` yozuvlari to'liq emas — `voice`/`chat` narxi yo'q,
+  invoice `amount=0` bo'lib qoladi** — 2026-09-15'da tekshirilganda bu band
+  yozilgandagidek (`consultation_type="in_person"`) emas ekan, allaqachon
+  to'g'irlangan: bazada 3 ta RankPrice (har bir rank_type uchun 1 tadan,
+  yagona klinikada) va uchalasi ham to'g'ri `consultation_type="video"`.
+  **Haqiqiy qolgan bo'shliq:** `voice`/`chat` uchun narx umuman yo'q — shu
+  turdagi uchrashuv tasdiqlansa, [[billing signali]] `RankPrice` topa
+  olmay `Invoice.amount=0` bilan yaratadi (bemor bepul hisob ko'radi).
+  Hozircha real ta'siri yo'q (barcha mavjud appointment'lar `video`), lekin
+  patient kimdir voice/chat band qilsa muammo chiqadi. Tuzatish: admin
+  panel → RankPrices sahifasidan har bir rank_type (Oliy/Birinchi/Ikkinchi
+  toifa) uchun qo'shimcha `voice` va `chat` narxlarini qo'shish (kod
+  o'zgarishi emas, faqat ma'lumot kiritish) — yoki agar voice/chat
+  hozircha taklif qilinmasa, buni ataylab qoldirib qo'yish ham mumkin.
 - [ ] **[frontend, Claude yozadi] Refresh token olinadi, lekin hech qachon
   ishlatilmaydi** — barcha 3 portalda ham. `patient-portal`da saqlanadi-yu
   ishlatilmaydi, `doctor-portal`da hatto saqlanmaydi ham (`Login.jsx:40`
   faqat access tokenni oladi). Backend 30 kunlik sessiya bersa ham, amalda
   token tugashi bilanoq majburiy qayta login.
-- [ ] **[frontend, Claude yozadi] API manzili barcha 3 ilovada qattiq
+- [x] **[frontend, Claude yozadi] API manzili barcha 3 ilovada qattiq
   kodlangan** (`http://127.0.0.1:8000/api/v1`) — `src/api/axios.js:4`,
   `patient-portal/src/api/axios.js:4`, `doctor-portal/src/api/axios.js:4`.
   Env-o'zgaruvchi orqali sozlanmaydi — production'ga chiqarish uchun 3
   joyni qo'lda o'zgartirib qayta build qilish kerak bo'ladi.
+  ✅ **Tekshirildi (2026-09-15):** har 3 ilovada ham `baseURL:
+  import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1'`ga
+  o'zgartirildi; har biriga (patient-portalda mavjudiga qo'shib)
+  `VITE_API_URL=...` qatorli `.env.example` qo'shildi. Production'ga
+  chiqarishda endi faqat `.env`ga real domen yozib qayta build qilinadi,
+  kodga tegilmaydi. `eslint` — uchalasida ham yangi xato yo'q (mavjud
+  `react-refresh`/`token`-dependency ogohlantirishlari aloqasiz).
+  `npm run build` — uchalasi ham muvaffaqiyatli.
 - [ ] **[frontend, Claude yozadi] Patient-portal to'lovi faqat optimistik
   UI — Stripe webhook bilan hech qachon solishtirilmaydi** —
   `patient-portal/src/pages/Payments.jsx:42-50,100-103` Stripe.js
