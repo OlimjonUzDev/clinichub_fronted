@@ -642,10 +642,18 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
 
 **O'RTA:**
 
-- [ ] **[backend] OTP so'rovini cheklovsiz qayta yuborish mumkin +
+- [x] **[backend] OTP so'rovini cheklovsiz qayta yuborish mumkin +
   kriptografik bo'lmagan RNG** — `users/views.py:69-77` faqat 60 soniyalik
   cooldown tekshiradi, kunlik/soatlik limit yo'q (SMS-bombing xavfi).
   `users/views.py:79`da `random.randint` ishlatilgan, `secrets` moduli emas.
+  ✅ **Tuzatildi va tekshirildi (2026-09-17):** Backend (siz) — `RequestOTPView`ga
+  mavjud 60 soniyalik `recent_exists` cheklovi ustiga 24 soatlik `daily_count`
+  (`>= 5` bo'lsa `429 "Kunlik limit tugadi"`) qo'shildi, `random.randint`
+  `secrets.randbelow`ga almashtirildi. Real so'rov bilan tasdiqlandi (rollback
+  qilingan, real bazaga yozilmadi): bir zumdagi 2-so'rov — `429` (cooldown);
+  cooldowndan tashqarida ketma-ket 5-so'rov (avvalgi bilan birga jami 5 ta) —
+  `429 "Kunlik limit tugadi"`, undan oldingi 4 tasi `200`. Ikkala cheklov
+  (cooldown + kunlik limit) birga to'g'ri ishlayapti.
 - [x] **[backend] `VerifyOTPView`da `otp.attempts` hisoblanadi-yu, hech qayerda
   tekshirilmaydi (brute-force)** — `users/views.py:109-111`да noto'g'ri kod
   kiritilganda `attempts` oshiriladi va saqlanadi, lekin bu qiymatga qarab
