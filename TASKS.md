@@ -646,13 +646,24 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   kriptografik bo'lmagan RNG** — `users/views.py:69-77` faqat 60 soniyalik
   cooldown tekshiradi, kunlik/soatlik limit yo'q (SMS-bombing xavfi).
   `users/views.py:79`da `random.randint` ishlatilgan, `secrets` moduli emas.
-- [ ] **[backend] `VerifyOTPView`da `otp.attempts` hisoblanadi-yu, hech qayerda
+- [x] **[backend] `VerifyOTPView`da `otp.attempts` hisoblanadi-yu, hech qayerda
   tekshirilmaydi (brute-force)** — `users/views.py:109-111`да noto'g'ri kod
   kiritilganda `attempts` oshiriladi va saqlanadi, lekin bu qiymatga qarab
   kodni bloklaydigan tekshiruv yo'q — 6 xonali kodni (~1M variant) cheksiz
   marta taxmin qilib ko'rish mumkin. Yuqoridagi OTP-cheklov bandi bilan bir
   vaqtda tuzatilsa qulay (masalan `attempts >= 5` bo'lsa kodni
   `is_used=True`/bekor qilib, "yangi kod so'rang" deyish).
+  ✅ **Tekshirildi (2026-09-17):** bu band ham eskirgan ekan — tekshiruv
+  aslida allaqachon bor, faqat `views.py`da emas, `users/models.py:37`даги
+  `OTPCode.is_valid()` metodida (`self.attempts < 5`), bu qator
+  **2026-08-06**'dagi commitda yozilgan — ya'ni ushbu auditdan (2026-08-30)
+  3 hafta oldin. Real so'rov bilan tasdiqlandi (rollback qilingan, real
+  bazaga yozilmadi): ataylab 5 marta noto'g'ri kod yuborildi (har birida
+  `400 "Kod noto'g'ri"`, DB'da `attempts` 1→5gacha oshdi); 6-urinishda —
+  hatto **to'g'ri** kod yuborilganda ham — `400 "Kod noto'g'ri yoki
+  muddati o'tgan"` qaytdi (kod butunlay bloklangan). Xulosa: brute-force
+  himoyasi ishlayapti, faqat xato xabari umumiy ("yangi kod so'rang" emas)
+  — bu funksional emas, kosmetik farq.
 - [x] **[backend] Production uchun HTTPS/xavfsiz-cookie sozlamalari yo'q** —
   `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE` va h.k.
   `config/settings.py`da yo'q. DEBUG=True bo'lgani uchun hozircha
