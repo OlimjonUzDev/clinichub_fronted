@@ -620,7 +620,7 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   uchun `RankPrice` topilmasa (masalan `voice`/`chat`), signal jim
   `amount=0` bilan invoice yaratadi — bemor bepul "hisob" ko'radi. Sabab —
   quyidagi RankPrice-data bandida.
-- [ ] **[frontend, Claude yozadi] Admin panel va doctor-portalda tokenning
+- [x] **[frontend, Claude yozadi] Admin panel va doctor-portalda tokenning
   muddati tugashi ushlanmaydi** — `src/api/axios.js` va
   `doctor-portal/src/api/axios.js`da 401 interceptor yo'q (patient-portalda
   2026-08-18'da tuzatilgan xuddi shu muammo). Doctor-portalda oqibati
@@ -629,6 +629,15 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   da bloklaydi — `null` buni ishga tushirmaydi, natijada foydalanuvchi
   login sahifasiga qaytarilmasdan, barcha sahifalarda "Hisobingizga hali
   doktor profili biriktirilmagan" degan **noto'g'ri** xabar ko'radi.
+  ✅ **Tuzatildi va tekshirildi (2026-09-17):** Ikkala faylga ham
+  patient-portaldagi bilan bir xil `api.interceptors.response.use()`
+  qo'shildi — `401` kelsa va joriy sahifa `/login` bo'lmasa, `access_token`
+  localStorage'dan o'chiriladi va `window.location.href = '/login'`ga
+  yo'naltiriladi (`refresh_token` ikkalasida ham saqlanmagani uchun
+  o'chirilmadi). `npx eslint src` — ikkalasida ham yangi xato yo'q (root: 2
+  xato/24 ogohlantirish, doctor-portal: 2 xato — barchasi oldindan mavjud,
+  `react-refresh`/`token`-dependency, aloqasiz). `npm run build` —
+  ikkalasida ham muvaffaqiyatli.
 - [ ] **[frontend, Claude yozadi] Doktor Profile sahifasidan bank/IBAN
   ma'lumotini hech qachon saqlay olmaydi, lekin UI "saqlandi" deb
   ko'rsatadi** — `doctor-portal/src/pages/Profile.jsx` bank_name/iban
