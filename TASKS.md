@@ -394,6 +394,9 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 - [ ] ~~Xavfsizlik eslatmasi (`OriginValidator`)~~ — websocket ishlatilmagani sabab kerak emas.
 - [x] `manage.py test chat` — yashil (7/7).
   ✅ Tekshirildi (2026-08-26): `manage.py test --keepdb` (to'liq to'plam, 101 ta test = oldingi 94 + yangi 7) → 4 ta xato, lekin ularning barchasi `patients/tests.py` va `prescriptions/tests.py`да (chat'ga aloqasi yo'q) — `git status` bilan tasdiqlandi, bu ishda faqat `chat/*` va `config/urls.py` o'zgargan, `patients`/`prescriptions` fayllariga tegilmagan. Demak bu **oldindan mavjud, chat bilan bog'liq bo'lmagan xatolar** — regressiya emas, alohida band sifatida keyin ko'rib chiqiladi.
+- [ ] **Xabar o'qilganlik holati (`is_read`) ishlatilmayapti — bildirishnoma uchun kerak (2026-09-18)** — `Message.is_read` maydoni mavjud, lekin hech qachon `True`ga o'zgartirilmaydi (`MessageViewSet` faqat `get`/`post`ga ruxsat beradi, `patch` yo'q). Natijada na patient, na doctor appointment ro'yxatidagi "Chat" tugmasidan yangi xabar kelganini bila olmaydi. Frontendda belgi (badge) ko'rsatish uchun ikkitasi kerak:
+  - [ ] `chat/views.py`даги `MessageViewSet`ga `mark_read` custom action (masalan `POST /chat/message/mark_read/`, `appointment_id` bilan) — so'rovchi yubormagan xabarlarni shu suhbatda `is_read=True` qiladi.
+  - [ ] `appointments/serializers.py`даги `AppointmentSerializers`ga `unread_message_count` hisoblangan maydon (`Message.objects.filter(conversation__appointment=obj, is_read=False).exclude(sender=request.user).count()`), toki appointment ro'yxati bitta so'rovda barcha o'qilmagan xabar sonlarini bersin (frontend har biri uchun alohida so'rov yubormasin).
 - Backend qismi tayyor va tasdiqlangan — endi frontend qismini boshlayman.
 
 ### Bajarilishi kerak — Frontend (men to'g'ridan-to'g'ri yozaman, backend tayyor bo'lgach)
@@ -405,6 +408,7 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 - [x] `patient-portal/src/context/AuthContext.jsx`ga `userId` qo'shildi (`doctor-portal`да allaqachon bor edi) — bubble'larni "o'z/begona" ajratish uchun zarur edi.
   ✅ Tekshirildi (2026-08-26): ikkala portalda ham `npx eslint src/` — yangi/o'zgargan fayllarda (`ChatWindow.jsx`, `chatApi.js`, `Chat.jsx`, `App.jsx`, `AuthContext.jsx`, `MyAppointments.jsx`, `Appointments.jsx`, `translations.js`) xato yo'q (qolgan 2 ta xato `AuthContext.jsx`/`LangContext.jsx`даги `react-refresh` qoidasi — bu ishdan oldin ham mavjud edi, aloqasi yo'q); `npm run build` — ikkalasi ham muvaffaqiyatli. Vizual/UI sinov brauzer avtomatizatsiyasi yo'qligi sababli qilinmadi (loyiha qoidasiga ko'ra ochiq aytilyapti).
 - Admin paneldagi `/messages` (`Placeholder`) — bu bosqichga kirmaydi (admin doktor-bemor chatiga aralashmaydi deb qaralmoqda; agar admin moderatsiya/ko'rish imkoniyati kerak bo'lsa, alohida band sifatida keyin qo'shiladi).
+- [ ] **Chat tugmasida yangi xabar belgisi (badge) (2026-09-18)** — yuqoridagi backend bandi (`mark_read`/`unread_message_count`) tayyor bo'lgach: `MyAppointments.jsx` (patient-portal) va `Appointments.jsx` (doctor-portal)даги "Chat" tugmasiga `unread_message_count > 0` bo'lsa qizil nuqta/son belgisi qo'shish; `Chat.jsx` ochilganda `mark_read`ni chaqirib belgini o'chirish; mavjud 4 soniyalik polling naqshiga mos appointment ro'yxatini ham davriy yangilash.
 
 ---
 
