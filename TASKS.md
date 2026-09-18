@@ -394,9 +394,18 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 - [ ] ~~Xavfsizlik eslatmasi (`OriginValidator`)~~ — websocket ishlatilmagani sabab kerak emas.
 - [x] `manage.py test chat` — yashil (7/7).
   ✅ Tekshirildi (2026-08-26): `manage.py test --keepdb` (to'liq to'plam, 101 ta test = oldingi 94 + yangi 7) → 4 ta xato, lekin ularning barchasi `patients/tests.py` va `prescriptions/tests.py`да (chat'ga aloqasi yo'q) — `git status` bilan tasdiqlandi, bu ishda faqat `chat/*` va `config/urls.py` o'zgargan, `patients`/`prescriptions` fayllariga tegilmagan. Demak bu **oldindan mavjud, chat bilan bog'liq bo'lmagan xatolar** — regressiya emas, alohida band sifatida keyin ko'rib chiqiladi.
-- [ ] **Xabar o'qilganlik holati (`is_read`) ishlatilmayapti — bildirishnoma uchun kerak (2026-09-18)** — `Message.is_read` maydoni mavjud, lekin hech qachon `True`ga o'zgartirilmaydi (`MessageViewSet` faqat `get`/`post`ga ruxsat beradi, `patch` yo'q). Natijada na patient, na doctor appointment ro'yxatidagi "Chat" tugmasidan yangi xabar kelganini bila olmaydi. Frontendda belgi (badge) ko'rsatish uchun ikkitasi kerak:
-  - [ ] `chat/views.py`даги `MessageViewSet`ga `mark_read` custom action (masalan `POST /chat/message/mark_read/`, `appointment_id` bilan) — so'rovchi yubormagan xabarlarni shu suhbatda `is_read=True` qiladi.
-  - [ ] `appointments/serializers.py`даги `AppointmentSerializers`ga `unread_message_count` hisoblangan maydon (`Message.objects.filter(conversation__appointment=obj, is_read=False).exclude(sender=request.user).count()`), toki appointment ro'yxati bitta so'rovda barcha o'qilmagan xabar sonlarini bersin (frontend har biri uchun alohida so'rov yubormasin).
+- [x] **Xabar o'qilganlik holati (`is_read`) ishlatilmayapti — bildirishnoma uchun kerak (2026-09-18)** — `Message.is_read` maydoni mavjud, lekin hech qachon `True`ga o'zgartirilmaydi (`MessageViewSet` faqat `get`/`post`ga ruxsat beradi, `patch` yo'q). Natijada na patient, na doctor appointment ro'yxatidagi "Chat" tugmasidan yangi xabar kelganini bila olmaydi. Frontendda belgi (badge) ko'rsatish uchun ikkitasi kerak:
+  - [x] `chat/views.py`даги `MessageViewSet`ga `mark_read` custom action (masalan `POST /chat/message/mark_read/`, `appointment_id` bilan) — so'rovchi yubormagan xabarlarni shu suhbatda `is_read=True` qiladi.
+  - [x] `appointments/serializers.py`даги `AppointmentSerializers`ga `unread_message_count` hisoblangan maydon (`Message.objects.filter(conversation__appointment=obj, is_read=False).exclude(sender=request.user).count()`), toki appointment ro'yxati bitta so'rovda barcha o'qilmagan xabar sonlarini bersin (frontend har biri uchun alohida so'rov yubormasin).
+  ✅ **Tekshirildi (2026-09-18):** Backend (siz) — ikkalasi ham yozildi va
+  ishlayapti. Real so'rov bilan (rollback qilingan, real bazaga yozilmadi,
+  `paid` invoice bilan — chat to'lovga bog'liqligi sababli): doktor 2 ta
+  xabar yozgach, patient tomonidan `GET /appointments/appointment/<id>/` →
+  `unread_message_count: 2`; `POST /chat/message/mark_read/` → `200`; qayta
+  so'ralganda `unread_message_count: 0`; DB'da doktorning ikkala xabari ham
+  `is_read=True` bo'lgani tasdiqlandi; patient javob yozgach, doktor
+  tomonidan so'ralganda `unread_message_count: 1` to'g'ri qaytdi (o'ziniki
+  hisobga olinmaydi). Endi frontend (badge) qismi boshlanadi.
 - Backend qismi tayyor va tasdiqlangan — endi frontend qismini boshlayman.
 
 ### Bajarilishi kerak — Frontend (men to'g'ridan-to'g'ri yozaman, backend tayyor bo'lgach)
