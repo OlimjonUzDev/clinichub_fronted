@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Stethoscope, Clock, X, CalendarClock, Video, MessageCircle, CalendarX2, Lock } from 'lucide-react';
 import api, { fetchAll } from '../api/axios';
@@ -33,13 +33,21 @@ export default function MyAppointments() {
   const { t, lang } = useLang();
   const doctors = useLookup('/doctors/doctor/', token);
 
-  const load = () => {
+  // isFirst=false so'rovlar chat-badge (unread_message_count) yangilanishi uchun
+  // fonda qayta so'raladi — muvaffaqiyatsiz bo'lsa allaqachon ko'ringan ro'yxat
+  // yo'qolmasin deb faqat birinchi yuklanishda loading/error holati o'zgaradi
+  // (ChatWindow.jsx'dagi poll naqshiga mos).
+  const load = useCallback((isFirst) => {
     fetchAll('/appointments/appointment/', token)
-      .then((data) => { setAppointments(data); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
-  };
+      .then((data) => { setAppointments(data); if (isFirst) setLoading(false); })
+      .catch(() => { if (isFirst) { setError(true); setLoading(false); } });
+  }, [token]);
 
-  useEffect(load, [token]);
+  useEffect(() => {
+    load(true);
+    const timer = setInterval(() => load(false), 4000);
+    return () => clearInterval(timer);
+  }, [load]);
 
   // Video/chat faqat invoice "paid" bo'lgandagina ochiladi — bemor pulini
   // to'lamasdan konsultatsiyadan foydalanib chiqib ketmasligi uchun.
@@ -50,7 +58,7 @@ export default function MyAppointments() {
   const handleRetry = () => {
     setLoading(true);
     setError(false);
-    load();
+    load(true);
   };
 
   const handleCancel = async (id) => {
@@ -170,10 +178,22 @@ export default function MyAppointments() {
                       <Link
                         to={`/chat/${a.id}`}
                         title={t('appointments.open_chat')}
-                        aria-label={t('appointments.open_chat')}
-                        className={`${iconBtnCls} hover:border-indigo-400 hover:text-indigo-600`}
+                        aria-label={
+                          a.unread_message_count > 0
+                            ? `${t('appointments.open_chat')} (${a.unread_message_count})`
+                            : t('appointments.open_chat')
+                        }
+                        className={`${iconBtnCls} relative hover:border-indigo-400 hover:text-indigo-600`}
                       >
                         <MessageCircle size={13} />
+                        {a.unread_message_count > 0 && (
+                          <span
+                            aria-hidden="true"
+                            className="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[9px] leading-3.5 font-semibold flex items-center justify-center"
+                          >
+                            {a.unread_message_count > 9 ? '9+' : a.unread_message_count}
+                          </span>
+                        )}
                       </Link>
                     )}
                     {a.status === 'confirmed' && !paidAppointmentIds.has(a.id) && (

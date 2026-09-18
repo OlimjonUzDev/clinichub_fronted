@@ -6,6 +6,7 @@ import { useLang } from '../context/LangContext';
 import Layout from '../components/Layout';
 import ChatWindow from '../components/ChatWindow';
 import { useLookup, resolveName } from '../lib/useLookup';
+import { markRead } from '../lib/chatApi';
 
 export default function Chat() {
   const { appointmentId } = useParams();
@@ -21,6 +22,12 @@ export default function Chat() {
     api.get(`/appointments/appointment/${appointmentId}/`, { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => setAppointment(res.data))
       .catch(() => {});
+  }, [appointmentId, token]);
+
+  // Suhbatni ochish — boshqa tomonning xabarlarini o'qilgan deb belgilaydi,
+  // toki appointment ro'yxatidagi chat-belgisi (badge) o'chsin.
+  useEffect(() => {
+    markRead(appointmentId, token).catch(() => {});
   }, [appointmentId, token]);
 
   const doctorName = appointment ? resolveName(appointment.doctor, doctors, lang) : null;

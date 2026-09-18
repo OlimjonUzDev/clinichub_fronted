@@ -417,7 +417,21 @@ Hozirgi `clinichub_fronted` — faqat **tenant admin dashboard** (klinika xodiml
 - [x] `patient-portal/src/context/AuthContext.jsx`ga `userId` qo'shildi (`doctor-portal`да allaqachon bor edi) — bubble'larni "o'z/begona" ajratish uchun zarur edi.
   ✅ Tekshirildi (2026-08-26): ikkala portalda ham `npx eslint src/` — yangi/o'zgargan fayllarda (`ChatWindow.jsx`, `chatApi.js`, `Chat.jsx`, `App.jsx`, `AuthContext.jsx`, `MyAppointments.jsx`, `Appointments.jsx`, `translations.js`) xato yo'q (qolgan 2 ta xato `AuthContext.jsx`/`LangContext.jsx`даги `react-refresh` qoidasi — bu ishdan oldin ham mavjud edi, aloqasi yo'q); `npm run build` — ikkalasi ham muvaffaqiyatli. Vizual/UI sinov brauzer avtomatizatsiyasi yo'qligi sababli qilinmadi (loyiha qoidasiga ko'ra ochiq aytilyapti).
 - Admin paneldagi `/messages` (`Placeholder`) — bu bosqichga kirmaydi (admin doktor-bemor chatiga aralashmaydi deb qaralmoqda; agar admin moderatsiya/ko'rish imkoniyati kerak bo'lsa, alohida band sifatida keyin qo'shiladi).
-- [ ] **Chat tugmasida yangi xabar belgisi (badge) (2026-09-18)** — yuqoridagi backend bandi (`mark_read`/`unread_message_count`) tayyor bo'lgach: `MyAppointments.jsx` (patient-portal) va `Appointments.jsx` (doctor-portal)даги "Chat" tugmasiga `unread_message_count > 0` bo'lsa qizil nuqta/son belgisi qo'shish; `Chat.jsx` ochilganda `mark_read`ni chaqirib belgini o'chirish; mavjud 4 soniyalik polling naqshiga mos appointment ro'yxatini ham davriy yangilash.
+- [x] **Chat tugmasida yangi xabar belgisi (badge) (2026-09-18)** — yuqoridagi backend bandi (`mark_read`/`unread_message_count`) tayyor bo'lgach: `MyAppointments.jsx` (patient-portal) va `Appointments.jsx` (doctor-portal)даги "Chat" tugmasiga `unread_message_count > 0` bo'lsa qizil nuqta/son belgisi qo'shish; `Chat.jsx` ochilganda `mark_read`ni chaqirib belgini o'chirish; mavjud 4 soniyalik polling naqshiga mos appointment ro'yxatini ham davriy yangilash.
+  ✅ **Tekshirildi (2026-09-18):** `chatApi.js`ga (ikkala portal) `markRead()`
+  qo'shildi; `Chat.jsx`да (ikkala portal) sahifa ochilganda chaqiriladi;
+  `MyAppointments.jsx`/`Appointments.jsx`даги "Chat" tugmasiga
+  `unread_message_count > 0` bo'lsa qizil son-belgi (9+ chegarasi bilan)
+  qo'shildi, `aria-label`ga ham soni kiritildi; appointment ro'yxati endi
+  `ChatWindow.jsx`даги naqshga mos 4 soniyalik `setInterval` bilan fonda
+  qayta so'raladi (`load(isFirst)` — faqat birinchi yuklanishda
+  loading/error holati o'zgaradi, fon-yangilanishlar ko'rinishni
+  buzmaydi). `npm run lint` — ikkala portalda ham yangi xato/warning yo'q
+  (qolgan 2 tadan `react-refresh/only-export-components` xatosi
+  `AuthContext.jsx`/`LangContext.jsx`да, bu ishdan oldin ham mavjud edi).
+  `npm run build` — ikkalasi ham muvaffaqiyatli. Vizual/UI sinov brauzer
+  avtomatizatsiyasi yo'qligi sababli qilinmadi (loyiha qoidasiga ko'ra
+  ochiq aytilyapti).
 
 ---
 

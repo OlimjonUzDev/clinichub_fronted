@@ -16,3 +16,15 @@ export function sendMessage(appointmentId, text, token) {
     )
     .then((res) => res.data);
 }
+
+// Suhbat sahifasi ochilganda chaqiriladi — boshqa ishtirokchining xabarlarini
+// is_read=True qilib, appointment ro'yxatidagi chat-belgisini (badge) o'chiradi.
+export function markRead(appointmentId, token) {
+  return api
+    .post(
+      '/chat/message/mark_read/',
+      { appointment_id: appointmentId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then((res) => res.data);
+}
