@@ -638,7 +638,7 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   xato/24 ogohlantirish, doctor-portal: 2 xato — barchasi oldindan mavjud,
   `react-refresh`/`token`-dependency, aloqasiz). `npm run build` —
   ikkalasida ham muvaffaqiyatli.
-- [ ] **[frontend, Claude yozadi] Doktor Profile sahifasidan bank/IBAN
+- [x] **[frontend, Claude yozadi] Doktor Profile sahifasidan bank/IBAN
   ma'lumotini hech qachon saqlay olmaydi, lekin UI "saqlandi" deb
   ko'rsatadi** — `doctor-portal/src/pages/Profile.jsx` bank_name/iban
   maydonlarini PATCH qiladi, lekin backend `doctors/serializers.py`даги
@@ -648,6 +648,17 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   bu qasddan shundaymi (faqat admin o'zgartirsin, firibgarlikdan himoya) —
   agar shunday bo'lsa, Profile formasidan bu maydonlarni butunlay olib
   tashlash kerak, aks holda backendda ruxsat berish kerak.
+  ✅ **Eskirgan, hal qilingan (2026-09-18):** bu band 2026-09-14'dagi
+  `c2667fd` commitida ("remove doctor payout/bank-settings feature")
+  butunlay hal bo'lgan — qaror "maydonlarni olib tashlash" tomon
+  qabul qilingan: bank/IBAN maydonlari `doctor-portal/src/pages/Profile.jsx`дан,
+  admin panelning `Payouts`/`DoctorSettings` sahifa-modallaridan, va backend
+  `Doctor` modelidan (`bank_name`/`iban`/`revenue_percentage`/`auto_payout`,
+  migratsiya `0008_remove_doctor_auto_payout_...`) butunlay o'chirilgan.
+  Tekshirildi: `doctor-portal/src/pages/Profile.jsx` va patient-portal/admin
+  panelning hech birida `iban`/`bank`ga oid kod qolmagan (grep bilan
+  tasdiqlandi) — endi tavsiflangan bug (jimgina o'chirib tashlash)
+  yuzaga kelishi mumkin emas, chunki maydonning o'zi yo'q.
 
 **O'RTA:**
 
