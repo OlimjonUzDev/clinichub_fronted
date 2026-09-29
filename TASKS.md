@@ -798,13 +798,25 @@ nomuvofiqligidan tashqari — ular alohida eslatilgan).
   kodga tegilmaydi. `eslint` — uchalasida ham yangi xato yo'q (mavjud
   `react-refresh`/`token`-dependency ogohlantirishlari aloqasiz).
   `npm run build` — uchalasi ham muvaffaqiyatli.
-- [ ] **[frontend, Claude yozadi] Patient-portal to'lovi faqat optimistik
+- [x] **[frontend, Claude yozadi] Patient-portal to'lovi faqat optimistik
   UI — Stripe webhook bilan hech qachon solishtirilmaydi** —
   `patient-portal/src/pages/Payments.jsx:42-50,100-103` Stripe.js
   client-side "succeeded" javobiga qarab darhol `status:'paid'` qo'yadi,
   lekin backend `Invoice.status`ni faqat webhook (`payments/signals.py`)
   o'zgartiradi. Webhook kechiksa/kelmasa, bemor "to'landi" ko'radi, sahifani
   yangilasa "kutilmoqda"ga qaytadi — chalkashlik yoki qayta to'lov xavfi.
+  ✅ **Tekshirildi (2026-09-28):** `CheckoutForm` endi Stripe "succeeded"
+  javobidan keyin darhol `paid` demay, `GET /billing/invoice/{id}/`ни
+  2 soniyalik oraliqda 10 marta so'rab, backend haqiqatan `status: 'paid'`
+  qaytargandagina `onPaid`ни chaqiradi (shu paytgacha tugma "Tasdiqlanmoqda..."
+  holatida qoladi, bosilmaydi). 20 soniyada webhook kelmasa, foydalanuvchiga
+  aniq xabar ko'rsatiladi (`payments.confirm_timeout`) — soxta "to'landi"
+  ko'rsatib keyin "kutilmoqda"ga qaytarish yo'qoldi. Yangi ikkita tarjima
+  kaliti (`payments.confirming`, `payments.confirm_timeout`) uz/ru'da
+  qo'shildi. `npx eslint src/pages/Payments.jsx src/i18n/translations.js` —
+  xatosiz, `npm run build` — muvaffaqiyatli. Brauzerda vizual sinov
+  qilinmadi (avtomatizatsiya yo'q) — foydalanuvchi real Stripe test-karta
+  bilan tasdiqlashi kerak.
 - [ ] **[frontend, Claude yozadi] CheckoutForm `PaymentIntent`ning
   "processing" kabi oraliq holatlarida hech qanday xabar bermaydi** —
   `Payments.jsx:46-50` faqat `succeeded`/xato holatlarini kutadi, boshqa

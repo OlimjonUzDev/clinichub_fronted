@@ -14,10 +14,20 @@ const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
   : null;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// Backend Invoice.status is only flipped to 'paid' by the Stripe webhook
+// (payments/signals.py, backend repo), which lands a moment after
+// confirmCardPayment resolves client-side. Poll the real invoice instead of
+// trusting the client-side "succeeded" forever — otherwise a page refresh
+// re-fetches the still-'pending' record and the patient is asked to pay again.
+const CONFIRM_POLL_ATTEMPTS = 10;
+const CONFIRM_POLL_INTERVAL_MS = 2000;
+
 function CheckoutForm({ invoice, token, onPaid, t }) {
   const stripe = useStripe();
   const elements = useElements();
   const [processing, setProcessing] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -46,7 +56,22 @@ function CheckoutForm({ invoice, token, onPaid, t }) {
       if (result.error) {
         setError(result.error.message);
       } else if (result.paymentIntent?.status === 'succeeded') {
-        onPaid(invoice.id);
+        setProcessing(false);
+        setConfirming(true);
+        for (let attempt = 0; attempt < CONFIRM_POLL_ATTEMPTS; attempt += 1) {
+          await sleep(CONFIRM_POLL_INTERVAL_MS);
+          try {
+            const invoiceRes = await api.get(`/billing/invoice/${invoice.id}/`, { headers });
+            if (invoiceRes.data.status === 'paid') {
+              onPaid(invoice.id, invoiceRes.data);
+              return;
+            }
+          } catch {
+            // ignore a transient poll failure, keep retrying until attempts run out
+          }
+        }
+        setConfirming(false);
+        setError(t('payments.confirm_timeout'));
       }
     } catch (err) {
       const data = err?.response?.data;
@@ -65,10 +90,10 @@ function CheckoutForm({ invoice, token, onPaid, t }) {
       {error && <p className="text-red-600 text-xs">{error}</p>}
       <button
         type="submit"
-        disabled={!stripe || processing}
+        disabled={!stripe || processing || confirming}
         className="bg-indigo-600 text-white text-sm font-medium py-2 px-5 rounded-lg hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1 transition-colors disabled:opacity-60"
       >
-        {processing ? t('payments.processing') : t('payments.pay_button')}
+        {confirming ? t('payments.confirming') : processing ? t('payments.processing') : t('payments.pay_button')}
       </button>
     </form>
   );
@@ -97,8 +122,8 @@ export default function Payments() {
 
   const sorted = invoices.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-  const handlePaid = (invoiceId) => {
-    setInvoices((prev) => prev.map((i) => (i.id === invoiceId ? { ...i, status: 'paid' } : i)));
+  const handlePaid = (invoiceId, updatedInvoice) => {
+    setInvoices((prev) => prev.map((i) => (i.id === invoiceId ? (updatedInvoice || { ...i, status: 'paid' }) : i)));
     setPayingId(null);
   };
 
